@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.webserver.java;
+package ch.zhaw.studyflow.webserver.sun;
 
 import ch.zhaw.studyflow.webserver.ControllerFactory;
 import ch.zhaw.studyflow.webserver.WebServer;
@@ -8,12 +8,12 @@ import com.sun.net.httpserver.HttpExchange;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HttpServerWebServerBuilder implements WebServerBuilder {
+public class SunHttpServerBuilder implements WebServerBuilder {
     private ControllerFactory controllerFactory;
     private List<Class<?>> controllers;
 
 
-    private HttpServerWebServerBuilder() {
+    private SunHttpServerBuilder() {
         this.controllers = new ArrayList<>();
     }
 
@@ -32,6 +32,6 @@ public class HttpServerWebServerBuilder implements WebServerBuilder {
 
     @Override
     public WebServer build() {
-        return new HttpServerWebServer();
+        return new SunHttpServer();
     }
 }
