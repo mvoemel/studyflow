@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:12
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./create_db.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=kryezleo@students.zhaw.ch
+      - PGADMIN_DEFAULT_PASSWORD=studyflow_2024
+      - PGADMIN_LISTEN_PORT=5050
+
+    ports:
+      - "5050:5050"
+volumes:
+  data:

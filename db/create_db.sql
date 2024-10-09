@@ -1,4 +1,6 @@
-CREATE TABLE user (
+CREATE DATABASE studyflow_db;
+
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email character varying(255) NOT NULL UNIQUE,
     username character varying(255) NOT NULL,
