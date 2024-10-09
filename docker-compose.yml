@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:12
+    image: postgres:17
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -10,14 +10,14 @@ services:
 
     volumes:
       - ./data:/var/lib/postgresql/data
-      - ./create_db.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/create_tables.sql
 
 
 
   pgadmin:
     image: dpage/pgadmin4
     environment:
-      - PGADMIN_DEFAULT_EMAIL=kryezleo@students.zhaw.ch
+      - PGADMIN_DEFAULT_EMAIL=john.doe@example.com
       - PGADMIN_DEFAULT_PASSWORD=studyflow_2024
       - PGADMIN_LISTEN_PORT=5050
 

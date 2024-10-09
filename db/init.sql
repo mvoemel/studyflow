@@ -1,4 +1,3 @@
-CREATE DATABASE studyflow_db;
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
