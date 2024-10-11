@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.webserver;
+package ch.zhaw.studyflow.webserver.http;
 
 public enum HttpStatusCode {
     OK(200),

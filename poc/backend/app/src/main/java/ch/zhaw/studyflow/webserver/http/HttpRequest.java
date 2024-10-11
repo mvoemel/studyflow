@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.webserver;
+package ch.zhaw.studyflow.webserver.http;
 
 import java.nio.charset.Charset;
 

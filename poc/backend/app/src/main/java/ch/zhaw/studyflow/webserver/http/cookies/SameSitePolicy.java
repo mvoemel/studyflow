@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.webserver.cookies;
+package ch.zhaw.studyflow.webserver.http.cookies;
 
 public enum SameSitePolicy {
     STRICT("Strict"),

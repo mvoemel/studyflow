@@ -1,7 +1,7 @@
 package ch.zhaw.studyflow.webserver.sun;
 
-import ch.zhaw.studyflow.webserver.HttpResponse;
-import ch.zhaw.studyflow.webserver.HttpStatusCode;
+import ch.zhaw.studyflow.webserver.http.HttpResponse;
+import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.contents.BodyContent;
 
 import java.nio.charset.Charset;

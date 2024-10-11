@@ -1,6 +1,6 @@
 package ch.zhaw.studyflow.webserver.sun;
 
-import ch.zhaw.studyflow.webserver.ControllerFactory;
+import ch.zhaw.studyflow.webserver.controllers.ControllerFactory;
 import ch.zhaw.studyflow.webserver.WebServer;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
 import ch.zhaw.studyflow.webserver.controllers.ControllerRegistry;

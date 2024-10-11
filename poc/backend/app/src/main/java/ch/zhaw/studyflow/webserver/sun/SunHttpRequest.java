@@ -1,8 +1,8 @@
 package ch.zhaw.studyflow.webserver.sun;
 
-import ch.zhaw.studyflow.webserver.HttpRequest;
-import ch.zhaw.studyflow.webserver.HttpResponse;
-import ch.zhaw.studyflow.webserver.cookies.CookieContainer;
+import ch.zhaw.studyflow.webserver.http.HttpRequest;
+import ch.zhaw.studyflow.webserver.http.HttpResponse;
+import ch.zhaw.studyflow.webserver.http.cookies.CookieContainer;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.nio.charset.Charset;

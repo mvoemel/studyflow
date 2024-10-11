@@ -1,8 +1,8 @@
 package ch.zhaw.studyflow.webserver.sun;
 
-import ch.zhaw.studyflow.webserver.cookies.Cookie;
-import ch.zhaw.studyflow.webserver.cookies.CookieContainer;
-import ch.zhaw.studyflow.webserver.cookies.HashMapCookieContainer;
+import ch.zhaw.studyflow.webserver.http.cookies.Cookie;
+import ch.zhaw.studyflow.webserver.http.cookies.CookieContainer;
+import ch.zhaw.studyflow.webserver.http.cookies.HashMapCookieContainer;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;

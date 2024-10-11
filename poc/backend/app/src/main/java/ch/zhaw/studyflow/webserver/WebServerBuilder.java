@@ -1,5 +1,7 @@
 package ch.zhaw.studyflow.webserver;
 
+import ch.zhaw.studyflow.webserver.controllers.ControllerFactory;
+
 public interface WebServerBuilder {
     WebServerBuilder setControllerFactory(ControllerFactory controllerFactory);
 

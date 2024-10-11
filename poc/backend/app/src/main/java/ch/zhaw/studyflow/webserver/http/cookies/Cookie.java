@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.webserver.cookies;
+package ch.zhaw.studyflow.webserver.http.cookies;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

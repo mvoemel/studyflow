@@ -1,6 +1,6 @@
 package ch.zhaw.studyflow.webserver.routing;
 
-import ch.zhaw.studyflow.webserver.HttpMethod;
+import ch.zhaw.studyflow.webserver.http.HttpMethod;
 import ch.zhaw.studyflow.webserver.Tuple;
 import ch.zhaw.studyflow.webserver.controllers.EndpointMetadata;
 import ch.zhaw.studyflow.webserver.controllers.routing.RestRoute;
