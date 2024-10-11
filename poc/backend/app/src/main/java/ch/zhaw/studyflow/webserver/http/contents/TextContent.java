@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.webserver.contents;
+package ch.zhaw.studyflow.webserver.http.contents;
 
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
