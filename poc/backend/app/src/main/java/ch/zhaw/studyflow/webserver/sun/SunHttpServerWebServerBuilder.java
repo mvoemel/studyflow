@@ -1,23 +1,23 @@
-package ch.zhaw.studyflow.webserver.java;
+package ch.zhaw.studyflow.webserver.sun;
 
 import ch.zhaw.studyflow.webserver.ControllerFactory;
 import ch.zhaw.studyflow.webserver.WebServer;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
 import ch.zhaw.studyflow.webserver.controllers.ControllerRegistry;
 import ch.zhaw.studyflow.webserver.controllers.SimpleControllerRegistry;
-import com.sun.net.httpserver.HttpExchange;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HttpServerWebServerBuilder implements WebServerBuilder {
+public class SunHttpServerWebServerBuilder implements WebServerBuilder {
     private ControllerRegistry controllerRegistry;
     private List<Class<?>> controllers;
 
 
-    private HttpServerWebServerBuilder() {
+    public SunHttpServerWebServerBuilder(InetSocketAddress address, ControllerRegistry registry) {
         this.controllers        = new ArrayList<>();
-        this.controllerRegistry = new SimpleControllerRegistry();
+        this.controllerRegistry = registry;
     }
 
 
@@ -35,6 +35,11 @@ public class HttpServerWebServerBuilder implements WebServerBuilder {
     @Override
     public WebServer build() {
 
-        return new HttpServerWebServer();
+        return new SunHttpServerWebServer();
+    }
+
+
+    public static WebServerBuilder create(InetSocketAddress address) {
+        return new SunHttpServerWebServerBuilder(address, new SimpleControllerRegistry());
     }
 }

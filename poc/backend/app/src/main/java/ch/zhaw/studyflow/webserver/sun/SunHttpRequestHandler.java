@@ -1,15 +1,15 @@
 package ch.zhaw.studyflow.webserver.sun;
 
-import ch.zhaw.studyflow.webserver.Cookie;
-import ch.zhaw.studyflow.webserver.CookieContainer;
-import ch.zhaw.studyflow.webserver.HashMapCookieContainer;
+import ch.zhaw.studyflow.webserver.cookies.Cookie;
+import ch.zhaw.studyflow.webserver.cookies.CookieContainer;
+import ch.zhaw.studyflow.webserver.cookies.HashMapCookieContainer;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 
-public class SunUniHttpHandler implements HttpHandler {
+public class SunHttpRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         CookieContainer container = createCookieContainerFrom(exchange.getRequestHeaders());
