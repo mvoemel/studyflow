@@ -1,7 +1,7 @@
 package ch.zhaw.studyflow.webserver.contents;
 
-import ch.zhaw.studyflow.webapi.framework.handlers.HttpResponse;
 import ch.zhaw.studyflow.webserver.HttpRequest;
+import ch.zhaw.studyflow.webserver.HttpResponse;
 
 import java.io.InputStream;
 import java.io.OutputStream;

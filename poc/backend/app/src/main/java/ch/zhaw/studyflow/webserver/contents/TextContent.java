@@ -4,7 +4,6 @@ import ch.zhaw.studyflow.webserver.HttpRequest;
 import ch.zhaw.studyflow.webserver.HttpResponse;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 public final class TextContent implements BodyContent {
     private String content;
