@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.webserver.attributes;
+package ch.zhaw.studyflow.webserver.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

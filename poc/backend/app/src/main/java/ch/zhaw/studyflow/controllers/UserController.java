@@ -3,7 +3,7 @@ package ch.zhaw.studyflow.controllers;
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
-import ch.zhaw.studyflow.webserver.attributes.*;
+import ch.zhaw.studyflow.webserver.annotations.*;
 import ch.zhaw.studyflow.webserver.contents.TextContent;
 
 @Route(path = "user")

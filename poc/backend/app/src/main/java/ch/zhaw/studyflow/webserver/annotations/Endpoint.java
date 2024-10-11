@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.webserver.attributes;
+package ch.zhaw.studyflow.webserver.annotations;
 
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
 

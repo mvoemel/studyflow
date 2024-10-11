@@ -1,7 +1,7 @@
 package ch.zhaw.studyflow.webserver.controllers;
 
-import ch.zhaw.studyflow.webserver.attributes.Endpoint;
-import ch.zhaw.studyflow.webserver.attributes.Route;
+import ch.zhaw.studyflow.webserver.annotations.Endpoint;
+import ch.zhaw.studyflow.webserver.annotations.Route;
 import ch.zhaw.studyflow.webserver.controllers.routing.RestRoute;
 
 import java.lang.reflect.Method;
