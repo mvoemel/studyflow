@@ -1,4 +1,3 @@
-// TODO: implement
 "use client"
 import { useEffect, useState } from 'react';
 import FullCalendar from "@fullcalendar/react";
@@ -9,6 +8,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 const SchedulePage = () => {
     const [events, setEvents] = useState([]);
 
+    // TODO: Adjust for future database implementation
     useEffect(() => {
         const fetchEvents = async () => {
             const response = await fetch('/api/events');

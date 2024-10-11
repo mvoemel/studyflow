@@ -18,6 +18,7 @@ type DailyCalendarBoxProps = {
 const DailyCalendarBox = ({ className }: DailyCalendarBoxProps) => {
     const [events, setEvents] = useState([]);
 
+    // TODO: Adjust in future for database data
     useEffect(() => {
         const fetchEvents = async () => {
             const response = await fetch('/api/events');
