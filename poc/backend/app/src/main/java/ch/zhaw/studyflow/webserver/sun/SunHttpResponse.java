@@ -2,12 +2,13 @@ package ch.zhaw.studyflow.webserver.sun;
 
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
-import ch.zhaw.studyflow.webserver.contents.BodyContent;
+import ch.zhaw.studyflow.webserver.http.contents.BodyContent;
 
 import java.nio.charset.Charset;
 
 public class SunHttpResponse implements HttpResponse {
     private final SunHttpRequest request;
+    private BodyContent responseContent;
     private HttpStatusCode responseCode;
 
     public SunHttpResponse(SunHttpRequest request) {
@@ -16,6 +17,8 @@ public class SunHttpResponse implements HttpResponse {
 
     @Override
     public HttpResponse setResponseContent(BodyContent content) {
+        this.responseContent = content;
+        return this;
     }
 
     @Override
@@ -25,7 +28,7 @@ public class SunHttpResponse implements HttpResponse {
 
     @Override
     public BodyContent getResponseContent() {
-        return null;
+        return responseContent;
     }
 
     @Override

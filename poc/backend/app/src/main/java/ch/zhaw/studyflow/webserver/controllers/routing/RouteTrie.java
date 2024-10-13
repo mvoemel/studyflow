@@ -54,6 +54,9 @@ public class RouteTrie {
 
 
     public Optional<Tuple<EndpointMetadata, List<String>>> retrieve(HttpMethod method, List<String> routeSegments) {
+        if (routeSegments.getFirst().equals("")) {
+            routeSegments = routeSegments.subList(1, routeSegments.size());
+        }
         RouteTrieNode current = getHttpMethodRoot(method);
         final List<String> captures = new ArrayList<>();
 

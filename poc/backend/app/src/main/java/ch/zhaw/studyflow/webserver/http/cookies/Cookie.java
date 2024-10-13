@@ -1,14 +1,16 @@
 package ch.zhaw.studyflow.webserver.http.cookies;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Represents a HTTP cookie as specified by RFC 6265 (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie).
+ * Represents an HTTP cookie as specified by RFC 6265 (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie).
  *
  */
-public class Cookie {
+public final class Cookie {
     private static final String DATE_FORMAT = "E, dd MMM yyyy HH:mm:ss 'GMT'";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
@@ -128,5 +130,39 @@ public class Cookie {
             builder.append("; SameSite=").append(sameSite.getValue());
         }
         return builder.toString();
+    }
+
+    public static Optional<Cookie> readFromHeader(String header) {
+        Objects.requireNonNull(header, "header must not be null");
+
+        String[] parts = header.split(";");
+        if (parts.length == 0) {
+            return Optional.empty();
+        }
+
+        String[] nameValue = parts[0].split("=");
+        if (nameValue.length != 2) {
+            return Optional.empty();
+        }
+
+        Cookie cookie = new Cookie(nameValue[0].trim(), nameValue[1].trim());
+        if (parts.length > 1) {
+            for (int i = 1; i < parts.length; i++) {
+                String[] attribute = parts[i].split("=");
+                if (attribute.length == 2) {
+                    switch (attribute[0].trim().toLowerCase()) {
+                        case "expires" -> cookie.setExpires(LocalDateTime.parse(attribute[1].trim(), DATE_FORMATTER));
+                        case "max-age" -> cookie.setMaxAge(Long.parseLong(attribute[1].trim()));
+                        case "domain" -> cookie.setDomain(attribute[1].trim());
+                        case "path" -> cookie.setPath(attribute[1].trim());
+                        case "secure" -> cookie.setSecure(true);
+                        case "httponly" -> cookie.setHttpOnly(true);
+                        case "samesite" -> cookie.setSameSite(SameSitePolicy.fromString(attribute[1].trim()));
+                        default -> { /* intentionally left blank - we ignore unknown attributes */ }
+                    }
+                }
+            }
+        }
+        return Optional.of(cookie);
     }
 }

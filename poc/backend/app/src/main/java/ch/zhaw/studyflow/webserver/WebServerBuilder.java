@@ -1,11 +1,14 @@
 package ch.zhaw.studyflow.webserver;
 
-import ch.zhaw.studyflow.webserver.controllers.ControllerFactory;
+import ch.zhaw.studyflow.webserver.controllers.ControllerRegistry;
+import ch.zhaw.studyflow.webserver.http.pipeline.PipelineBuilder;
+
+import java.util.function.Consumer;
 
 public interface WebServerBuilder {
-    WebServerBuilder setControllerFactory(ControllerFactory controllerFactory);
+    WebServerBuilder configureControllers(Consumer<ControllerRegistry> configurationAction);
 
-    <T> WebServerBuilder addController(Class<T> controller);
+    WebServerBuilder configurePipeline(Consumer<PipelineBuilder> configurationAction);
 
     WebServer build();
 }

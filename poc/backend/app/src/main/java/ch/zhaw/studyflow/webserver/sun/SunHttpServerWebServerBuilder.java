@@ -1,41 +1,58 @@
 package ch.zhaw.studyflow.webserver.sun;
 
-import ch.zhaw.studyflow.webserver.controllers.ControllerFactory;
 import ch.zhaw.studyflow.webserver.WebServer;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
 import ch.zhaw.studyflow.webserver.controllers.ControllerRegistry;
+import ch.zhaw.studyflow.webserver.controllers.EndpointMetadata;
 import ch.zhaw.studyflow.webserver.controllers.SimpleControllerRegistry;
+import ch.zhaw.studyflow.webserver.controllers.routing.RouteTrie;
+import ch.zhaw.studyflow.webserver.http.pipeline.DirectEndpointInvoker;
+import ch.zhaw.studyflow.webserver.http.pipeline.PipelineBuilder;
+import com.sun.net.httpserver.HttpServer;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.function.Consumer;
 
 public class SunHttpServerWebServerBuilder implements WebServerBuilder {
+    private final InetSocketAddress address;
     private ControllerRegistry controllerRegistry;
-    private List<Class<?>> controllers;
-
+    private Consumer<ControllerRegistry> controllerConfigurationAction;
 
     public SunHttpServerWebServerBuilder(InetSocketAddress address, ControllerRegistry registry) {
-        this.controllers        = new ArrayList<>();
+        this.address            = address;
         this.controllerRegistry = registry;
     }
 
 
     @Override
-    public WebServerBuilder setControllerFactory(ControllerFactory controllerFactory) {
-        return null;
-    }
-
-    @Override
-    public <T> WebServerBuilder addController(Class<T> controller) {
-        this.controllers.add(controller);
+    public WebServerBuilder configureControllers(Consumer<ControllerRegistry> configurationAction) {
+        if (controllerConfigurationAction != null) {
+            throw new UnsupportedOperationException("Controller can only be configured once");
+        }
+        controllerConfigurationAction = configurationAction;
         return this;
     }
 
     @Override
-    public WebServer build() {
+    public WebServerBuilder configurePipeline(Consumer<PipelineBuilder> configurationAction) {
+        return null;
+    }
 
-        return new SunHttpServerWebServer();
+    @Override
+    public WebServer build() {
+        if (controllerConfigurationAction == null) {
+            throw new UnsupportedOperationException("Controllers must be configured");
+        }
+
+        controllerConfigurationAction.accept(controllerRegistry);
+        RouteTrie routeTrie = new RouteTrie();
+        controllerRegistry.getRegisteredControllers().forEach(controller -> {
+            for (EndpointMetadata endpoint : controller.endpoints()) {
+                routeTrie.insert(endpoint);
+            }
+        });
+
+        return new SunHttpServerWebServer(address, routeTrie, new DirectEndpointInvoker());
     }
 
 

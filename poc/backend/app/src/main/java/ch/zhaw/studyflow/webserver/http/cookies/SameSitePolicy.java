@@ -14,4 +14,13 @@ public enum SameSitePolicy {
     public String getValue() {
         return value;
     }
+
+    public static SameSitePolicy fromString(String value) {
+        for (SameSitePolicy policy : SameSitePolicy.values()) {
+            if (policy.getValue().equalsIgnoreCase(value)) {
+                return policy;
+            }
+        }
+        return null;
+    }
 }
