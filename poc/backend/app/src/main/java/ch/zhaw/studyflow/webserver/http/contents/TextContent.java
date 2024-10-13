@@ -5,7 +5,7 @@ import ch.zhaw.studyflow.webserver.http.HttpResponse;
 
 import java.io.*;
 
-public final class TextContent implements BodyContent {
+public class TextContent implements BodyContent {
     private String content;
 
 
@@ -20,10 +20,17 @@ public final class TextContent implements BodyContent {
     }
 
     @Override
-    public void writeTo(HttpResponse request, OutputStream output) {
-        OutputStreamWriter writer = new OutputStreamWriter(output, request.getRequestCharset());
+    public long getContentLength() {
+        return 0;
+    }
+
+    @Override
+    public void writeTo(HttpResponse response, OutputStream output) {
+        OutputStreamWriter writer = new OutputStreamWriter(output, response.getResponseCharset());
         try {
             writer.write(content);
+            writer.flush();
+            writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -31,6 +38,6 @@ public final class TextContent implements BodyContent {
 
     @Override
     public void readFrom(HttpRequest request, InputStream input) {
-        content = new BufferedReader(new InputStreamReader(input, request.getRequestCharset())).toString();
+        content = new BufferedReader(new InputStreamReader(input, request.getResponseCharset())).toString();
     }
 }

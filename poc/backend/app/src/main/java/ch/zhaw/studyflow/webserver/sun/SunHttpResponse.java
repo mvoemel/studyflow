@@ -5,11 +5,12 @@ import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.BodyContent;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class SunHttpResponse implements HttpResponse {
     private final SunHttpRequest request;
     private BodyContent responseContent;
-    private HttpStatusCode responseCode;
+    private HttpStatusCode statusCode;
 
     public SunHttpResponse(SunHttpRequest request) {
         this.request = request;
@@ -22,22 +23,13 @@ public class SunHttpResponse implements HttpResponse {
     }
 
     @Override
-    public HttpResponse setStatusCode(HttpStatusCode i) {
-        return null;
+    public HttpResponse setStatusCode(HttpStatusCode statusCode) {
+        this.statusCode = statusCode;
+        return this;
     }
 
     @Override
     public BodyContent getResponseContent() {
         return responseContent;
-    }
-
-    @Override
-    public Charset getRequestCharset() {
-        return null;
-    }
-
-    @Override
-    public HttpResponse createResponse() {
-        return null;
     }
 }

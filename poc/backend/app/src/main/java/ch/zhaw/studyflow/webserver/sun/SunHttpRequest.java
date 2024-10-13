@@ -28,13 +28,13 @@ public class SunHttpRequest implements HttpRequest {
 
 
     @Override
-    public Charset getRequestCharset() {
+    public Charset getResponseCharset() {
         return null;
     }
 
     @Override
     public HttpResponse createResponse() {
-        return null;
+        return new SunHttpResponse(this);
     }
 
 

@@ -2,9 +2,10 @@ package ch.zhaw.studyflow.webserver.sun;
 
 import ch.zhaw.studyflow.webserver.Tuple;
 import ch.zhaw.studyflow.webserver.controllers.EndpointMetadata;
-import ch.zhaw.studyflow.webserver.controllers.routing.RouteSegment;
 import ch.zhaw.studyflow.webserver.controllers.routing.RouteTrie;
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
+import ch.zhaw.studyflow.webserver.http.HttpResponse;
+import ch.zhaw.studyflow.webserver.http.contents.BodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.HttpRequestContext;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestProcessor;
@@ -21,8 +22,8 @@ public class SunRootHttpHandler implements HttpHandler {
 
 
     public SunRootHttpHandler(RouteTrie routeTrie, RequestProcessor endpointInvoker) {
-        this.routeTrie  = routeTrie;
-        this.invoker    = endpointInvoker;
+        this.routeTrie = routeTrie;
+        this.invoker = endpointInvoker;
     }
 
     @Override
@@ -37,7 +38,17 @@ public class SunRootHttpHandler implements HttpHandler {
             SunHttpRequest request = SunHttpRequest.fromExchange(exchange);
             RequestContext context = new HttpRequestContext(result.value1(), request);
             invoker.process(context);
-            exchange.sendResponseHeaders(exchange.getResponseCode(), 0);
+
+            HttpResponse response = context.getResponse();
+
+            BodyContent content = response.getResponseContent();
+            long responseLength = content != null ? content.getContentLength() : -1;
+
+            exchange.sendResponseHeaders(exchange.getResponseCode(), responseLength);
+            if (response.getResponseContent() != null) {
+                response.getResponseContent().writeTo(context.getResponse(), exchange.getResponseBody());
+            }
+
             exchange.close();
         }
 

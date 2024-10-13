@@ -22,8 +22,12 @@ public final class JsonContent<T> implements BodyContent {
     }
 
     @Override
-    public void writeTo(HttpResponse request, OutputStream output) {
+    public long getContentLength() {
+        return 0;
+    }
 
+    @Override
+    public void writeTo(HttpResponse request, OutputStream output) {
     }
 
     @Override
