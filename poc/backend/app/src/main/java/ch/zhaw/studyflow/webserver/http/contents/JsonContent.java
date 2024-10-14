@@ -32,6 +32,5 @@ public final class JsonContent<T> implements BodyContent {
 
     @Override
     public void readFrom(HttpRequest request, InputStream input) {
-
     }
 }

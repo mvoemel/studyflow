@@ -1,6 +1,5 @@
 package ch.zhaw.studyflow.webserver.http.cookies;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -98,9 +97,14 @@ public final class Cookie {
         this.expires = expires;
     }
 
-    public String formatToHeader() {
-        StringBuilder builder = new StringBuilder("Set-Cookie: ");
-        builder.append(name).append("=").append(value);
+    @Override
+    public String toString() {
+        return toHeaderFormat();
+    }
+
+    public String toHeaderFormat() {
+        StringBuilder builder = new StringBuilder(name);
+        builder.append("=").append(value);
 
         if (expires != null) {
             builder.append("; Expires=").append(expires.format(DATE_FORMATTER));

@@ -51,6 +51,10 @@ public class SunRootHttpHandler implements HttpHandler {
                 exchange.getResponseHeaders().add("Content-Type", content.getMimeType());
             }
 
+            for (var cookie : response.getCookies().asCollection()) {
+                exchange.getResponseHeaders().add("Set-Cookie", cookie.toHeaderFormat());
+            }
+
             // From here onwards, headers must not be modified!
             exchange.sendResponseHeaders(response.getStatusCode().getCode(), responseLength);
             if (sendContent) {

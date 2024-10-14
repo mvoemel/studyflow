@@ -6,6 +6,7 @@ import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.annotations.*;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.TextContent;
+import ch.zhaw.studyflow.webserver.http.cookies.Cookie;
 
 @Route(path = "user")
 public class UserController {
@@ -15,9 +16,15 @@ public class UserController {
     @Route(path = "current/{a}")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getUser(HttpRequest request) {
-        return request.createResponse()
+        HttpResponse response = request.createResponse();
+        Cookie cookie = new Cookie("test", "value");
+        cookie.setHttpOnly(true);
+        response.getCookies().set(cookie);
+
+        return response
                 .setResponseContent(new TextContent("Hello World"))
                 .setStatusCode(HttpStatusCode.OK);
+
     }
 
     // user/{userId}
