@@ -12,7 +12,7 @@ public class UserController {
 
 
     // user/current/1:2/a/b/c
-    @Route(path = "current/{a}/a/b/c")
+    @Route(path = "current/{a}")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getUser(HttpRequest request) {
         return request.createResponse()

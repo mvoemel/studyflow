@@ -4,19 +4,19 @@ import ch.zhaw.studyflow.webserver.http.HttpMethod;
 import ch.zhaw.studyflow.webserver.Tuple;
 import ch.zhaw.studyflow.webserver.controllers.EndpointMetadata;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiPredicate;
 
 public class RouteTrie {
-    private RouteTrieNode root;
+    private final RouteTrieNode root;
 
     public RouteTrie() {
         this.root   = new RouteTrieNode(null);
     }
 
     public void insert(EndpointMetadata endpoint) {
+        Objects.requireNonNull(endpoint);
+
         RouteTrieNode current = getHttpMethodRoot(endpoint.method());
 
         for (RouteSegment segment : endpoint.route().segments()) {
@@ -43,25 +43,21 @@ public class RouteTrie {
         current.setEndpoint(endpoint);
     }
 
-    private RouteTrieNode getHttpMethodRoot(HttpMethod method) {
-        return root.children.stream().filter(e -> e.getSegment().value().equalsIgnoreCase(method.methodName())).findFirst()
-                .orElseGet(() -> {
-                    final RouteTrieNode newNode = new RouteTrieNode(new RouteSegment(SegmentType.STATIC, method.methodName()));
-                    root.getChildren().add(newNode);
-                    return newNode;
-                });
-    }
-
-
     public Optional<Tuple<EndpointMetadata, List<String>>> retrieve(HttpMethod method, List<String> routeSegments) {
-        if (routeSegments.getFirst().equals("")) {
+        Objects.requireNonNull(method);
+        Objects.requireNonNull(routeSegments);
+
+        if (routeSegments.getFirst().isEmpty()) {
             routeSegments = routeSegments.subList(1, routeSegments.size());
         }
+
         RouteTrieNode current = getHttpMethodRoot(method);
         final List<String> captures = new ArrayList<>();
 
         boolean foundMatch;
-        for (String segment : routeSegments) {
+        Iterator<String> iterator = routeSegments.iterator();
+        while (iterator.hasNext()) {
+            String segment = iterator.next();
             foundMatch = false;
 
             for (RouteTrieNode child : current.getChildren()) {
@@ -85,12 +81,22 @@ public class RouteTrie {
         }
 
         Optional<Tuple<EndpointMetadata, List<String>>> result;
-        if (current.getEndpoint() == null) {
+        if (current.getEndpoint() == null || iterator.hasNext()) {
             result = Optional.empty();
         } else {
             result = Optional.of(Tuple.of(current.getEndpoint(), captures));
         }
         return result;
+    }
+
+
+    private RouteTrieNode getHttpMethodRoot(HttpMethod method) {
+        return root.children.stream().filter(e -> e.getSegment().value().equalsIgnoreCase(method.methodName())).findFirst()
+                .orElseGet(() -> {
+                    final RouteTrieNode newNode = new RouteTrieNode(new RouteSegment(SegmentType.STATIC, method.methodName()));
+                    root.getChildren().add(newNode);
+                    return newNode;
+                });
     }
 
     private static boolean captureSegmentMatch(RouteSegment current, RouteSegment toInsert) {

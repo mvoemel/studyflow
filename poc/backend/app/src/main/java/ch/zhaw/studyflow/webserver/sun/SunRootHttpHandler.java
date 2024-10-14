@@ -5,6 +5,7 @@ import ch.zhaw.studyflow.webserver.controllers.EndpointMetadata;
 import ch.zhaw.studyflow.webserver.controllers.routing.RouteTrie;
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
+import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.BodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.HttpRequestContext;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
@@ -55,9 +56,9 @@ public class SunRootHttpHandler implements HttpHandler {
             if (sendContent) {
                 response.getResponseContent().writeTo(context.getResponse(), exchange.getResponseBody());
             }
-
-            exchange.close();
+        } else {
+            exchange.sendResponseHeaders(HttpStatusCode.NOT_FOUND.getCode(), -1);
         }
-
+        exchange.close();
     }
 }
