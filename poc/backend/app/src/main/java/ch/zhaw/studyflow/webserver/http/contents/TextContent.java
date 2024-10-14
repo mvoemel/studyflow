@@ -4,19 +4,28 @@ import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 
 import java.io.*;
+import java.util.Objects;
 
 public class TextContent implements BodyContent {
+    private String mimeType;
     private String content;
 
-
     public TextContent(String content) {
-        this.content = content;
+        this("text/plain", content);
+    }
+
+    public TextContent(String mimeType, String content) {
+        Objects.requireNonNull(mimeType);
+        Objects.requireNonNull(content);
+
+        this.mimeType   = mimeType;
+        this.content    = content;
     }
 
 
     @Override
     public String getMimeType() {
-        return "application/plain";
+        return mimeType;
     }
 
     @Override

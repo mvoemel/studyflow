@@ -17,14 +17,15 @@ import java.util.List;
 import java.util.Optional;
 
 public class SunRootHttpHandler implements HttpHandler {
-    private RouteTrie routeTrie;
-    private RequestProcessor invoker;
+    private final RouteTrie routeTrie;
+    private final RequestProcessor invoker;
 
 
     public SunRootHttpHandler(RouteTrie routeTrie, RequestProcessor endpointInvoker) {
         this.routeTrie = routeTrie;
         this.invoker = endpointInvoker;
     }
+
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -37,15 +38,21 @@ public class SunRootHttpHandler implements HttpHandler {
             final Tuple<EndpointMetadata, List<String>> result = possibleRoutingResult.get();
             SunHttpRequest request = SunHttpRequest.fromExchange(exchange);
             RequestContext context = new HttpRequestContext(result.value1(), request);
-            invoker.process(context);
 
+            invoker.process(context);
             HttpResponse response = context.getResponse();
 
             BodyContent content = response.getResponseContent();
-            long responseLength = content != null ? content.getContentLength() : -1;
+            final long responseLength = content != null ? content.getContentLength() : -1;
+            final boolean sendContent = responseLength != -1;
 
-            exchange.sendResponseHeaders(exchange.getResponseCode(), responseLength);
-            if (response.getResponseContent() != null) {
+            if (sendContent) {
+                exchange.getResponseHeaders().add("Content-Type", content.getMimeType());
+            }
+
+            // From here onwards, headers must not be modified!
+            exchange.sendResponseHeaders(response.getStatusCode().getCode(), responseLength);
+            if (sendContent) {
                 response.getResponseContent().writeTo(context.getResponse(), exchange.getResponseBody());
             }
 
