@@ -16,10 +16,10 @@
 
 ## Git Workflow
 
-- **main**: The main branch is considered the production branch and **must** be keept in a stable and buldable state.
+- **main**: The main branch is considered the production branch and **must** be keept in a stable and buldable state at all times.
 - **dev**: The develop branch is used for development purposes. The branch __should__ always be keept in a buildable state. 
 - **feature**: Feature branches are used to develop new features. They should be branched off from develop and merged back into develop after the feature has been complted and tested.
-- **bugfix**: Bugfix branches are used to fix known bugs. They should be branched off from develop.
+- **bugfix**: Bugfix branches are used to address bugs. They should be branched off the develop.
 
 ## Tags
 
