@@ -26,6 +26,7 @@ import {
     DialogTitle,
     DialogFooter
 } from "@/components/ui/dialog";
+import { ModuleForms } from "@/components/settings/modules/moduleForms";
 
 // Define a type for the module structure
 type Module = {
@@ -66,17 +67,26 @@ const modules: Module[] = [
 
 const ProfileSettingsPage = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [selectedModule, setSelectedModule] = useState<Module | null>(null);
 
-    const openDialog = (module: Module) => {
+    const openEditDialog = (module: Module) => {
         console.log("Opening dialog for module:", module.name); // Debugging
         setSelectedModule(module);
         setIsDialogOpen(true); // This will trigger the dialog to open
     };
 
-    const closeDialog = () => {
+    const closeEditDialog = () => {
         console.log("Closing dialog");
         setIsDialogOpen(false); // This will trigger the dialog to close
+    };
+
+    const openAddDialog = () => {
+        setIsAddDialogOpen(true);
+    };
+
+    const closeAddDialog = () => {
+        setIsAddDialogOpen(false);
     };
 
     return (
@@ -110,7 +120,7 @@ const ProfileSettingsPage = () => {
                                     <TableCell>{module.Time + "/10"}</TableCell>
                                     <TableCell>{module.Importance + "/10"}</TableCell>
                                     <TableCell>
-                                        <button onClick={() => openDialog(module)}>
+                                        <button onClick={() => openEditDialog(module)}>
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 width="24"
@@ -135,11 +145,10 @@ const ProfileSettingsPage = () => {
                     </Table>
                 </CardContent>
                 <CardFooter className="border-t px-6 py-4">
-                    <Button>Add Module</Button>
+                    <Button onClick={() => openAddDialog()}>Add Module</Button>
                 </CardFooter>
             </Card>
 
-            {/* Dialog should always be rendered */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
@@ -153,7 +162,22 @@ const ProfileSettingsPage = () => {
                         <p>Module ID: {selectedModule?.id}</p>
                     </div>
                     <DialogFooter>
-                        <Button onClick={closeDialog}>Close</Button>
+                        <Button onClick={closeEditDialog}>Close</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Add Module</DialogTitle>
+                        <DialogDescription>
+                            Fill in the details for the new module.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <ModuleForms />
+                    <DialogFooter>
+                        <Button onClick={closeAddDialog}>Close</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
