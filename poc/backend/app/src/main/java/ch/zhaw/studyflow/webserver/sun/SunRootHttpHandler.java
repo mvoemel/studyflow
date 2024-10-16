@@ -2,20 +2,18 @@ package ch.zhaw.studyflow.webserver.sun;
 
 import ch.zhaw.studyflow.webserver.Tuple;
 import ch.zhaw.studyflow.webserver.controllers.EndpointMetadata;
+import ch.zhaw.studyflow.webserver.controllers.routing.RouteSegment;
 import ch.zhaw.studyflow.webserver.controllers.routing.RouteTrie;
-import ch.zhaw.studyflow.webserver.http.HttpMethod;
-import ch.zhaw.studyflow.webserver.http.HttpResponse;
-import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
+import ch.zhaw.studyflow.webserver.controllers.routing.SegmentType;
+import ch.zhaw.studyflow.webserver.http.*;
 import ch.zhaw.studyflow.webserver.http.contents.BodyContent;
-import ch.zhaw.studyflow.webserver.http.pipeline.HttpRequestContext;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestProcessor;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class SunRootHttpHandler implements HttpHandler {
     private final RouteTrie routeTrie;
@@ -36,33 +34,53 @@ public class SunRootHttpHandler implements HttpHandler {
         );
 
         if (possibleRoutingResult.isPresent()) {
-            final Tuple<EndpointMetadata, List<String>> result = possibleRoutingResult.get();
-            SunHttpRequest request = SunHttpRequest.fromExchange(exchange);
-            RequestContext context = new HttpRequestContext(result.value1(), request);
-
-            invoker.process(context);
-            HttpResponse response = context.getResponse();
-
-            BodyContent content = response.getResponseContent();
-            final long responseLength = content != null ? content.getContentLength() : -1;
-            final boolean sendContent = responseLength != -1;
-
-            if (sendContent) {
-                exchange.getResponseHeaders().add("Content-Type", content.getMimeType());
-            }
-
-            for (var cookie : response.getCookies().asCollection()) {
-                exchange.getResponseHeaders().add("Set-Cookie", cookie.toHeaderFormat());
-            }
-
-            // From here onwards, headers must not be modified!
-            exchange.sendResponseHeaders(response.getStatusCode().getCode(), responseLength);
-            if (sendContent) {
-                response.getResponseContent().writeTo(context.getResponse(), exchange.getResponseBody());
-            }
+            handleRoutedRequest(exchange, possibleRoutingResult.get());
         } else {
             exchange.sendResponseHeaders(HttpStatusCode.NOT_FOUND.getCode(), -1);
         }
         exchange.close();
+    }
+
+    private void handleRoutedRequest(final HttpExchange exchange, final Tuple<EndpointMetadata, List<String>> routingResult) throws IOException {
+        SunHttpRequest request = SunHttpRequest.fromExchange(exchange);
+        RequestContext context = new SunHttpRequestContext(
+                routingResult.value1(),
+                request,
+                buildCaptureContainer(routingResult.value1(), routingResult.value2()));
+
+        invoker.process(context);
+        HttpResponse response = context.getResponse();
+
+        BodyContent content = response.getResponseContent();
+        final long responseLength = content == null ? -1 : content.getContentLength();
+        final boolean sendContent = responseLength != -1;
+
+        if (sendContent) {
+            final String contentTypeHeaderValue = content.getContentHeader();
+            if (contentTypeHeaderValue != null) {
+                exchange.getResponseHeaders().add("Content-Type", contentTypeHeaderValue);
+            }
+        }
+
+        for (var cookie : response.getCookies().asCollection()) {
+            exchange.getResponseHeaders().add("Set-Cookie", cookie.toHeaderFormat());
+        }
+
+        // From here onwards, headers must not be modified!
+        exchange.sendResponseHeaders(response.getStatusCode().getCode(), responseLength);
+        if (sendContent) {
+            response.getResponseContent().writeTo(context.getResponse(), exchange.getResponseBody());
+        }
+    }
+
+    private static CaptureContainer buildCaptureContainer(EndpointMetadata endpointMetadata, List<String> captureValues) {
+        List<RouteSegment> captureSegments = endpointMetadata.route().segments().stream()
+                .filter(e -> e.is(SegmentType.CAPTURE))
+                .toList();
+        List<Tuple<String, String>> tuples = new ArrayList<>(captureValues.size());
+        for (int i = 0; i < captureSegments.size(); i++) {
+            tuples.add(new Tuple<>(captureSegments.get(i).value(), captureValues.get(i)));
+        }
+        return new TupleListCaptureContainer(tuples);
     }
 }

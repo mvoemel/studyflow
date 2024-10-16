@@ -7,22 +7,17 @@ import ch.zhaw.studyflow.webserver.annotations.*;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.TextContent;
 import ch.zhaw.studyflow.webserver.http.cookies.Cookie;
+import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 
 @Route(path = "user")
 public class UserController {
-
-
     // user/current/1:2/a/b/c
-    @Route(path = "current/{a}")
+    @Route(path = "current/{userId}")
     @Endpoint(method = HttpMethod.GET)
-    public HttpResponse getUser(HttpRequest request) {
-        HttpResponse response = request.createResponse();
-        Cookie cookie = new Cookie("test", "value");
-        cookie.setHttpOnly(true);
-        response.getCookies().set(cookie);
+    public HttpResponse getUser(RequestContext context) {
 
-        return response
-                .setResponseContent(new TextContent("Hello World"))
+        return context.getRequest().createResponse()
+                .setResponseContent(new TextContent("Hallo " + context.getCaptureContainer().get("userId").get()))
                 .setStatusCode(HttpStatusCode.OK);
 
     }

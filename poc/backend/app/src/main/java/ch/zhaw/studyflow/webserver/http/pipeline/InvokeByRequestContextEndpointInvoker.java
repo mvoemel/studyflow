@@ -6,7 +6,7 @@ import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-public class DirectEndpointInvoker implements RequestProcessor {
+public class InvokeByRequestContextEndpointInvoker implements RequestProcessor {
     @Override
     public HttpResponse process(RequestContext context) {
         final EndpointMetadata target = context.getTarget();
@@ -14,7 +14,7 @@ public class DirectEndpointInvoker implements RequestProcessor {
             Constructor<?> emptyConstructor = target.controller().getConstructor();
             Object controller = emptyConstructor.newInstance();
 
-            HttpResponse response = (HttpResponse) target.endpoint().invoke(controller, context.getRequest());
+            HttpResponse response = (HttpResponse) target.endpoint().invoke(controller, context);
             if (context.getResponse() == null) {
                 context.setResponse(response);
             }

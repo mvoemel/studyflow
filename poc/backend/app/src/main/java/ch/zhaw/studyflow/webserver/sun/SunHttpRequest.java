@@ -15,6 +15,7 @@ import java.util.Optional;
 public class SunHttpRequest implements HttpRequest {
     private final HttpExchange exchange;
     private final CookieContainer cookieContainer;
+    private Charset requestCharset;
 
 
     public SunHttpRequest(final HttpExchange exchange, final CookieContainer cookieContainer) {
@@ -28,8 +29,13 @@ public class SunHttpRequest implements HttpRequest {
 
 
     @Override
-    public Charset getResponseCharset() {
-        return null;
+    public CookieContainer getCookies() {
+        return cookieContainer;
+    }
+
+    @Override
+    public Charset getRequestCharset() {
+        return requestCharset;
     }
 
     @Override

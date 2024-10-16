@@ -14,6 +14,13 @@ public interface BodyContent {
     String getMimeType();
 
     /**
+     * Returns the content header value.
+     * This could be of the form {@code Content-Type: text/html; charset=UTF8}.
+     * @return The content header.
+     */
+    String getContentHeader();
+
+    /**
      * Returns the length of the content to be sent if possible; otherwise {@code 0} should be returned.
      * If no response body is present, preferably {@code -1} is to be returned to indicate an empty body.
      * Though {@code 0} is also a valid return value in the case of an empty body.

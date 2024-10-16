@@ -6,9 +6,8 @@ import ch.zhaw.studyflow.webserver.controllers.ControllerRegistry;
 import ch.zhaw.studyflow.webserver.controllers.EndpointMetadata;
 import ch.zhaw.studyflow.webserver.controllers.SimpleControllerRegistry;
 import ch.zhaw.studyflow.webserver.controllers.routing.RouteTrie;
-import ch.zhaw.studyflow.webserver.http.pipeline.DirectEndpointInvoker;
+import ch.zhaw.studyflow.webserver.http.pipeline.InvokeByRequestContextEndpointInvoker;
 import ch.zhaw.studyflow.webserver.http.pipeline.PipelineBuilder;
-import com.sun.net.httpserver.HttpServer;
 
 import java.net.InetSocketAddress;
 import java.util.function.Consumer;
@@ -52,7 +51,7 @@ public class SunHttpServerWebServerBuilder implements WebServerBuilder {
             }
         });
 
-        return new SunHttpServerWebServer(address, routeTrie, new DirectEndpointInvoker());
+        return new SunHttpServerWebServer(address, routeTrie, new InvokeByRequestContextEndpointInvoker());
     }
 
 

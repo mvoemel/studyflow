@@ -22,6 +22,11 @@ public final class JsonContent<T> implements BodyContent {
     }
 
     @Override
+    public String getContentHeader() {
+        return "";
+    }
+
+    @Override
     public long getContentLength() {
         return 0;
     }

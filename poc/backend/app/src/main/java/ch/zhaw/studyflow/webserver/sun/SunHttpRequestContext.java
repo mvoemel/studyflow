@@ -1,22 +1,31 @@
-package ch.zhaw.studyflow.webserver.http.pipeline;
+package ch.zhaw.studyflow.webserver.sun;
 
 import ch.zhaw.studyflow.webserver.controllers.EndpointMetadata;
+import ch.zhaw.studyflow.webserver.http.CaptureContainer;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
+import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 
-public class HttpRequestContext implements RequestContext {
+public class SunHttpRequestContext implements RequestContext {
     private final EndpointMetadata target;
     private final HttpRequest request;
+    private final CaptureContainer captureContainer;
     private HttpResponse response;
 
-    public HttpRequestContext(EndpointMetadata metadata, HttpRequest request) {
-        this.target     = metadata;
-        this.request    = request;
+    public SunHttpRequestContext(EndpointMetadata metadata, HttpRequest request, CaptureContainer captureContainer) {
+        this.target             = metadata;
+        this.request            = request;
+        this.captureContainer   = captureContainer;
     }
 
     @Override
     public EndpointMetadata getTarget() {
         return target;
+    }
+
+    @Override
+    public CaptureContainer getCaptureContainer() {
+        return captureContainer;
     }
 
     @Override
