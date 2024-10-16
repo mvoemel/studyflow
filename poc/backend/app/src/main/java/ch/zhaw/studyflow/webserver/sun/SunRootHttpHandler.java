@@ -66,7 +66,7 @@ public class SunRootHttpHandler implements HttpHandler {
             exchange.getResponseHeaders().add("Set-Cookie", cookie.toHeaderFormat());
         }
 
-        // From here onwards, headers must not be modified!
+        // From here onwards, headers MUST not be modified!
         exchange.sendResponseHeaders(response.getStatusCode().getCode(), responseLength);
         if (sendContent) {
             response.getResponseContent().writeTo(context.getResponse(), exchange.getResponseBody());
@@ -77,10 +77,10 @@ public class SunRootHttpHandler implements HttpHandler {
         List<RouteSegment> captureSegments = endpointMetadata.route().segments().stream()
                 .filter(e -> e.is(SegmentType.CAPTURE))
                 .toList();
-        List<Tuple<String, String>> tuples = new ArrayList<>(captureValues.size());
+        Map<String, String> entries = new HashMap<>();
         for (int i = 0; i < captureSegments.size(); i++) {
-            tuples.add(new Tuple<>(captureSegments.get(i).value(), captureValues.get(i)));
+            entries.put(captureSegments.get(i).value(), captureValues.get(i));
         }
-        return new TupleListCaptureContainer(tuples);
+        return new MapCaptureContainer(entries);
     }
 }
