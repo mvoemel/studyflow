@@ -27,7 +27,6 @@ public class SunHttpRequest implements HttpRequest {
         return exchange;
     }
 
-
     @Override
     public CookieContainer getCookies() {
         return cookieContainer;

@@ -1,6 +1,7 @@
 package ch.zhaw.studyflow.webserver.sun;
 
 import ch.zhaw.studyflow.webserver.WebServer;
+import ch.zhaw.studyflow.webserver.controllers.ControllerRegistry;
 import ch.zhaw.studyflow.webserver.controllers.routing.RouteTrie;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestProcessor;
 import com.sun.net.httpserver.HttpHandler;
@@ -16,14 +17,16 @@ public class SunHttpServerWebServer implements WebServer {
     private static final Logger logger = Logger.getLogger(SunHttpServerWebServer.class.getName());
 
     private final InetSocketAddress address;
+    private final ControllerRegistry controllerRegistry;
     private final RouteTrie routeTrie;
     private final RequestProcessor invoker;
     private HttpServer server;
 
-    public SunHttpServerWebServer(InetSocketAddress address, RouteTrie routeTrie, RequestProcessor endpointInvoker) {
-        this.address    = address;
-        this.routeTrie  = routeTrie;
-        this.invoker    = endpointInvoker;
+    public SunHttpServerWebServer(InetSocketAddress address, ControllerRegistry controllerRegistry, RouteTrie routeTrie, RequestProcessor endpointInvoker) {
+        this.address            = address;
+        this.controllerRegistry = controllerRegistry;
+        this.routeTrie          = routeTrie;
+        this.invoker            = endpointInvoker;
     }
 
 

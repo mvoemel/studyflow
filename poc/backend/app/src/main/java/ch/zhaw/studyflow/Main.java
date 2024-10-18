@@ -13,7 +13,7 @@ public class Main {
         Logger.getGlobal().setLevel(Level.ALL);
         WebServerBuilder webServerBuilder = SunHttpServerWebServerBuilder.create(new InetSocketAddress(8080));
         webServerBuilder.configureControllers(controllerRegistry -> {
-            controllerRegistry.registerController(UserController.class);
+            controllerRegistry.register(UserController.class, UserController::new);
         });
         webServerBuilder.build().start();
     }
