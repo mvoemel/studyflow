@@ -11,7 +11,7 @@ public class SimpleControllerRegistry implements ControllerRegistry {
 
 
     public SimpleControllerRegistry(List<ControllerMetadata> controllerMetadata) {
-        this.registeredControllers  = Collections.unmodifiableList(new ArrayList<>(controllerMetadata));
+        this.registeredControllers  = List.copyOf(controllerMetadata);
     }
 
     @Override

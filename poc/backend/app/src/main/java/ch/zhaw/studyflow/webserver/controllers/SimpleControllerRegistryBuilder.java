@@ -34,7 +34,7 @@ public class SimpleControllerRegistryBuilder implements ControllerRegistryBuilde
 
         if (ensureNoExistingRegistration(clazz)) {
             LOGGER.fine(() -> "Add registration for controller '%s' with constructor (supplier).".formatted(clazz.getName()));
-            registrations.add(new ControllerRegistration<C>(clazz, null));
+            registrations.add(new ControllerRegistration<C>(clazz, serviceCollection -> supplier.get()));
         } else {
             LOGGER.fine(() -> "Ignoring duplicate registration for controller '%s'.".formatted(clazz.getName()));
         }
@@ -60,40 +60,10 @@ public class SimpleControllerRegistryBuilder implements ControllerRegistryBuilde
         List<ControllerMetadata> collectedMetadata = new ArrayList<>();
         for (ControllerRegistration<?> registration : registrations) {
             Function<ServiceCollection, ?> factory = registration.constructor;
-            if (factory == null) {
-                factory = tryGetCreationFactory(registration.controller);
-            }
             collectedMetadata.add(collectMetadata(registration.controller, factory));
         }
-
         return new SimpleControllerRegistry(collectedMetadata);
     }
-
-    private <C> Function<ServiceCollection, C> tryGetCreationFactory(Class<C> clazz) {
-        Objects.requireNonNull(clazz);
-
-        Function<ServiceCollection, C> result = null;
-        try {
-            Constructor<C> constructor = clazz.getConstructor();
-            result = serviceCollection -> {
-                try {
-                    return constructor.newInstance();
-                } catch (Exception e) {
-                    // This is ugly, but on purpose.
-                    // We don't want log from the ControllerRegistryBuilder when creating an instance, since it never
-                    // happens during the registry building. At the same time lambdas don't allow to throw
-                    // checked exceptions. To resolve this, we pack checked exceptions into a runtime exception and
-                    // pass the responsibility to handle the exception to the caller.
-                    throw new RuntimeException(e);
-                }
-            };
-            LOGGER.fine(() -> "Found default constructor for class '%s'".formatted(clazz.getName()));
-        } catch (NoSuchMethodException e) {
-            LOGGER.log(Level.SEVERE, "Failed to find default constructor for class '%s'".formatted(clazz.getName()), e);
-        }
-        return result;
-    }
-
 
     private <C> boolean ensureNoExistingRegistration(Class<C> clazz) {
         return registrations.stream().noneMatch(registration -> registration.controller.equals(clazz));

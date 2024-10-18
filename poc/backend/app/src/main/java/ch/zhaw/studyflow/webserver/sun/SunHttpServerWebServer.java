@@ -34,12 +34,11 @@ public class SunHttpServerWebServer implements WebServer {
     public void start() {
         logger.info("Starting simple web server...");
         try {
-            logger.info(() -> "Server started on {0}" + address);
+            logger.fine(() -> "Trying to bind server to '%s'".formatted(address));
             server = HttpServer.create(address, 0);
-            logger.info(() -> "Server successfully created and bound.");
+            logger.info(() -> "Server is running on '%s'".formatted(address));
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to create server", e);
-            throw new RuntimeException(e);
         }
 
         HttpHandler requestHandler = new SunRootHttpHandler(routeTrie, invoker);
