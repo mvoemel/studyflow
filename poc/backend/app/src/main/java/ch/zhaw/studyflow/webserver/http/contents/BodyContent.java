@@ -3,6 +3,7 @@ package ch.zhaw.studyflow.webserver.http.contents;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -33,12 +34,12 @@ public interface BodyContent {
      * @param response The response object.
      * @param output The stream to write to.
      */
-    void writeTo(HttpResponse response, OutputStream output);
+    void writeTo(HttpResponse response, OutputStream output) throws IOException;
 
     /**
      * Reads te content from the {@code input} stream.s
      * @param request The request object.
      * @param input The stream to read from.
      */
-    void readFrom(HttpRequest request, InputStream input);
+    void readFrom(HttpRequest request, InputStream input) throws IOException;
 }

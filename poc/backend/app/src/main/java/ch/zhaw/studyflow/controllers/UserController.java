@@ -5,6 +5,7 @@ import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.annotations.*;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
+import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
 import ch.zhaw.studyflow.webserver.http.contents.TextContent;
 import ch.zhaw.studyflow.webserver.http.cookies.Cookie;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
@@ -15,9 +16,10 @@ public class UserController {
     @Route(path = "current/{userId}")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getUser(RequestContext context) {
-
+        User user = new User();
+        user.setName("Franz Hess");
         return context.getRequest().createResponse()
-                .setResponseContent(new TextContent("Hallo " + context.getCaptureContainer().get("userId").get()))
+                .setResponseContent(new JsonContent<>(User.class, user))
                 .setStatusCode(HttpStatusCode.OK);
 
     }

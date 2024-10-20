@@ -5,14 +5,11 @@ import ch.zhaw.studyflow.webserver.http.HttpResponse;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-public class TextContent implements BodyContent {
+public class TextContent extends TextBasedContent {
     public static final String MIME_TEXT_PLAIN = "text/plain";
 
-    private String mimeType;
-    private Charset charset;
     private String content;
 
     public TextContent(String content) {
@@ -24,27 +21,15 @@ public class TextContent implements BodyContent {
     }
 
     public TextContent(String mimeType, String content) {
-        this(mimeType, content, StandardCharsets.ISO_8859_1);
+        super(mimeType);
+        this.content    = content;
     }
 
     public TextContent(String mimeType, String content, Charset charset) {
-        Objects.requireNonNull(mimeType);
+        super(charset, mimeType);
         Objects.requireNonNull(content);
-        Objects.requireNonNull(charset);
 
-        this.mimeType   = mimeType;
         this.content    = content;
-        this.charset    = charset;
-    }
-
-    @Override
-    public String getMimeType() {
-        return mimeType;
-    }
-
-    @Override
-    public String getContentHeader() {
-        return "Content-Type: " + mimeType + (charset != null ? "; charset=" + charset.name() : "");
     }
 
     @Override
@@ -53,19 +38,15 @@ public class TextContent implements BodyContent {
     }
 
     @Override
-    public void writeTo(HttpResponse response, OutputStream output) {
+    public void writeTo(HttpResponse response, OutputStream output) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(output, response.getResponseCharset());
-        try {
-            writer.write(content);
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        writer.write(content);
+        writer.flush();
+        writer.close();
     }
 
     @Override
-    public void readFrom(HttpRequest request, InputStream input) {
+    public void readFrom(HttpRequest request, InputStream input) throws IOException {
         content = new BufferedReader(new InputStreamReader(input, request.getRequestCharset())).toString();
     }
 }
