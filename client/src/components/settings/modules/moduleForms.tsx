@@ -24,12 +24,15 @@ const formsSchema = z.object({
     moduleImportance: z.number().int().min(0, "Importance must be a positive number").max(10, "Importance must be at most 10"),
 })
 
+type ModuleFormsProps = {
+    defaultValues?: Partial<z.infer<typeof formsSchema>>;
+}
+
 // Define your forms
-export function ModuleForms() {
-    // 1. Define your form.
+export function ModuleForms({defaultValues}: ModuleFormsProps) {
     const form = useForm<z.infer<typeof formsSchema>>({
         resolver: zodResolver(formsSchema),
-        defaultValues: {
+        defaultValues: defaultValues || {
             moduleName: "",
             moduleDescription: "",
             moduleECTS: 0,
@@ -104,9 +107,6 @@ export function ModuleForms() {
                                 <FormControl>
                                     <Input type="number" placeholder="Understanding" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
-                                <FormDescription>
-                                    Rate these values from 0-10.
-                                </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -120,9 +120,6 @@ export function ModuleForms() {
                                 <FormControl>
                                     <Input type="number" placeholder="Time"{...field} onChange={(e) => field.onChange(Number(e.target.value))}/>
                                 </FormControl>
-                                <FormDescription>
-                                    Rate these values from 0-10.
-                                </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -136,14 +133,14 @@ export function ModuleForms() {
                                 <FormControl>
                                     <Input type="number" placeholder="Importance" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                                 </FormControl>
-                                <FormDescription>
-                                    Rate these values from 0-10.
-                                </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
                 </div>
+                <FormDescription>
+                    Rate these values from 0-10.
+                </FormDescription>
                 <Button type="submit">Submit</Button>
             </form>
         </Form>

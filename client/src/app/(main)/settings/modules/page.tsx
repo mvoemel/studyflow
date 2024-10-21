@@ -65,7 +65,7 @@ const modules: Module[] = [
     }
 ];
 
-const ProfileSettingsPage = () => {
+const ModulesSettingsPage = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [selectedModule, setSelectedModule] = useState<Module | null>(null);
@@ -150,17 +150,25 @@ const ProfileSettingsPage = () => {
             </Card>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent>
+                <DialogContent className="max-h-screen overflow-scroll">
                     <DialogHeader>
                         <DialogTitle>Edit Module</DialogTitle>
                         <DialogDescription>
                             Edit the details of the module.
                         </DialogDescription>
                     </DialogHeader>
-                    <div>
-                        <p>Module Name: {selectedModule?.name}</p>
-                        <p>Module ID: {selectedModule?.id}</p>
-                    </div>
+                    {selectedModule && (
+                        <ModuleForms
+                            defaultValues={{
+                                moduleName: selectedModule.name,
+                                moduleDescription: "",
+                                moduleECTS: parseInt(selectedModule.ECTS),
+                                moduleUnderstanding: parseInt(selectedModule.Understanding),
+                                moduleTime: parseInt(selectedModule.Time),
+                                moduleImportance: parseInt(selectedModule.Importance),
+                            }}
+                        />
+                    )}
                     <DialogFooter>
                         <Button onClick={closeEditDialog}>Close</Button>
                     </DialogFooter>
@@ -168,7 +176,7 @@ const ProfileSettingsPage = () => {
             </Dialog>
 
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                <DialogContent>
+                <DialogContent className="max-h-screen overflow-scroll">
                     <DialogHeader>
                         <DialogTitle>Add Module</DialogTitle>
                         <DialogDescription>
@@ -185,4 +193,4 @@ const ProfileSettingsPage = () => {
     );
 };
 
-export default ProfileSettingsPage;
+export default ModulesSettingsPage;
