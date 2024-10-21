@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button";
-import {useEffect, useState} from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
     Card,
     CardContent,
@@ -27,6 +27,7 @@ import {
     DialogFooter
 } from "@/components/ui/dialog";
 import { ModuleForms } from "@/components/settings/modules/moduleForms";
+import { Progress } from "@/components/ui/progress"
 
 // Define a type for the module structure
 type Module = {
@@ -43,35 +44,48 @@ const ModulesSettingsPage = () => {
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [selectedModule, setSelectedModule] = useState<Module | null>(null);
     const [modules, setModules] = useState<Module[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchModules = async () => {
-            const response = await fetch('/api/modules');
-            const data = await response.json();
-            setModules(data);
+            try {
+                const response = await fetch('/api/modules');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch modules');
+                }
+                const data = await response.json();
+                setModules(data);
+            } catch (error) {
+                setError((error as Error).message);
+            } finally {
+                setLoading(false);
+            }
         };
 
         fetchModules();
     }, []);
 
-    const openEditDialog = (module: Module) => {
-        console.log("Opening dialog for module:", module.name); // Debugging
+    const openEditDialog = useCallback((module: Module) => {
         setSelectedModule(module);
-        setIsDialogOpen(true); // This will trigger the dialog to open
-    };
+        setIsDialogOpen(true);
+    }, []);
 
-    const closeEditDialog = () => {
-        console.log("Closing dialog");
-        setIsDialogOpen(false); // This will trigger the dialog to close
-    };
+    const closeEditDialog = useCallback(() => {
+        setIsDialogOpen(false);
+    }, []);
 
-    const openAddDialog = () => {
+    const openAddDialog = useCallback(() => {
         setIsAddDialogOpen(true);
-    };
+    }, []);
 
-    const closeAddDialog = () => {
+    const closeAddDialog = useCallback(() => {
         setIsAddDialogOpen(false);
-    };
+    }, []);
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
 
     return (
         <>
@@ -129,7 +143,7 @@ const ModulesSettingsPage = () => {
                     </Table>
                 </CardContent>
                 <CardFooter className="border-t px-6 py-4">
-                    <Button onClick={() => openAddDialog()}>Add Module</Button>
+                    <Button onClick={openAddDialog}>Add Module</Button>
                 </CardFooter>
             </Card>
 
