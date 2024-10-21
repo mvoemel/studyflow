@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import {
     Card,
     CardContent,
@@ -38,37 +38,21 @@ type Module = {
     Importance: string;
 };
 
-const modules: Module[] = [
-    {
-        id: 1,
-        name: "Web Development",
-        ECTS: "4",
-        Understanding: "3",
-        Time: "2",
-        Importance: "4",
-    },
-    {
-        id: 2,
-        name: "Software Development",
-        ECTS: "4",
-        Understanding: "3",
-        Time: "2",
-        Importance: "4",
-    },
-    {
-        id: 3,
-        name: "Algorithms and Data Structures",
-        ECTS: "4",
-        Understanding: "3",
-        Time: "4",
-        Importance: "8",
-    }
-];
-
 const ModulesSettingsPage = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+    const [modules, setModules] = useState<Module[]>([]);
+
+    useEffect(() => {
+        const fetchModules = async () => {
+            const response = await fetch('/api/modules');
+            const data = await response.json();
+            setModules(data);
+        };
+
+        fetchModules();
+    }, []);
 
     const openEditDialog = (module: Module) => {
         console.log("Opening dialog for module:", module.name); // Debugging
@@ -113,7 +97,7 @@ const ModulesSettingsPage = () => {
                         </TableHeader>
                         <TableBody>
                             {modules.map((module) => (
-                                <TableRow key={module.name}>
+                                <TableRow key={module.id}>
                                     <TableCell className="font-medium">{module.name}</TableCell>
                                     <TableCell>{module.ECTS}</TableCell>
                                     <TableCell>{module.Understanding + "/10"}</TableCell>
