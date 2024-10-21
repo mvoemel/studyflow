@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-// Define a schema for the module structure
+
 const formsSchema = z.object({
     moduleName: z.string().min(2, "Module name must be at least 2 characters long").max(50),
     moduleDescription: z.string().max(200, "Module description must be at most 200 characters long"),
@@ -28,7 +28,7 @@ type ModuleFormsProps = {
     defaultValues?: Partial<z.infer<typeof formsSchema>>;
 }
 
-// Define your forms
+
 export function ModuleForms({defaultValues}: ModuleFormsProps) {
     const form = useForm<z.infer<typeof formsSchema>>({
         resolver: zodResolver(formsSchema),

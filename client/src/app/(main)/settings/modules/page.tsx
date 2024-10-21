@@ -29,7 +29,7 @@ import {
 import { ModuleForms } from "@/components/settings/modules/moduleForms";
 import { Progress } from "@/components/ui/progress"
 
-// Define a type for the module structure
+
 type Module = {
     id: number;
     name: string;

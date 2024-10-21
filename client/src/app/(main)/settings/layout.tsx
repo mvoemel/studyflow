@@ -8,7 +8,6 @@ type SettingsLayoutProps = {
     children: ReactNode;
 };
 
-// TODO: implement links and navigation for settings
 const SettingsLayout = ({ children }: SettingsLayoutProps) => {
     const pathname = usePathname();
     return (
