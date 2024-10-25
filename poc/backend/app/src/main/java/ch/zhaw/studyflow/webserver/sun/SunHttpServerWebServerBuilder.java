@@ -1,5 +1,7 @@
 package ch.zhaw.studyflow.webserver.sun;
 
+import ch.zhaw.studyflow.services.MapServiceCollectionBuilder;
+import ch.zhaw.studyflow.services.ServiceCollection;
 import ch.zhaw.studyflow.services.ServiceCollectionBuilder;
 import ch.zhaw.studyflow.webserver.WebServer;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
@@ -13,11 +15,15 @@ import java.util.function.Consumer;
 
 public class SunHttpServerWebServerBuilder implements WebServerBuilder {
     private final InetSocketAddress address;
-    private ControllerRegistryBuilder controllerRegistryBuilder;
+    private final ServiceCollectionBuilder serviceCollectionBuilder;
+    private final ControllerRegistryBuilder controllerRegistryBuilder;
+    private Consumer<ServiceCollectionBuilder> serviceRegistrationAction;
     private Consumer<ControllerRegistryBuilder> controllerRegistrationAction;
 
-    public SunHttpServerWebServerBuilder(InetSocketAddress address, ControllerRegistryBuilder registry) {
+
+    public SunHttpServerWebServerBuilder(InetSocketAddress address, ServiceCollectionBuilder serviceCollectionBuilder, ControllerRegistryBuilder registry) {
         this.address                    = address;
+        this.serviceCollectionBuilder   = serviceCollectionBuilder;
         this.controllerRegistryBuilder  = registry;
     }
 
@@ -38,11 +44,20 @@ public class SunHttpServerWebServerBuilder implements WebServerBuilder {
 
     @Override
     public WebServerBuilder configureServices(Consumer<ServiceCollectionBuilder> serviceCollectionBuilder) {
-        return null;
+        if (serviceRegistrationAction != null) {
+            throw new UnsupportedOperationException("Services can only be configured once");
+        }
+        serviceRegistrationAction = serviceCollectionBuilder;
+        return this;
     }
 
     @Override
     public WebServer build() {
+        if (serviceRegistrationAction != null) {
+            serviceRegistrationAction.accept(serviceCollectionBuilder);
+        }
+        ServiceCollection serviceCollection = serviceCollectionBuilder.build();
+
         if (controllerRegistrationAction == null) {
             throw new UnsupportedOperationException("Controllers must be configured");
         }
@@ -57,11 +72,11 @@ public class SunHttpServerWebServerBuilder implements WebServerBuilder {
             }
         });
 
-        return new SunHttpServerWebServer(address, controllerRegistry, routeTrie, new InvokeByRequestContextEndpointInvoker());
+        return new SunHttpServerWebServer(address, serviceCollection, controllerRegistry, routeTrie, new InvokeByRequestContextEndpointInvoker());
     }
 
 
     public static WebServerBuilder create(InetSocketAddress address) {
-        return new SunHttpServerWebServerBuilder(address, new SimpleControllerRegistryBuilder());
+        return new SunHttpServerWebServerBuilder(address, new MapServiceCollectionBuilder(), new SimpleControllerRegistryBuilder());
     }
 }

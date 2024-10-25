@@ -1,5 +1,6 @@
 package ch.zhaw.studyflow.webserver.sun;
 
+import ch.zhaw.studyflow.services.ServiceCollection;
 import ch.zhaw.studyflow.webserver.WebServer;
 import ch.zhaw.studyflow.webserver.controllers.ControllerRegistry;
 import ch.zhaw.studyflow.webserver.controllers.routing.RouteTrie;
@@ -17,13 +18,15 @@ public class SunHttpServerWebServer implements WebServer {
     private static final Logger logger = Logger.getLogger(SunHttpServerWebServer.class.getName());
 
     private final InetSocketAddress address;
+    private final ServiceCollection serviceCollection;
     private final ControllerRegistry controllerRegistry;
     private final RouteTrie routeTrie;
     private final RequestProcessor invoker;
     private HttpServer server;
 
-    public SunHttpServerWebServer(InetSocketAddress address, ControllerRegistry controllerRegistry, RouteTrie routeTrie, RequestProcessor endpointInvoker) {
+    public SunHttpServerWebServer(InetSocketAddress address, ServiceCollection serviceCollection, ControllerRegistry controllerRegistry, RouteTrie routeTrie, RequestProcessor endpointInvoker) {
         this.address            = address;
+        this.serviceCollection  = serviceCollection;
         this.controllerRegistry = controllerRegistry;
         this.routeTrie          = routeTrie;
         this.invoker            = endpointInvoker;
@@ -41,7 +44,7 @@ public class SunHttpServerWebServer implements WebServer {
             logger.log(Level.SEVERE, "Failed to create server", e);
         }
 
-        HttpHandler requestHandler = new SunRootHttpHandler(routeTrie, invoker);
+        HttpHandler requestHandler = new SunRootHttpHandler(serviceCollection, routeTrie, invoker);
         server.createContext("/", requestHandler);
         server.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
         server.start();

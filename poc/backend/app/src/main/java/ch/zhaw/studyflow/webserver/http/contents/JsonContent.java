@@ -1,47 +1,90 @@
 package ch.zhaw.studyflow.webserver.http.contents;
 
-import ch.zhaw.studyflow.webserver.http.HttpRequest;
-import ch.zhaw.studyflow.webserver.http.HttpResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import ch.zhaw.studyflow.services.ServiceCollection;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
-public final class JsonContent<T> extends TextBasedContent {
-    public static final String APPLICATION_JSON = "application/json";
+public class JsonContent implements BodyContent {
+    public static final String MIME_TYPE_JSON = "application/json";
 
-    private static final ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper();
-    private final Class<T> valueType;
-    private T value;
+    private final String mimeType;
 
+    protected JsonContent(String mimeType) {
+        Objects.requireNonNull(mimeType);
 
-    public JsonContent(Class<T> type) {
-        super(StandardCharsets.UTF_8, APPLICATION_JSON);
-        this.valueType = type;
+        this.mimeType = mimeType;
     }
 
-    public JsonContent(Class<T> type, T value) {
-        this(type);
-        this.value = value;
+    @Override
+    public String getContentTypeHeader() {
+        return "";
     }
-
 
     @Override
     public long getContentLength() {
         return 0;
     }
 
-    @Override
-    public void writeTo(HttpResponse request, OutputStream output) throws IOException {
-        JSON_OBJECT_MAPPER.writeValue(output, value);
+    public static <T> WritableBodyContent writableOf(T content) {
+        return new WritableJsonContent(MIME_TYPE_JSON, content);
     }
 
-    @Override
-    public void readFrom(HttpRequest request, InputStream input) throws IOException {
-        JSON_OBJECT_MAPPER.readValue(input, valueType);
+    public static ReadableBodyContent writableOf(InputStream inputStream) {
+        return new ReadableJsonContent(MIME_TYPE_JSON, inputStream);
+    }
+
+    public static ReadableBodyContent readableOf(
+            String mimeType,
+            ServiceCollection serviceCollection,
+            Map<String, String> properties,
+            InputStream inputStream
+    ) {
+        return new ReadableJsonContent(mimeType, inputStream);
+    }
+
+    private static class WritableJsonContent extends JsonContent implements WritableBodyContent {
+        private final Object content;
+
+        public WritableJsonContent(String mimeType, Object content) {
+            super(mimeType);
+            this.content = content;
+        }
+
+        @Override
+        public void write(OutputStream outputStream) throws IOException {
+
+        }
+    }
+
+    private static class ReadableJsonContent extends JsonContent implements ReadableBodyContent {
+        private final InputStream inputStream;
+        private String valueRead;
+
+        public ReadableJsonContent(String mimeType, InputStream inputStream) {
+            super(mimeType);
+            this.inputStream = inputStream;
+        }
+
+        @Override
+        public <T> T read(Class<T> valueType) throws IOException {
+            if (!valueType.equals(String.class)) {
+                throw new IllegalArgumentException("Cannot read content as " + valueType.getSimpleName());
+            }
+            return null;
+        }
+
+        @Override
+        public <T> Optional<T> tryRead(Class<T> valueType) {
+            try {
+                return Optional.of(read(valueType));
+            } catch (IOException e) {
+                return Optional.empty();
+            }
+        }
     }
 }

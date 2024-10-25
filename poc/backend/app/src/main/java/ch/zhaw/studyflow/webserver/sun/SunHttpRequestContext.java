@@ -24,7 +24,7 @@ public class SunHttpRequestContext implements RequestContext {
     }
 
     @Override
-    public CaptureContainer getCaptureContainer() {
+    public CaptureContainer getUrlCaptures() {
         return captureContainer;
     }
 

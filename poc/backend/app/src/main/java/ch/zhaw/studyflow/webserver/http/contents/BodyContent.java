@@ -1,45 +1,29 @@
 package ch.zhaw.studyflow.webserver.http.contents;
 
-import ch.zhaw.studyflow.webserver.http.HttpRequest;
-import ch.zhaw.studyflow.webserver.http.HttpResponse;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
+/**
+ * Represents a body content that can be either read or written depending on the concrete implementation.
+ */
 public interface BodyContent {
     /**
-     * Returns the MIME type of the content.
-     * @return The MIME type.
+     * Returns the content type header.
+     * @return The content type header.
      */
-    String getMimeType();
+    String getContentTypeHeader();
 
     /**
-     * Returns the content header value.
-     * This could be of the form {@code Content-Type: text/html; charset=UTF8}.
-     * @return The content header.
-     */
-    String getContentHeader();
-
-    /**
-     * Returns the length of the content to be sent if possible; otherwise {@code 0} should be returned.
-     * If no response body is present, preferably {@code -1} is to be returned to indicate an empty body.
-     * Though {@code 0} is also a valid return value in the case of an empty body.
-     * @return The length of the content.
+     * Returns the content length.
+     * @return The content length.
      */
     long getContentLength();
 
     /**
-     * Writes the content to the {@code output} stream.
-     * @param response The response object.
-     * @param output The stream to write to.
+     * Casts the body content to the specified readable body content type.
+     * This method is thought as a convenience method to avoid explicit casting and to be used in a fluent way.
+     * @param type The type to cast to.
+     * @return The casted, readable body content.
+     * @param <T> The type to cast to.
      */
-    void writeTo(HttpResponse response, OutputStream output) throws IOException;
-
-    /**
-     * Reads te content from the {@code input} stream.s
-     * @param request The request object.
-     * @param input The stream to read from.
-     */
-    void readFrom(HttpRequest request, InputStream input) throws IOException;
+    default <T extends ReadableBodyContent> T as(Class<T> type) {
+        return type.cast(this);
+    }
 }

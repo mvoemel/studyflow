@@ -34,7 +34,7 @@ public class SimpleControllerRegistryBuilder implements ControllerRegistryBuilde
 
         if (ensureNoExistingRegistration(clazz)) {
             LOGGER.fine(() -> "Add registration for controller '%s' with constructor (supplier).".formatted(clazz.getName()));
-            registrations.add(new ControllerRegistration<C>(clazz, serviceCollection -> supplier.get()));
+            registrations.add(new ControllerRegistration<>(clazz, serviceCollection -> supplier.get()));
         } else {
             LOGGER.fine(() -> "Ignoring duplicate registration for controller '%s'.".formatted(clazz.getName()));
         }

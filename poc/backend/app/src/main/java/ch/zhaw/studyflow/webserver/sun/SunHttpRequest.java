@@ -2,23 +2,22 @@ package ch.zhaw.studyflow.webserver.sun;
 
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
-import ch.zhaw.studyflow.webserver.http.cookies.Cookie;
+import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.cookies.CookieContainer;
-import ch.zhaw.studyflow.webserver.http.cookies.HashMapCookieContainer;
-import com.sun.net.httpserver.Filter;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class SunHttpRequest implements HttpRequest {
     private final HttpExchange exchange;
     private final CookieContainer cookieContainer;
     private Charset requestCharset;
+    private ReadableBodyContent requestBody;
 
 
-    public SunHttpRequest(final HttpExchange exchange, final CookieContainer cookieContainer) {
+    public SunHttpRequest(final HttpExchange exchange, final ReadableBodyContent requestBody, final CookieContainer cookieContainer) {
+        this.requestBody        = requestBody;
         this.cookieContainer    = cookieContainer;
         this.exchange           = exchange;
     }
@@ -38,24 +37,12 @@ public class SunHttpRequest implements HttpRequest {
     }
 
     @Override
+    public Optional<ReadableBodyContent> getRequestBody() {
+        return Optional.ofNullable(requestBody);
+    }
+
+    @Override
     public HttpResponse createResponse() {
         return new SunHttpResponse(this);
-    }
-
-
-    public static SunHttpRequest fromExchange(HttpExchange exchange) {
-        return new SunHttpRequest(exchange, createCookieContainer(exchange));
-    }
-
-    private static CookieContainer createCookieContainer(HttpExchange exchange) {
-        HashMapCookieContainer cookieContainer = new HashMapCookieContainer();
-        List<String> rawCookies = exchange.getRequestHeaders().get("Cookie");
-        if (rawCookies != null) {
-            for (String rawCookie : rawCookies) {
-                Optional<Cookie> cookie = Cookie.readFromHeader(rawCookie);
-                cookie.ifPresent(cookieContainer::set);
-            }
-        }
-        return cookieContainer;
     }
 }

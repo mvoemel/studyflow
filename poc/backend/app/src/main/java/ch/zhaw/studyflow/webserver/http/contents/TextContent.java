@@ -1,35 +1,35 @@
 package ch.zhaw.studyflow.webserver.http.contents;
 
-import ch.zhaw.studyflow.webserver.http.HttpRequest;
-import ch.zhaw.studyflow.webserver.http.HttpResponse;
+import ch.zhaw.studyflow.services.ServiceCollection;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
-public class TextContent extends TextBasedContent {
+public class TextContent implements BodyContent {
     public static final String MIME_TEXT_PLAIN = "text/plain";
 
-    private String content;
+    private final String contentType;
+    private final Charset charset;
 
-    public TextContent(String content) {
-        this(MIME_TEXT_PLAIN, content);
+    protected TextContent(String contentType, Charset charset) {
+        Objects.requireNonNull(contentType);
+        Objects.requireNonNull(charset);
+
+        this.contentType    = contentType;
+        this.charset        = charset;
     }
 
-    public TextContent(String content, Charset charset) {
-        this(MIME_TEXT_PLAIN, content, charset);
+    public Charset getCharset() {
+        return charset;
     }
 
-    public TextContent(String mimeType, String content) {
-        super(mimeType);
-        this.content    = content;
-    }
-
-    public TextContent(String mimeType, String content, Charset charset) {
-        super(charset, mimeType);
-        Objects.requireNonNull(content);
-
-        this.content    = content;
+    @Override
+    public String getContentTypeHeader() {
+        return "Content-Type: " + contentType + (charset != null ? "; charset=" + charset.name().toLowerCase() : "");
     }
 
     @Override
@@ -37,16 +37,71 @@ public class TextContent extends TextBasedContent {
         return 0;
     }
 
-    @Override
-    public void writeTo(HttpResponse response, OutputStream output) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(output, response.getResponseCharset());
-        writer.write(content);
-        writer.flush();
-        writer.close();
+
+    public static WritableBodyContent writableOf(String content) {
+        return new WritableTextContent(MIME_TEXT_PLAIN, StandardCharsets.UTF_8, content);
     }
 
-    @Override
-    public void readFrom(HttpRequest request, InputStream input) throws IOException {
-        content = new BufferedReader(new InputStreamReader(input, request.getRequestCharset())).toString();
+    public static ReadableBodyContent readableOf(String mimeType, ServiceCollection serviceCollection, Map<String, String> properties, InputStream inputStream) {
+        return new ReadableTextContent(MIME_TEXT_PLAIN, StandardCharsets.UTF_8, inputStream);
     }
+
+    private static class ReadableTextContent extends TextContent implements ReadableBodyContent {
+        private final InputStream inputStream;
+        private String valueRead;
+
+
+        public ReadableTextContent(String contentType, Charset charset, InputStream inputStream) {
+            super(contentType, charset);
+            this.inputStream = inputStream;
+        }
+
+
+        @Override
+        public <T> T read(Class<T> valueType) throws IOException {
+            if (!valueType.equals(String.class)) {
+                throw new IllegalArgumentException("Cannot read content as " + valueType.getSimpleName());
+            }
+            if (valueRead == null) {
+                valueRead = readInternal();
+            }
+            return valueType.cast(valueRead);
+        }
+
+        @Override
+        public <T> Optional<T> tryRead(Class<T> valueType) {
+            try {
+                return Optional.of(read(valueType));
+            } catch (IOException e) {
+                return Optional.empty();
+            }
+        }
+
+        private String readInternal() throws IOException {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            inputStream.transferTo(buffer);
+            return buffer.toString(getCharset());
+        }
+    }
+
+    private static class WritableTextContent extends TextContent implements WritableBodyContent {
+        private final Charset charset;
+        private final String content;
+
+
+        public WritableTextContent(String contentType, Charset charset, String content) {
+            super(contentType, charset);
+            this.charset    = charset;
+            this.content    = content;
+        }
+
+
+        @Override
+        public void write(OutputStream outputStream) throws IOException {
+            try (OutputStreamWriter writer = new OutputStreamWriter(outputStream, charset)) {
+                writer.write(content);
+            }
+        }
+    }
+
 }

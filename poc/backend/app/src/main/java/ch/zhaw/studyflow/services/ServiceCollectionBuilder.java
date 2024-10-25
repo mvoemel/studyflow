@@ -12,12 +12,13 @@ import java.util.function.Supplier;
 public interface ServiceCollectionBuilder {
     /**
      * Registers a service using an unique instance (singelton) that is shared by all consumers.
+     * The {@code factory} is called once and the returned value stored and returned on future requests.
      * @param clazz The class of the service
-     * @param value The instance of the service
+     * @param factory The instance of the service
      * @return The builder
      * @param <T> The type of the service
      */
-    <T> ServiceCollectionBuilder register(Class<T> clazz, T value);
+    <T> ServiceCollectionBuilder registerSingelton(Class<T> clazz, Function<ServiceCollection, T> factory);
 
     /**
      * Registers a service using a constructor that is called for each consumer.
@@ -36,11 +37,11 @@ public interface ServiceCollectionBuilder {
      * @return The builder
      * @param <T> The type of the service
      */
-    <T> ServiceCollectionBuilder register(Class<T> clazz, Function<ServiceCollectionBuilder, T> factory);
+    <T> ServiceCollectionBuilder register(Class<T> clazz, Function<ServiceCollection, T> factory);
 
     /**
      * Builds the service collection.
      * @return The service collection
      */
-    ServiceCollectionBuilder build();
+    ServiceCollection build();
 }

@@ -2,16 +2,13 @@ package ch.zhaw.studyflow.webserver.sun;
 
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
-import ch.zhaw.studyflow.webserver.http.contents.BodyContent;
+import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.cookies.CookieContainer;
 import ch.zhaw.studyflow.webserver.http.cookies.HashMapCookieContainer;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-
 public class SunHttpResponse implements HttpResponse {
     private final SunHttpRequest request;
-    private BodyContent responseContent;
+    private WritableBodyContent responseContent;
     private HttpStatusCode statusCode;
     private CookieContainer cookieContainer;
 
@@ -28,7 +25,7 @@ public class SunHttpResponse implements HttpResponse {
     }
 
     @Override
-    public HttpResponse setResponseContent(BodyContent content) {
+    public HttpResponse setResponseBody(WritableBodyContent content) {
         this.responseContent = content;
         return this;
     }
@@ -45,12 +42,7 @@ public class SunHttpResponse implements HttpResponse {
     }
 
     @Override
-    public Charset getResponseCharset() {
-        return StandardCharsets.UTF_8;
-    }
-
-    @Override
-    public BodyContent getResponseContent() {
+    public WritableBodyContent getResponseBody() {
         return responseContent;
     }
 }
