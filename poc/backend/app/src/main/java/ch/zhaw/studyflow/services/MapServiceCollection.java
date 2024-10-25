@@ -1,6 +1,7 @@
 package ch.zhaw.studyflow.services;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -13,25 +14,29 @@ public class MapServiceCollection implements ServiceCollection {
     }
 
 
+
     @Override
     public <T> Optional<T> getService(Class<T> clazz) {
-        return getRequiredServiceInternal(clazz);
+        return getServiceInternal(clazz);
     }
 
     @Override
     public <T> T getRequiredService(Class<T> clazz) {
-        return getRequiredServiceInternal(clazz)
+        return getServiceInternal(clazz)
                 .orElseThrow(() -> new IllegalArgumentException("Service not available"));
     }
 
 
-    private <T> Optional<T> getRequiredServiceInternal(Class<T> clazz) {
+    private <T> Optional<T> getServiceInternal(Class<T> clazz) {
+        Optional<T> result = Optional.empty();
         Function<ServiceCollection, ?> factory = services.get(clazz);
-        Object service = factory.apply(this);
-        if (clazz.isInstance(service)) {
-            return Optional.of(clazz.cast(service));
-        } else {
-            throw new IllegalArgumentException("Service is not of the expected type");
+        if (factory != null) {
+            Object service = factory.apply(this);
+            if (!clazz.isInstance(service)) {
+                throw new IllegalArgumentException("Service is not of the expected type");
+            }
+            result = Optional.of(clazz.cast(service));
         }
+        return result;
     }
 }

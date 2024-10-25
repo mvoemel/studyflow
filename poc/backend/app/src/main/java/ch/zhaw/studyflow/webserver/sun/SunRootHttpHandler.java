@@ -23,6 +23,10 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * The SunRootHttpHandler is an implementation of the HttpHandler interface provided by the Sun HTTP server.
+ * It is responsible for handling incoming HTTP requests and routing them to the appropriate endpoint.
+ */
 public class SunRootHttpHandler implements HttpHandler {
     private static final Logger LOGGER = Logger.getLogger(SunRootHttpHandler.class.getName());
 
@@ -30,6 +34,7 @@ public class SunRootHttpHandler implements HttpHandler {
     private final ReadableBodyContentFactory bodyContentRegistry;
     private final RouteTrie routeTrie;
     private final RequestProcessor invoker;
+
 
     public SunRootHttpHandler(ServiceCollection serviceCollection, RouteTrie routeTrie, RequestProcessor endpointInvoker) {
         this.serviceCollection      = serviceCollection;
@@ -46,25 +51,37 @@ public class SunRootHttpHandler implements HttpHandler {
                 List.of(exchange.getRequestURI().getPath().split("/"))
         );
 
-
-        if (possibleRoutingResult.isPresent()) {
-            try {
+        try {
+            if (possibleRoutingResult.isPresent()) {
                 handleRoutedRequest(exchange, possibleRoutingResult.get());
-            } catch (Exception e) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "An exception occurred while processing a request to '%s'"
-                                .formatted(exchange.getRequestURI()),
-                        e
-                );
-                exchange.sendResponseHeaders(HttpStatusCode.INTERNAL_SERVER_ERROR.getCode(), -1);
+            } else {
+                exchange.sendResponseHeaders(HttpStatusCode.NOT_FOUND.getCode(), -1);
             }
-        } else {
-            exchange.sendResponseHeaders(HttpStatusCode.NOT_FOUND.getCode(), -1);
+        } catch (Exception e) {
+            /*
+             * This 'global' is the final fail-safe for any exception that might have occurred during the processing
+             * and has not been caught by the individual components.
+             * In the case of an exception, the server will respond with a 500 Internal Server Error and log the exception.
+             */
+            LOGGER.log(
+                    Level.SEVERE,
+                    "An exception occurred while processing a request to '%s'"
+                            .formatted(exchange.getRequestURI()),
+                    e
+            );
+            exchange.sendResponseHeaders(HttpStatusCode.INTERNAL_SERVER_ERROR.getCode(), -1);
+        } finally {
+            exchange.close();
         }
-        exchange.close();
     }
 
+    /**
+     * Handles a routed request by constructing the request context and request processing pipeline.
+     *
+     * @param exchange      The HTTP exchange in question.
+     * @param routingResult The routing result containing the endpoint metadata and the captured values.
+     * @throws IOException If an I/O error occurs.
+     */
     private void handleRoutedRequest(final HttpExchange exchange, final Tuple<EndpointMetadata, List<String>> routingResult) throws IOException {
         SunHttpRequest request = new SunHttpRequest(
                 exchange,
@@ -94,7 +111,9 @@ public class SunRootHttpHandler implements HttpHandler {
             exchange.getResponseHeaders().add("Set-Cookie", cookie.toHeaderFormat());
         }
 
-        // From here onwards, headers MUST not be modified!
+        // From here onwards, headers MUST NOT be modified!
+        // With the invocation of sendResponseHeaders, the response headers are written to the output stream and
+        // the transmission of the response body can begin.
         exchange.sendResponseHeaders(response.getStatusCode().getCode(), responseLength);
         if (sendContent) {
             response.getResponseBody().write(exchange.getResponseBody());
@@ -139,6 +158,11 @@ public class SunRootHttpHandler implements HttpHandler {
         return new MapCaptureContainer(entries);
     }
 
+    /**
+     * Parses a content type string into a type and a map of properties.
+     * @param contentType The content type string.
+     * @return A tuple containing the type and the properties.
+     */
     private Tuple<String, Map<String, String>> parseContentType(String contentType) {
         Objects.requireNonNull(contentType);
 
@@ -152,6 +176,11 @@ public class SunRootHttpHandler implements HttpHandler {
         return new Tuple<>(type, properties);
     }
 
+    /**
+     * Creates a cookie container from the cookies present in the request.
+     * @param exchange The HTTP exchange to create the cookie container for.
+     * @return The cookie container.
+     */
     private CookieContainer createCookieContainer(HttpExchange exchange) {
         HashMapCookieContainer cookieContainer = new HashMapCookieContainer();
         List<String> rawCookies = exchange.getRequestHeaders().get("Cookie");

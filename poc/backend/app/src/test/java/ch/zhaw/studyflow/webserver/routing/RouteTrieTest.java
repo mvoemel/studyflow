@@ -114,9 +114,9 @@ class RouteTrieTest {
         Objects.requireNonNull(route);
 
         return new EndpointMetadata(
+                null,
                 method,
                 RestRoute.of(route),
-                null,
                 null
         );
     }

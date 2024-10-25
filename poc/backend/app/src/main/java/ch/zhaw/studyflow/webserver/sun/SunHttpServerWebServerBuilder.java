@@ -72,11 +72,21 @@ public class SunHttpServerWebServerBuilder implements WebServerBuilder {
             }
         });
 
-        return new SunHttpServerWebServer(address, serviceCollection, controllerRegistry, routeTrie, new InvokeByRequestContextEndpointInvoker());
+        return new SunHttpServerWebServer(
+                address,
+                serviceCollection,
+                controllerRegistry,
+                routeTrie,
+                new InvokeByRequestContextEndpointInvoker(serviceCollection)
+        );
     }
 
 
     public static WebServerBuilder create(InetSocketAddress address) {
-        return new SunHttpServerWebServerBuilder(address, new MapServiceCollectionBuilder(), new SimpleControllerRegistryBuilder());
+        return new SunHttpServerWebServerBuilder(
+                address,
+                new MapServiceCollectionBuilder(),
+                new SimpleControllerRegistryBuilder()
+        );
     }
 }

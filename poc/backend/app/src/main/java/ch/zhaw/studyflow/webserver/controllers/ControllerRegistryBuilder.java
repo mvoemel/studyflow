@@ -1,8 +1,5 @@
 package ch.zhaw.studyflow.webserver.controllers;
 
-import ch.zhaw.studyflow.services.ServiceCollection;
-
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -28,7 +25,7 @@ public interface ControllerRegistryBuilder {
      * @param <C> The type of the controller
      * @throws NullPointerException if clazz or factory is null
      */
-    <C> ControllerRegistryBuilder register(Class<C> clazz, Function<ServiceCollection, C> factory);
+    <C> ControllerRegistryBuilder register(Class<C> clazz, ControllerFactory<C> factory);
 
     /**
      * Builds the controller registry.

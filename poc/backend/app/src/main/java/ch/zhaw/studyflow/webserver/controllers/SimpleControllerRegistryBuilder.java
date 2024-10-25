@@ -1,18 +1,15 @@
 package ch.zhaw.studyflow.webserver.controllers;
 
-import ch.zhaw.studyflow.services.ServiceCollection;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
 import ch.zhaw.studyflow.webserver.annotations.Route;
 import ch.zhaw.studyflow.webserver.controllers.routing.RestRoute;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -33,7 +30,7 @@ public class SimpleControllerRegistryBuilder implements ControllerRegistryBuilde
         Objects.requireNonNull(supplier);
 
         if (ensureNoExistingRegistration(clazz)) {
-            LOGGER.fine(() -> "Add registration for controller '%s' with constructor (supplier).".formatted(clazz.getName()));
+            LOGGER.fine(() -> "Add registration for controller '%s' with factory (supplier).".formatted(clazz.getName()));
             registrations.add(new ControllerRegistration<>(clazz, serviceCollection -> supplier.get()));
         } else {
             LOGGER.fine(() -> "Ignoring duplicate registration for controller '%s'.".formatted(clazz.getName()));
@@ -42,12 +39,12 @@ public class SimpleControllerRegistryBuilder implements ControllerRegistryBuilde
     }
 
     @Override
-    public <C> ControllerRegistryBuilder register(Class<C> clazz, Function<ServiceCollection, C> factory) {
+    public <C> ControllerRegistryBuilder register(Class<C> clazz, ControllerFactory<C> factory) {
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(factory);
 
         if (ensureNoExistingRegistration(clazz)) {
-            LOGGER.fine(() -> "Add registration for controller '%s' with constructor (factory).".formatted(clazz.getName()));
+            LOGGER.fine(() -> "Add registration for controller '%s' with factory (factory).".formatted(clazz.getName()));
             registrations.add(new ControllerRegistration<C>(clazz, factory));
         } else {
             LOGGER.fine(() -> "Ignoring duplicate registration for controller '%s'.".formatted(clazz.getName()));
@@ -57,10 +54,9 @@ public class SimpleControllerRegistryBuilder implements ControllerRegistryBuilde
 
     @Override
     public ControllerRegistry build() {
-        List<ControllerMetadata> collectedMetadata = new ArrayList<>();
+        List<ControllerMetadata<?>> collectedMetadata = new ArrayList<>();
         for (ControllerRegistration<?> registration : registrations) {
-            Function<ServiceCollection, ?> factory = registration.constructor;
-            collectedMetadata.add(collectMetadata(registration.controller, factory));
+            collectedMetadata.add(collectMetadata(registration));
         }
         return new SimpleControllerRegistry(collectedMetadata);
     }
@@ -69,29 +65,37 @@ public class SimpleControllerRegistryBuilder implements ControllerRegistryBuilde
         return registrations.stream().noneMatch(registration -> registration.controller.equals(clazz));
     }
 
-    private <T> ControllerMetadata collectMetadata(final Class<?> controller, final Function<ServiceCollection, T> factory) {
-        Objects.requireNonNull(controller);
+    private <C> ControllerMetadata<C> collectMetadata(ControllerRegistration<C> registration) {
+        Objects.requireNonNull(registration);
 
-        LOGGER.fine(() -> "Collecting controller at '%s'".formatted(controller.getName()));
+        Class<C> controllerClazz = registration.controller();
+        LOGGER.finer(() -> "Collecting controller at '%s'".formatted(controllerClazz.getName()));
 
-        Route controllerRouteAnnotation = controller.getAnnotation(Route.class);
+        final Route controllerRouteAnnotation = controllerClazz.getAnnotation(Route.class);
 
-        RestRoute controllerRoute = RestRoute.of(controllerRouteAnnotation.path());
+        final RestRoute controllerRoute = RestRoute.of(controllerRouteAnnotation.path());
         List<EndpointMetadata> endpoints = new ArrayList<>();
-        for (Method method : controller.getMethods()) {
-            Endpoint endpointAnnotation = method.getAnnotation(Endpoint.class);
+        ControllerMetadata<C> controllerMetadata = new ControllerMetadata<>(
+                controllerClazz,
+                registration.factory(),
+                RestRoute.of(controllerRouteAnnotation.path()),
+                Collections.unmodifiableList(endpoints)
+        );
+        for (Method method : controllerClazz.getMethods()) {
+            final Endpoint endpointAnnotation = method.getAnnotation(Endpoint.class);
             if (endpointAnnotation != null) {
-                endpoints.add(processEndpoint(controllerRoute, method, endpointAnnotation));
+                endpoints.add(processEndpoint(controllerMetadata, controllerRoute, method, endpointAnnotation));
             }
         }
 
-        return new ControllerMetadata(controller, RestRoute.of(controllerRouteAnnotation.path()), endpoints);
+        return controllerMetadata;
     }
 
-    private EndpointMetadata processEndpoint(RestRoute controllerRoute,
-                                             Method handlerMethod,
-                                             Endpoint endpointAnnotation) {
-        LOGGER.fine(() -> "Collecting endpoint at '%s.%s'".formatted(handlerMethod.getDeclaringClass().getName(), handlerMethod.getName()));
+    private <C> EndpointMetadata processEndpoint(ControllerMetadata<C> controllerMetadata,
+                                                 RestRoute controllerRoute,
+                                                 Method handlerMethod,
+                                                 Endpoint endpointAnnotation) {
+        LOGGER.finer(() -> "Collecting endpoint at '%s.%s'".formatted(handlerMethod.getDeclaringClass().getName(), handlerMethod.getName()));
 
         Objects.requireNonNull(controllerRoute);
         Objects.requireNonNull(handlerMethod);
@@ -100,9 +104,9 @@ public class SimpleControllerRegistryBuilder implements ControllerRegistryBuilde
         Route routeAnnotation = handlerMethod.getAnnotation(Route.class);
         RestRoute route = routeAnnotation == null ? RestRoute.of("/") : RestRoute.of(routeAnnotation.path());
         return new EndpointMetadata(
+                controllerMetadata,
                 endpointAnnotation.method(),
                 concatRoutes(controllerRoute, route),
-                handlerMethod.getDeclaringClass(),
                 handlerMethod
         );
     }
@@ -116,6 +120,6 @@ public class SimpleControllerRegistryBuilder implements ControllerRegistryBuilde
         );
     }
 
-    private record ControllerRegistration<T>(Class<T> controller, Function<ServiceCollection, T> constructor) {
+    private record ControllerRegistration<C>(Class<C> controller, ControllerFactory<C> factory) {
     }
 }

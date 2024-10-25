@@ -4,5 +4,5 @@ import ch.zhaw.studyflow.webserver.controllers.routing.RestRoute;
 
 import java.util.List;
 
-public record ControllerMetadata(Class<?> clazz, RestRoute route, List<EndpointMetadata> endpoints) {
+public record ControllerMetadata<C>(Class<C> clazz, ControllerFactory<C> factory, RestRoute route, List<EndpointMetadata> endpoints) {
 }
