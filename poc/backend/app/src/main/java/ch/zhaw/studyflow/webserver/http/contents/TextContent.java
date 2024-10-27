@@ -43,11 +43,12 @@ public class TextContent implements BodyContent {
     }
 
     public static ReadableBodyContent readableOf(String mimeType, ServiceCollection serviceCollection, Map<String, String> properties, InputStream inputStream) {
-        return new ReadableTextContent(MIME_TEXT_PLAIN, StandardCharsets.UTF_8, inputStream);
+        return new ReadableTextContent(mimeType, StandardCharsets.UTF_8, inputStream);
     }
 
     private static class ReadableTextContent extends TextContent implements ReadableBodyContent {
         private final InputStream inputStream;
+        private boolean hasBeenRead;
         private String valueRead;
 
 
@@ -62,7 +63,8 @@ public class TextContent implements BodyContent {
             if (!valueType.equals(String.class)) {
                 throw new IllegalArgumentException("Cannot read content as " + valueType.getSimpleName());
             }
-            if (valueRead == null) {
+            if (!hasBeenRead) {
+                hasBeenRead = true;
                 valueRead = readInternal();
             }
             return valueType.cast(valueRead);
@@ -103,5 +105,4 @@ public class TextContent implements BodyContent {
             }
         }
     }
-
 }

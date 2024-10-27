@@ -83,18 +83,19 @@ public class SunRootHttpHandler implements HttpHandler {
      * @throws IOException If an I/O error occurs.
      */
     private void handleRoutedRequest(final HttpExchange exchange, final Tuple<EndpointMetadata, List<String>> routingResult) throws IOException {
-        SunHttpRequest request = new SunHttpRequest(
+        final SunHttpRequest request = new SunHttpRequest(
                 exchange,
                 createRequestBody(exchange),
                 createCookieContainer(exchange)
         );
-        RequestContext context = new SunHttpRequestContext(
+
+        final RequestContext context = new SunHttpRequestContext(
                 routingResult.value1(),
                 request,
-                buildCaptureContainer(routingResult.value1(), routingResult.value2()));
+                buildCaptureContainer(routingResult.value1(), routingResult.value2())
+        );
 
-        invoker.process(context);
-        HttpResponse response = context.getResponse();
+        final HttpResponse response = invoker.process(context);
 
         BodyContent content = response.getResponseBody();
         final long responseLength = content == null ? -1 : content.getContentLength();

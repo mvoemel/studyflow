@@ -3,7 +3,6 @@ package ch.zhaw.studyflow.webserver.http.pipeline;
 import ch.zhaw.studyflow.webserver.controllers.EndpointMetadata;
 import ch.zhaw.studyflow.webserver.http.CaptureContainer;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
-import ch.zhaw.studyflow.webserver.http.HttpResponse;
 
 /**
  * The {@code RequestContext} contains all information about the request and its response.
@@ -27,16 +26,4 @@ public interface RequestContext {
      * @return The request object.
      */
     HttpRequest getRequest();
-
-    /**
-     * Gets the response object.
-     * @return The response object.
-     */
-    HttpResponse getResponse();
-
-    /**
-     * Sets the response object.
-     * @param response The response object.
-     */
-    void setResponse(HttpResponse response);
 }

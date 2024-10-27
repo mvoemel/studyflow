@@ -49,9 +49,6 @@ public class InvokeByRequestContextEndpointInvoker implements RequestProcessor {
                 response = createInternalServerErrorResponse(context.getRequest());
             }
         }
-        if (context.getResponse() == null) {
-            context.setResponse(response);
-        }
         return response;
     }
 

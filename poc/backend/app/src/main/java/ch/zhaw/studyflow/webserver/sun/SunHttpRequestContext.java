@@ -32,17 +32,4 @@ public class SunHttpRequestContext implements RequestContext {
     public HttpRequest getRequest() {
         return request;
     }
-
-    @Override
-    public HttpResponse getResponse() {
-        return response;
-    }
-
-    @Override
-    public void setResponse(HttpResponse response) {
-        if (this.response != null) {
-            throw new IllegalStateException("Response already set");
-        }
-        this.response = response;
-    }
 }
