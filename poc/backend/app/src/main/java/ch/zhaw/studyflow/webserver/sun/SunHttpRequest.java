@@ -32,11 +32,6 @@ public class SunHttpRequest implements HttpRequest {
     }
 
     @Override
-    public Charset getRequestCharset() {
-        return requestCharset;
-    }
-
-    @Override
     public Optional<ReadableBodyContent> getRequestBody() {
         return Optional.ofNullable(requestBody);
     }

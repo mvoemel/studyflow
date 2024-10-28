@@ -17,12 +17,6 @@ public interface HttpRequest {
     CookieContainer getCookies();
 
     /**
-     * Returns the charset of the request.
-     * @return the charset of the request.
-     */
-    Charset getRequestCharset();
-
-    /**
      * Returns the body of the request.
      * @return the body of the request.
      */
