@@ -21,11 +21,31 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "../global/theme-toggle";
 import { useBasePath } from "./useBasePath";
 import { navbarOptions } from "./options";
+import { useRouter } from "next/navigation";
 
 // TODO: implement user dropdown menu
 // TODO: either keep search field or discard it
 const Navbar = () => {
+  const router = useRouter();
   const basePath = useBasePath();
+
+  const handleLogout = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+
+    const res = await fetch("/api/auth/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: "",
+    });
+
+    if (res.ok) {
+      router.push("/login");
+    } else {
+      alert("Logout failed");
+    }
+  };
 
   return (
     <header className="navbar sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
@@ -104,7 +124,7 @@ const Navbar = () => {
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

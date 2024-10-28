@@ -1,11 +1,16 @@
+"use client";
+
 import { ActiveModuleBox } from "@/components/dashboard/active-modules-box";
 import { DailyCalendarBox } from "@/components/dashboard/daily-calendar-box";
 import { EctsBox } from "@/components/dashboard/ects-box";
 import { GradeBox } from "@/components/dashboard/grade-box";
 import { ShortCutBox } from "@/components/dashboard/shortcut-box";
+import { useUser } from "@/hooks/useUser";
 
 // TODO: fetch data from API and then render the dashboard components with fetched data
 const DashboardPage = () => {
+  const { user, loading } = useUser();
+
   return (
     <main className="grid flex-1 items-start py-4 md:p-4 gap-4 md:gap-8 lg:grid-cols-3">
       <DailyCalendarBox className="h-full" />
@@ -31,7 +36,7 @@ const DashboardPage = () => {
           <ShortCutBox
             className="col-span-6 md:col-span-3"
             title="New Module"
-            description="Create a new module for the currently selected Semester"
+            description={loading ? "Loading..." : user?.username ?? "N/a"}
             buttonLabel="Create a module"
             buttonLink="#"
           />
