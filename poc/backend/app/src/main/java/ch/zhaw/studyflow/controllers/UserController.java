@@ -17,9 +17,9 @@ public class UserController {
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getUser(RequestContext context) {
         User user = new User();
-        user.setName("Franz Hess");
+        user.setName("Max Muster");
         return context.getRequest().createResponse()
-                .setResponseContent(new JsonContent<>(User.class, user))
+                .setResponseBody(JsonContent.writableOf(user))
                 .setStatusCode(HttpStatusCode.OK);
 
     }

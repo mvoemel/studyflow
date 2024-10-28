@@ -2,9 +2,11 @@ package ch.zhaw.studyflow;
 
 import ch.zhaw.studyflow.controllers.UserController;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
+import ch.zhaw.studyflow.webserver.http.contents.*;
 import ch.zhaw.studyflow.webserver.sun.SunHttpServerWebServerBuilder;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.logging.LogManager;
 
 public class Main {
@@ -17,6 +19,7 @@ public class Main {
         WebServerBuilder webServerBuilder = SunHttpServerWebServerBuilder.create(new InetSocketAddress(8080));
         webServerBuilder.configureControllers(controllerRegistry -> {
             controllerRegistry.register(UserController.class, UserController::new);
+        });
         webServerBuilder.configureServices(builder -> {
             builder.registerSingelton(
                     ReadableBodyContentFactory.class,
