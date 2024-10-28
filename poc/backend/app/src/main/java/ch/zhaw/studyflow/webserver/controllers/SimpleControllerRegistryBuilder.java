@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 public class SimpleControllerRegistryBuilder implements ControllerRegistryBuilder {
     private static final Logger LOGGER = Logger.getLogger(SimpleControllerRegistryBuilder.class.getName());
 
-    private final List<ControllerRegistration> registrations;
+    private final List<ControllerRegistration<?>> registrations;
 
 
     public SimpleControllerRegistryBuilder() {
@@ -45,7 +45,7 @@ public class SimpleControllerRegistryBuilder implements ControllerRegistryBuilde
 
         if (ensureNoExistingRegistration(clazz)) {
             LOGGER.fine(() -> "Add registration for controller '%s' with factory (factory).".formatted(clazz.getName()));
-            registrations.add(new ControllerRegistration<C>(clazz, factory));
+            registrations.add(new ControllerRegistration<>(clazz, factory));
         } else {
             LOGGER.fine(() -> "Ignoring duplicate registration for controller '%s'.".formatted(clazz.getName()));
         }

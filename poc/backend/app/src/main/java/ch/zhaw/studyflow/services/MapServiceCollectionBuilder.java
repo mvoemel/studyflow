@@ -19,14 +19,40 @@ public class MapServiceCollectionBuilder implements ServiceCollectionBuilder {
 
     @Override
     public <T> ServiceCollectionBuilder registerSingelton(Class<T> clazz, Function<ServiceCollection, T> factory) {
-        /**
+        /*
          * Creates a memoized factory that only creates the instance once.
          * To do so we use the "memoization" pattern, we capture the factory and the instance in a closure
          * and return it if it is already created; otherwise, we create the instance and store it in the closure
          * and return it.
          */
-        this.services.put(clazz, createMemoizedFactory(factory));
+        registerServiceInternally(clazz, createMemoizedFactory(factory));
         return this;
+    }
+
+    @Override
+    public <T> ServiceCollectionBuilder register(Class<T> clazz, Supplier<T> constructor) {
+        registerServiceInternally(clazz,serviceCollection -> constructor.get());
+        return this;
+    }
+
+    @Override
+    public <T> ServiceCollectionBuilder register(Class<T> clazz, Function<ServiceCollection, T> factory) {
+        registerServiceInternally(clazz, factory);
+        return this;
+    }
+
+    @Override
+    public ServiceCollection build() {
+        return new MapServiceCollection(services);
+    }
+
+    
+    private <T> void registerServiceInternally(Class<T> clazz, Function<ServiceCollection, T> factory) {
+        if (services.containsKey(clazz)) {
+            LOGGER.warning(() -> "Service '%s' registered twice. Ignoring second registration.".formatted(clazz.getName()));
+            return;
+        }
+        this.services.put(clazz, factory);
     }
 
     /**
@@ -48,25 +74,5 @@ public class MapServiceCollectionBuilder implements ServiceCollectionBuilder {
                 return instance;
             }
         };
-    }
-
-    @Override
-    public <T> ServiceCollectionBuilder register(Class<T> clazz, Supplier<T> constructor) {
-        return null;
-    }
-
-    @Override
-    public <T> ServiceCollectionBuilder register(Class<T> clazz, Function<ServiceCollection, T> factory) {
-        if (services.containsKey(clazz)) {
-            LOGGER.warning(() -> "Service '%s' registered twice. Ignoring second registration.".formatted(clazz.getName()));
-        } else {
-            services.put(clazz, factory);
-        }
-        return this;
-    }
-
-    @Override
-    public ServiceCollection build() {
-        return new MapServiceCollection(services);
     }
 }
