@@ -21,27 +21,29 @@ const SchedulePage = () => {
 
   return (
 
-      <FullCalendar
-          plugins={[ timeGridPlugin,interactionPlugin ]}
-          initialView={"timeGridWeek"}
-          weekends={false}
-          nowIndicator={true}
-          events={events}
-          slotMinTime={'08:00:00'}
-          slotMaxTime={'20:00:00'}
-          slotLabelFormat={{
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false
-          }}
-          eventTimeFormat={{
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false
-          }}
-          editable={true}
-      />
-  );
-};
+      <main className="">
+          <FullCalendar
+              plugins={[timeGridPlugin, interactionPlugin]}
+              initialView={"timeGridWeek"}
+              weekends={false}
+              nowIndicator={true}
+              events={events}
+              slotMinTime={'08:00:00'}
+              slotMaxTime={'20:00:00'}
+              slotLabelFormat={{
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: false
+              }}
+              eventTimeFormat={{
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: false
+              }}
+              editable={true}
+          />
+      </main>
+          );
+          };
 
-export default SchedulePage;
+          export default SchedulePage;
