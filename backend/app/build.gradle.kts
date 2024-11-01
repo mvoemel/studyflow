@@ -22,6 +22,10 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:$JACKSON_DATABIND_VERSION")
 }
 
+application {
+    mainClass = "ch.zhaw.studyflow.Main"
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
