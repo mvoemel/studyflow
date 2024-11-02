@@ -1,8 +1,8 @@
 const navbarOptions = [
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "Schedule", href: "/schedule" },
-  { label: "Grades", href: "/grades" },
-  { label: "Settings", href: "/settings" },
+  { title: "Dashboard", href: "/dashboard" },
+  { title: "Schedule", href: "/schedule" },
+  { title: "Grades", href: "/grades" },
+  { title: "Settings", href: "/settings/modules", items: ["1. Semester","2. Semester","3. Semester"] },
 ];
 
 export { navbarOptions };
