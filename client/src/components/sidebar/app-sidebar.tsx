@@ -10,7 +10,7 @@ import {
 import { navbarOptions } from "@/components/sidebar/options";
 import { useBasePath } from "@/components/sidebar/useBasePath";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronRight, ChevronUp, PlusIcon, User2 } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronUp, PlusIcon, User2, Book } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useDegree, Degree, Semester } from '@/context/DegreeContext';
@@ -95,6 +95,7 @@ export function AppSidebar() {
                             <SidebarMenuItem key={option.title}>
                                 <SidebarMenuButton asChild>
                                     <a href={option.href} className={`hover:text-foreground ${basePath === option.href ? "font-bold" : ""}`}>
+                                        <option.icon className="mr-2" />
                                         {option.title}
                                     </a>
                                 </SidebarMenuButton>
@@ -104,14 +105,19 @@ export function AppSidebar() {
                 </SidebarGroup>
                 <SidebarGroup>
                     <SidebarGroupLabel>Curriculum</SidebarGroupLabel>
-                    <Collapsible open={isCollapsibleOpen} onOpenChange={setIsCollapsibleOpen}>
+                    <Collapsible
+                        open={isCollapsibleOpen}
+                        onOpenChange={setIsCollapsibleOpen}
+                        className="group/collapsible"
+                    >
                         <CollapsibleTrigger asChild>
                             <SidebarMenuButton>
+                                <Book className="mr-2" />
                                 Semesters
                                 {isCollapsibleOpen ? <ChevronUp className="ml-auto" /> : <ChevronDown className="ml-auto" />}
                             </SidebarMenuButton>
                         </CollapsibleTrigger>
-                        <CollapsibleContent>
+                        <CollapsibleContent className="border-l border-gray-300 pl-4">
                             <SidebarMenu>
                                 {selectedDegree?.semesters.map((semester, index) => (
                                     <SidebarMenuItem key={index} className="flex items-center space-x-2">

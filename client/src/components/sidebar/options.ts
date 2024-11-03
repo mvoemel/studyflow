@@ -1,7 +1,7 @@
-const navbarOptions = [
-  { title: "Dashboard", href: "/dashboard" },
-  { title: "Schedule", href: "/schedule" },
-  { title: "Grades", href: "/grades" },
-];
+import { Home, Calendar, BarChart } from "lucide-react";
 
-export { navbarOptions };
+export const navbarOptions = [
+  { title: "Dashboard", href: "/dashboard", icon: Home },
+  { title: "Schedule", href: "/schedule", icon: Calendar },
+  { title: "Grades", href: "/grades", icon: BarChart },
+];
