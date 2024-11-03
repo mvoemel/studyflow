@@ -13,6 +13,7 @@ import {
 import { ReactNode } from "react";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import {Navbar} from "@/components/navbar/navbar";
+import { DegreeProvider } from "@/context/DegreeContext";
 
 
 type MainLayoutProps = {
@@ -21,6 +22,7 @@ type MainLayoutProps = {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   return (
+      <DegreeProvider>
       <SidebarProvider>
               <AppSidebar />
                   <SidebarInset>
@@ -30,6 +32,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                       </div>
                   </SidebarInset>
       </SidebarProvider>
+      </DegreeProvider>
   );
 };
 

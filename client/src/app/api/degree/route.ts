@@ -1,14 +1,33 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
-    const cookie = req.cookies.get('selectedDegree');
-    const selectedDegree = cookie ? cookie.value : '';
-    return NextResponse.json({ selectedDegree });
-}
+//TODO: implement database connection and replace mock data
+const degrees = [
+    {
+        name: 'Bachelors Computer Science',
+        id: 1,
+        semesters: [
+            { id: 1, name: "1. Semester", isActive: false },
+            { id: 2, name: "2. Semester", isActive: false },
+            { id: 3, name: "3. Semester", isActive: false },
+            { id: 4, name: "4. Semester", isActive: false },
+            { id: 5, name: "5. Semester", isActive: false },
+            { id: 6, name: "6. Semester", isActive: true },
+        ],
+        isActive: true
+    },
+    {
+        name: 'Masters Computer Science',
+        id: 2,
+        semesters: [
+            { id: 1, name: "1. Semester", isActive: false },
+            { id: 2, name: "2. Semester", isActive: false },
+            { id: 3, name: "3. Semester", isActive: false },
+            { id: 4, name: "4. Semester", isActive: true }
+        ],
+        isActive: false
+    },
+];
 
-export async function POST(req: NextRequest) {
-    const { degree } = await req.json();
-    const response = NextResponse.json({ message: 'Degree set' });
-    response.cookies.set('selectedDegree', degree, { path: '/' });
-    return response;
+export async function GET() {
+    return NextResponse.json(degrees);
 }

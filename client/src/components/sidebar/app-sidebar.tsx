@@ -3,7 +3,6 @@ import {
     Sidebar,
     SidebarContent, SidebarFooter,
     SidebarGroup,
-    SidebarGroupContent,
     SidebarGroupLabel, SidebarHeader,
     SidebarMenu, SidebarMenuButton,
     SidebarMenuItem, SidebarMenuSub,
@@ -13,46 +12,45 @@ import { useBasePath } from "@/components/sidebar/useBasePath";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronRight, ChevronUp, PlusIcon, User2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-
-const degreeOptions = [
-    "Bachelors Computer Science",
-    "Masters Computer Science",
-]
+import { useDegree, Degree, Semester } from '@/context/DegreeContext';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export function AppSidebar() {
     const basePath = useBasePath();
-    const [selectedDegree, setSelectedDegree] = useState("");
+    const { selectedDegree, setSelectedDegree, activeSemester, setActiveSemester, degrees } = useDegree();
+    const [title, setTitle] = useState<string>("");
+    const [isCollapsibleOpen, setIsCollapsibleOpen] = useState<boolean>(true);
+    const router = useRouter();
 
-    useEffect(() => {
-        fetch('/api/degree')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => setSelectedDegree(data.selectedDegree))
-            .catch(error => console.error('Error fetching degree:', error));
-    }, []);
-
-    const handleSelectDegree = (degree: string) => {
+    const handleSelectDegree = (degree: Degree) => {
         setSelectedDegree(degree);
+        const activeSem = degree.semesters.find(sem => sem.isActive);
+        if (activeSem) {
+            setActiveSemester(activeSem);
+            setTitle(`Modules for ${activeSem.name} of ${degree.name}`);
+        } else {
+            setActiveSemester(degree.semesters[0]); // Set to the first semester if no active semester is found
+            setTitle("");
+        }
         fetch('/api/degree', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ degree }),
+            body: JSON.stringify({ degreeId: degree.id }),
         })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .catch(error => console.error('Error setting degree:', error));
+    };
+
+    const handleSelectSemester = (semester: Semester) => {
+        setActiveSemester(semester);
+        if (selectedDegree) {
+            setTitle(`Modules for ${semester.name} of ${selectedDegree.name}`);
+            router.push(`/degree/${selectedDegree.id}/semester/${semester.id}/curriculum`);
+        }
     };
 
     const handleAddDegree = () => {
@@ -67,14 +65,14 @@ export function AppSidebar() {
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton>
-                                    {selectedDegree || "Select Degree"}
+                                    {selectedDegree?.name || "Select Degree"}
                                     <ChevronDown className="ml-auto"/>
                                 </SidebarMenuButton>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
-                                {degreeOptions.map((degree) => (
-                                    <DropdownMenuItem key={degree} onClick={() => handleSelectDegree(degree)}>
-                                        <span>{degree}</span>
+                                {degrees.map((degree) => (
+                                    <DropdownMenuItem key={degree.id} onClick={() => handleSelectDegree(degree)}>
+                                        <span>{degree.name}</span>
                                     </DropdownMenuItem>
                                 ))}
                                 <div className="my-2 border-t border-gray-300"></div>
@@ -94,41 +92,54 @@ export function AppSidebar() {
                     <SidebarGroupLabel>Studyflow</SidebarGroupLabel>
                     <SidebarMenu>
                         {navbarOptions.map((option) => (
-                            <Collapsible
-                                key={option.title}
-                                asChild
-                                className="group/collapsible"
-                            >
-                                <SidebarMenuItem>
-                                    {option.items && option.items.length > 0 ? (
-                                        <>
-                                            <CollapsibleTrigger asChild>
-                                                <SidebarMenuButton tooltip={option.title}>
-                                                    <span>{option.title}</span>
-                                                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                                                </SidebarMenuButton>
-                                            </CollapsibleTrigger>
-                                            <CollapsibleContent>
-                                                <SidebarMenuSub>
-                                                    {option.items.map((item) => (
-                                                        <SidebarMenuItem key={item}>
-                                                            <a href={`${basePath}${option.href}/${item}`}>{item}</a>
-                                                        </SidebarMenuItem>
-                                                    ))}
-                                                </SidebarMenuSub>
-                                            </CollapsibleContent>
-                                        </>
-                                    ) : (
-                                        <SidebarMenuButton asChild>
-                                            <a href={option.href} className="hover:text-foreground">
-                                                <span>{option.title}</span>
-                                            </a>
-                                        </SidebarMenuButton>
-                                    )}
-                                </SidebarMenuItem>
-                            </Collapsible>
+                            <SidebarMenuItem key={option.title}>
+                                <SidebarMenuButton asChild>
+                                    <a href={option.href} className={`hover:text-foreground ${basePath === option.href ? "font-bold" : ""}`}>
+                                        {option.title}
+                                    </a>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
                         ))}
                     </SidebarMenu>
+                </SidebarGroup>
+                <SidebarGroup>
+                    <SidebarGroupLabel>Curriculum</SidebarGroupLabel>
+                    <Collapsible open={isCollapsibleOpen} onOpenChange={setIsCollapsibleOpen}>
+                        <CollapsibleTrigger asChild>
+                            <SidebarMenuButton>
+                                Semesters
+                                {isCollapsibleOpen ? <ChevronUp className="ml-auto" /> : <ChevronDown className="ml-auto" />}
+                            </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                            <SidebarMenu>
+                                {selectedDegree?.semesters.map((semester, index) => (
+                                    <SidebarMenuItem key={index} className="flex items-center space-x-2">
+                                        <a
+                                            href="#"
+                                            className={`cursor-pointer ${activeSemester?.name === semester.name ? "text-blue-600 font-medium" : ""}`}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                handleSelectSemester(semester);
+                                            }}
+                                        >
+                                            {semester.name}
+                                        </a>
+                                    </SidebarMenuItem>
+                                ))}
+                                <div className="my-2 border-t border-gray-300"></div>
+                                <SidebarMenuItem>
+                                    <Button
+                                        className="w-full bg-transparent flex items-center justify-start space-x-2 p-2 text-gray-700 hover:bg-gray-100"
+                                        onClick={() => console.log("Add Semester clicked")}
+                                    >
+                                        <PlusIcon className="h-4 w-4 text-gray-600" />
+                                        <span>Add Semester</span>
+                                    </Button>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        </CollapsibleContent>
+                    </Collapsible>
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
