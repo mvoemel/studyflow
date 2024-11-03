@@ -3,21 +3,22 @@ import { useEffect, useState } from 'react';
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from '@fullcalendar/interaction'
+import { useDegree } from '@/context/DegreeContext';
 
 
 const SchedulePage = () => {
+    const { selectedDegree, activeSemester } = useDegree();
     const [events, setEvents] = useState([]);
 
     // TODO: Adjust for future database implementation
     useEffect(() => {
-        const fetchEvents = async () => {
-            const response = await fetch('/api/events');
-            const data = await response.json();
-            setEvents(data);
-        };
-
-        fetchEvents();
-    }, []);
+        if (selectedDegree && activeSemester) {
+            fetch(`/api/events?degreeId=${selectedDegree.id}&semesterId=${activeSemester.id}`)
+                .then(response => response.json())
+                .then(data => setEvents(data))
+                .catch(error => console.error('Error fetching events:', error));
+        }
+    }, [selectedDegree, activeSemester]);
 
   return (
 
