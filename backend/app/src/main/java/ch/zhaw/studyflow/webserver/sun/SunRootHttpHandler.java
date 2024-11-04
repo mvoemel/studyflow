@@ -10,6 +10,7 @@ import ch.zhaw.studyflow.webserver.http.*;
 import ch.zhaw.studyflow.webserver.http.contents.BodyContent;
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContentFactory;
+import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContentInstanceFactory;
 import ch.zhaw.studyflow.webserver.http.cookies.Cookie;
 import ch.zhaw.studyflow.webserver.http.cookies.CookieContainer;
 import ch.zhaw.studyflow.webserver.http.cookies.HashMapCookieContainer;
@@ -75,6 +76,11 @@ public class SunRootHttpHandler implements HttpHandler {
         }
     }
 
+    private void terminateWithUnsupportedMimeType(HttpExchange exchange) throws IOException {
+        exchange.sendResponseHeaders(HttpStatusCode.UNSUPPORTED_MEDIA_TYPE.getCode(), -1);
+        exchange.close();
+    }
+
     /**
      * Handles a routed request by constructing the request context and request processing pipeline.
      *
@@ -83,9 +89,15 @@ public class SunRootHttpHandler implements HttpHandler {
      * @throws IOException If an I/O error occurs.
      */
     private void handleRoutedRequest(final HttpExchange exchange, final Tuple<EndpointMetadata, List<String>> routingResult) throws IOException {
+        final ReadableBodyContent bodyContent = createRequestBody(exchange);
+        if (bodyContent == null) {
+            terminateWithUnsupportedMimeType(exchange);
+            return;
+        }
+
         final SunHttpRequest request = new SunHttpRequest(
                 exchange,
-                createRequestBody(exchange),
+                bodyContent,
                 createCookieContainer(exchange)
         );
 
@@ -134,11 +146,16 @@ public class SunRootHttpHandler implements HttpHandler {
         }
 
         Tuple<String, Map<String, String>> contentType = parseContentType(strings.getFirst());
-        return bodyContentRegistry.create(
-                contentType.value1(),
-                contentType.value2(),
-                exchange.getRequestBody()
-        );
+        try {
+            return bodyContentRegistry.create(
+                    contentType.value1(),
+                    contentType.value2(),
+                    exchange.getRequestBody()
+            );
+        } catch (IllegalArgumentException e) {
+            LOGGER.log(Level.FINE, "Rejected request due to unsupported mime type '%s'".formatted(strings.getFirst()), e);
+            return null;
+        }
     }
 
     /**
