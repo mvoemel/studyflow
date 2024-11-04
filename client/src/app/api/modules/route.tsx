@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 //TODO: implement database connection and replace mock data
 const modules = [
     {
+        id: 1,
         degreeId: 1,
         semesterId: 1,
         name: 'Web Development',
@@ -12,6 +13,7 @@ const modules = [
         Importance: 9,
     },
     {
+        id: 2,
         degreeId: 1,
         semesterId: 1,
         name: 'Software Development',
@@ -21,6 +23,7 @@ const modules = [
         Importance: 8,
     },
     {
+        id3: 3,
         degreeId: 1,
         semesterId: 1,
         name: 'Database Systems',
@@ -30,6 +33,7 @@ const modules = [
         Importance: 9,
     },
     {
+        id: 4,
         degreeId: 1,
         semesterId: 1,
         name: 'Computer Networks',
@@ -39,6 +43,7 @@ const modules = [
         Importance: 7,
     },
     {
+        id: 5,
         degreeId: 1,
         semesterId: 2,
         name: 'Algorithms and Data Structures',
@@ -48,6 +53,7 @@ const modules = [
         Importance: 10,
     },
     {
+        id: 6,
         degreeId: 1,
         semesterId: 2,
         name: 'Operating Systems',
@@ -57,6 +63,7 @@ const modules = [
         Importance: 9,
     },
     {
+        id: 7,
         degreeId: 1,
         semesterId: 2,
         name: 'Artificial Intelligence',
@@ -66,6 +73,7 @@ const modules = [
         Importance: 10,
     },
     {
+        id: 8,
         degreeId: 1,
         semesterId: 2,
         name: 'Machine Learning',

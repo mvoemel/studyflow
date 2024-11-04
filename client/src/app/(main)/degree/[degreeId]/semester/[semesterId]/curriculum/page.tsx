@@ -18,17 +18,9 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter
-} from "@/components/ui/dialog";
-import { ModuleForms } from "@/components/settings/modules/moduleForms";
 import { useParams } from 'next/navigation';
 import { useDegree } from '@/context/DegreeContext';
+import { ModuleDialog } from "@/components/dialogs/moduleDialog";
 
 type Module = {
     id: number;
@@ -129,7 +121,7 @@ const ModulesSettingsPage = () => {
                         </TableHeader>
                         <TableBody>
                             {modules.map((module) => (
-                                <TableRow key={module.id}>
+                                <TableRow key={`${module.id}-${module.degreeId}-${module.semesterId}`}>
                                     <TableCell className="font-medium">{module.name}</TableCell>
                                     <TableCell>{module.ECTS}</TableCell>
                                     <TableCell>{module.Understanding + "/10"}</TableCell>
@@ -165,46 +157,19 @@ const ModulesSettingsPage = () => {
                 </CardFooter>
             </Card>
 
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-h-screen overflow-scroll">
-                    <DialogHeader>
-                        <DialogTitle>Edit Module</DialogTitle>
-                        <DialogDescription>
-                            Edit the details of the module.
-                        </DialogDescription>
-                    </DialogHeader>
-                    {selectedModule && (
-                        <ModuleForms
-                            defaultValues={{
-                                moduleName: selectedModule.name,
-                                moduleDescription: "",
-                                moduleECTS: parseInt(selectedModule.ECTS),
-                                moduleUnderstanding: parseInt(selectedModule.Understanding),
-                                moduleTime: parseInt(selectedModule.Time),
-                                moduleImportance: parseInt(selectedModule.Importance),
-                            }}
-                        />
-                    )}
-                    <DialogFooter>
-                        <Button onClick={closeEditDialog}>Close</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <ModuleDialog
+                isOpen={isDialogOpen}
+                onClose={closeEditDialog}
+                isEdit={true}
+                module={selectedModule}
+            />
 
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                <DialogContent className="max-h-screen overflow-scroll">
-                    <DialogHeader>
-                        <DialogTitle>Add Module</DialogTitle>
-                        <DialogDescription>
-                            Fill in the details for the new module.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <ModuleForms/>
-                    <DialogFooter>
-                        <Button onClick={closeAddDialog}>Close</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <ModuleDialog
+                isOpen={isAddDialogOpen}
+                onClose={closeAddDialog}
+                isEdit={false}
+            />
+
         </div>
     );
 };

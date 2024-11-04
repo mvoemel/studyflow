@@ -16,14 +16,24 @@ import { Button } from "@/components/ui/button";
 import { useDegree, Degree, Semester } from '@/context/DegreeContext';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { AddDegreeDialog } from "@/components/dialogs/addDegree";
+import { AddSemesterDialog } from "@/components/dialogs/addSemester";
 
 export function AppSidebar() {
-    const basePath = useBasePath();
-    const { selectedDegree, setSelectedDegree, activeSemester, setActiveSemester, degrees } = useDegree();
+    const basePath = useBasePath(); // Get the base path
+    const { selectedDegree, setSelectedDegree, activeSemester, setActiveSemester, degrees } = useDegree(); // Get the selected degree
     const [title, setTitle] = useState<string>("");
     const [isCollapsibleOpen, setIsCollapsibleOpen] = useState<boolean>(true);
     const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null); // Track the selected semester
     const router = useRouter();
+    const [isAddDegreeDialogOpen, setIsAddDegreeDialogOpen] = useState(false);
+    const [isAddSemesterDialogOpen, setIsAddSemesterDialogOpen] = useState(false);
+
+    const openAddDegreeDialog = () => setIsAddDegreeDialogOpen(true);
+    const closeAddDegreeDialog = () => setIsAddDegreeDialogOpen(false);
+
+    const openAddSemesterDialog = () => setIsAddSemesterDialogOpen(true);
+    const closeAddSemesterDialog = () => setIsAddSemesterDialogOpen(false);
 
     const handleSelectDegree = (degree: Degree) => {
         setSelectedDegree(degree);
@@ -60,7 +70,11 @@ export function AppSidebar() {
     };
 
     const handleAddDegree = () => {
-        console.log("Add Degree");
+        openAddDegreeDialog()
+    }
+
+    const handleAddSemester = () => {
+        openAddSemesterDialog()
     }
 
     const handleEditSemester = (semester: Semester) => {
@@ -75,6 +89,10 @@ export function AppSidebar() {
         setActiveSemester(semester);
         console.log("Set Active Semester", semester);
     };
+
+    const handleProfileClick = () => {
+        router.push("/profile");
+    }
 
     return (
         <Sidebar>
@@ -96,7 +114,7 @@ export function AppSidebar() {
                                 ))}
                                 <div className="my-2 border-t border-gray-300"></div>
                                 <DropdownMenuItem asChild>
-                                    <Button className="w-full bg-transparent flex items-center justify-start space-x-2 p-2 text-gray-700 hover:bg-gray-100">
+                                    <Button onClick={handleAddDegree} className="w-full bg-transparent flex items-center justify-start space-x-2 p-2 text-gray-700 hover:bg-gray-100">
                                         <PlusIcon className="h-4 w-4 text-gray-600" />
                                         <span>Add Degree</span>
                                     </Button>
@@ -181,7 +199,7 @@ export function AppSidebar() {
                                     <SidebarMenuItem>
                                         <Button
                                             className="w-full bg-transparent flex items-center justify-start space-x-2 p-2 text-gray-700 hover:bg-gray-100"
-                                            onClick={() => console.log("Add Semester clicked")}
+                                            onClick={handleAddSemester}
                                         >
                                             <PlusIcon className="h-4 w-4 text-gray-600" />
                                             <span>Add Semester</span>
@@ -207,11 +225,8 @@ export function AppSidebar() {
                                 side="top"
                                 className="w-[--radix-popper-anchor-width]"
                             >
-                                <DropdownMenuItem>
-                                    <span>Account</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <span>Billing</span>
+                                <DropdownMenuItem onClick={handleProfileClick}>
+                                    <span>Profile</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
                                     <span>Sign out</span>
@@ -221,6 +236,8 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarFooter>
+            <AddDegreeDialog isOpen={isAddDegreeDialogOpen} onClose={closeAddDegreeDialog} />
+            <AddSemesterDialog isOpen={isAddSemesterDialogOpen} onClose={closeAddSemesterDialog } />
         </Sidebar>
     )
 }
