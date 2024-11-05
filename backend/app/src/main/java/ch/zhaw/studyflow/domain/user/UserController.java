@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.controllers;
+package ch.zhaw.studyflow.domain.user;
 
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
@@ -6,8 +6,6 @@ import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.annotations.*;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
-import ch.zhaw.studyflow.webserver.http.contents.TextContent;
-import ch.zhaw.studyflow.webserver.http.cookies.Cookie;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 
 @Route(path = "user")
