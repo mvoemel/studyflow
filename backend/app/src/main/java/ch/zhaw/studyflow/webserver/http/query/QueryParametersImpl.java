@@ -16,9 +16,7 @@ public class QueryParametersImpl implements QueryParameters {
 
     @Override
     public Optional<String> getSingleValue(String key) {
-        if (key == null) {
-            throw new IllegalArgumentException("Key cannot be null");
-        }
+        Objects.requireNonNull(key, "Key cannot be null");
         List<String> values = parameters.get(key);
         if (values == null || values.isEmpty()) {
             return Optional.empty();
@@ -31,9 +29,7 @@ public class QueryParametersImpl implements QueryParameters {
 
     @Override
     public Optional<List<String>> getValues(String key) {
-        if (key == null) {
-            throw new IllegalArgumentException("Key cannot be null");
-        }
+        Objects.requireNonNull(key, "Key cannot be null");
         List<String> values = parameters.get(key);
         return values == null ? Optional.empty() : Optional.of(values);
     }

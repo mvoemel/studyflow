@@ -25,13 +25,13 @@ public class QueryParametersImplTest {
     @Test
     public void testGetSingleValueWithNullKey() {
         QueryParametersImpl queryParams = new QueryParametersImpl("key1=value1");
-        assertThrows(IllegalArgumentException.class, () -> queryParams.getSingleValue(null));
+        assertThrows(NullPointerException.class, () -> queryParams.getSingleValue(null));
     }
 
     @Test
     public void testGetValuesWithNullKey() {
         QueryParametersImpl queryParams = new QueryParametersImpl("key1=value1");
-        assertThrows(IllegalArgumentException.class, () -> queryParams.getValues(null));
+        assertThrows(NullPointerException.class, () -> queryParams.getValues(null));
     }
 
     @Test
