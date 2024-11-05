@@ -4,8 +4,9 @@ import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.cookies.Cookie;
 import ch.zhaw.studyflow.webserver.security.authentication.Principal;
+import ch.zhaw.studyflow.webserver.security.authentication.impls.PrincipalImpl;
 import ch.zhaw.studyflow.webserver.security.authentication.PrincipalProvider;
-import ch.zhaw.studyflow.webserver.security.authentication.claims.Claim;
+import ch.zhaw.studyflow.webserver.security.authentication.Claim;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,6 +16,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -34,26 +36,34 @@ public class JwtPrincipalProvider extends PrincipalProvider {
     public JwtPrincipalProvider(JwtPrincipalProviderOptions options, List<Claim<?>> knownClaims) {
         super(knownClaims);
 
-        this.options        = options;
-        this.keySpec        = new SecretKeySpec(options.getSecret().getBytes(), options.getHsAlgorithm());
-        this.objectMapper   = new ObjectMapper();
-        this.precomputedHeader = precomputeHeader(options.getHsAlgorithm());
+        this.options            = options;
+        this.keySpec            = new SecretKeySpec(options.getSecret().getBytes(), options.getHashAlgorithm().getMacName());
+        this.objectMapper       = new ObjectMapper();
+        this.precomputedHeader  = buildPrecomputedHeader();
     }
 
 
     @Override
     public Principal getPrincipal(HttpRequest request) {
         Optional<Cookie> jwt = request.getCookies().get(options.getCookieName());
-        JwtPrincipal result = new JwtPrincipal();
+        PrincipalImpl result = new PrincipalImpl();
         if (jwt.isEmpty()) {
             return result;
         }
+
+        final Cookie cookie = jwt.get();
+        if (!validateTokenLifetime(cookie.getExpires())) {
+            LOGGER.log(Level.FINE, "Failed to validate token, expired");
+            return result;
+        }
+
         String[] parts = jwt.get().getValue().split("\\.");
         if (parts.length == 3) {
-            if (!validateToken(parts[0], parts[1], parts[2])) {
+            if (!validateTokenBySignature(parts[0], parts[1], parts[2])) {
                 LOGGER.log(Level.WARNING, "Failed to validate token, invalid signature");
                 return result;
             }
+
             try {
                 JsonNode rootNode = objectMapper.readTree(parts[1]);
 
@@ -71,8 +81,28 @@ public class JwtPrincipalProvider extends PrincipalProvider {
         return result;
     }
 
+    @Override
+    public void setPrincipal(HttpResponse response, Principal principal) {
+        final String claims = buildClaimsPart(principal);
 
-    private boolean validateToken(String settings, String claims, String signature) {
+        byte[] signature = calculateSignature(precomputedHeader, claims);
+        if (signature != null) {
+            Cookie cookie = new Cookie(options.getCookieName(), precomputedHeader + "." + claims + "." + new String(signature));
+            cookie.setExpires(LocalDateTime.now().plus(options.getExpiresAfter()));
+            response.getCookies().set(options.getCookieName(), precomputedHeader + "." + claims + "." + new String(signature));
+        }
+    }
+
+    private String buildPrecomputedHeader() {
+        return Base64.getEncoder().encodeToString(("{\"alg\":\"" + options.getHashAlgorithm().getMacName() + "\",\"typ\":\"JWT\"}").getBytes());
+    }
+
+
+    private boolean validateTokenLifetime(LocalDateTime expirationDate) {
+        return expirationDate.isAfter(LocalDateTime.now());
+    }
+
+    private boolean validateTokenBySignature(String settings, String claims, String signature) {
         boolean result = false;
         try {
             byte[] hash = calculateSignature(settings, claims);
@@ -87,7 +117,7 @@ public class JwtPrincipalProvider extends PrincipalProvider {
 
     private byte[] calculateSignature(String settings, String claims) {
         try {
-            Mac mac = Mac.getInstance(options.getHsAlgorithm());
+            Mac mac = Mac.getInstance(options.getHashAlgorithm().getMacName());
             mac.init(keySpec);
             mac.update(settings.getBytes());
             mac.update(claims.getBytes());
@@ -96,20 +126,6 @@ public class JwtPrincipalProvider extends PrincipalProvider {
             LOGGER.log(Level.SEVERE, "Failed to validate token", e);
         }
         return null;
-    }
-
-    @Override
-    public void setPrincipal(HttpResponse response, Principal principal) {
-        final String claims = buildClaimsPart(principal);
-
-        byte[] signature = calculateSignature(precomputedHeader, claims);
-        if (signature != null) {
-            response.getCookies().set(options.getCookieName(), precomputedHeader + "." + claims + "." + new String(signature));
-        }
-    }
-
-    private String precomputeHeader(String algorithm) {
-        return Base64.getEncoder().encodeToString(("{\"alg\":\"" + algorithm + "\",\"typ\":\"JWT\"}").getBytes());
     }
 
     private String buildClaimsPart(Principal principal) {

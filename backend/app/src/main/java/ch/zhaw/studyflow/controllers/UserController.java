@@ -7,10 +7,12 @@ import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.authentication.PrincipalProvider;
-import ch.zhaw.studyflow.webserver.security.authentication.jwt.JwtPrincipal;
+import ch.zhaw.studyflow.webserver.security.authentication.jwt.JwtHashAlgorithm;
+import ch.zhaw.studyflow.webserver.security.authentication.impls.PrincipalImpl;
 import ch.zhaw.studyflow.webserver.security.authentication.jwt.JwtPrincipalProvider;
 import ch.zhaw.studyflow.webserver.security.authentication.jwt.JwtPrincipalProviderOptions;
 
+import java.time.Duration;
 import java.util.ArrayList;
 
 @Route(path = "user")
@@ -24,11 +26,11 @@ public class UserController {
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getUser(RequestContext context) {
         PrincipalProvider principalProvider = new JwtPrincipalProvider(
-                new JwtPrincipalProviderOptions("secret", "HmacSHA512", "jwt", 69),
+                new JwtPrincipalProviderOptions("secret", JwtHashAlgorithm.HS256, "jwt", Duration.ofDays(32)),
                 new ArrayList<>()
         );
         HttpResponse response = context.getRequest().createResponse();
-        JwtPrincipal principal = new JwtPrincipal();
+        PrincipalImpl principal = new PrincipalImpl();
         principal.addClaim(CommonClaims.USERID, 1243);
         principal.addClaim(CommonClaims.AUTHENTICATED, true);
         principalProvider.setPrincipal(response, principal);
