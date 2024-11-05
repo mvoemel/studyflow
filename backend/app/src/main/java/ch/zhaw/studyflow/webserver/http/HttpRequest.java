@@ -2,6 +2,7 @@ package ch.zhaw.studyflow.webserver.http;
 
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.cookies.CookieContainer;
+import ch.zhaw.studyflow.webserver.http.query.QueryParameters;
 
 import java.nio.charset.Charset;
 import java.util.Optional;
@@ -27,4 +28,10 @@ public interface HttpRequest {
      * @return a response for the request.
      */
     HttpResponse createResponse();
+
+    /**
+     * Returns the query parameters of the request.
+     * @return the query parameters of the request.
+     */
+    QueryParameters getQueryParameters();
 }
