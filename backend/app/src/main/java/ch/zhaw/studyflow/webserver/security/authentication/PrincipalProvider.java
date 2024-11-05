@@ -1,5 +1,7 @@
 package ch.zhaw.studyflow.webserver.security.authentication;
 
+import ch.zhaw.studyflow.webserver.http.HttpRequest;
+import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.claims.Claim;
 
@@ -18,6 +20,6 @@ public abstract class PrincipalProvider {
         return knownClaims;
     }
 
-    public abstract Principal getPrincipal(RequestContext requestContext);
-    public abstract void setPrincipal(RequestContext requestContext, Principal principal);
+    public abstract Principal getPrincipal(HttpRequest request);
+    public abstract void setPrincipal(HttpResponse response, Principal principal);
 }
