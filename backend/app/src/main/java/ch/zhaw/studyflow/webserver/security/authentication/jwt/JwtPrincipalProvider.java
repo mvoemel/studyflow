@@ -28,6 +28,8 @@ public class JwtPrincipalProvider extends PrincipalProvider {
     private static final Logger LOGGER = Logger.getLogger(JwtPrincipalProvider.class.getName());
 
     private final JwtPrincipalProviderOptions options;
+    private final Base64.Encoder base64Encoder;
+    private final Base64.Decoder base64Decoder;
     private final SecretKeySpec keySpec;
     private final ObjectMapper objectMapper;
     private final String precomputedHeader;
@@ -37,6 +39,8 @@ public class JwtPrincipalProvider extends PrincipalProvider {
         super(knownClaims);
 
         this.options            = options;
+        this.base64Encoder      = Base64.getUrlEncoder().withoutPadding();
+        this.base64Decoder      = Base64.getUrlDecoder();
         this.keySpec            = new SecretKeySpec(options.getSecret().getBytes(), options.getHashAlgorithm().getMacName());
         this.objectMapper       = new ObjectMapper();
         this.precomputedHeader  = buildPrecomputedHeader();
@@ -65,7 +69,7 @@ public class JwtPrincipalProvider extends PrincipalProvider {
             }
 
             try {
-                JsonNode rootNode = objectMapper.readTree(parts[1]);
+                JsonNode rootNode = objectMapper.readTree(base64Decoder.decode(parts[1]));
 
                 for (Claim<?> knownClaim : getKnownClaims()) {
                     String fieldName = knownClaim.getName();
@@ -74,7 +78,7 @@ public class JwtPrincipalProvider extends PrincipalProvider {
                         handleClaim(result, node, knownClaim);
                     }
                 }
-            } catch (JsonProcessingException e) {
+            } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Failed to parse JWT cookie", e);
             }
         }
@@ -89,17 +93,21 @@ public class JwtPrincipalProvider extends PrincipalProvider {
         if (signature != null) {
             Cookie cookie = new Cookie(options.getCookieName(), precomputedHeader + "." + claims + "." + new String(signature));
             cookie.setExpires(LocalDateTime.now().plus(options.getExpiresAfter()));
-            response.getCookies().set(options.getCookieName(), precomputedHeader + "." + claims + "." + new String(signature));
+            response.getCookies().set(options.getCookieName(), precomputedHeader + "." + claims + "." + base64Encoder.encodeToString(signature));
         }
     }
 
     private String buildPrecomputedHeader() {
-        return Base64.getEncoder().encodeToString(("{\"alg\":\"" + options.getHashAlgorithm().getMacName() + "\",\"typ\":\"JWT\"}").getBytes());
+        return base64Encoder.encodeToString(("{\"alg\":\"" + options.getHashAlgorithm().getMacName() + "\",\"typ\":\"JWT\"}").getBytes());
     }
 
 
     private boolean validateTokenLifetime(LocalDateTime expirationDate) {
-        return expirationDate.isAfter(LocalDateTime.now());
+        boolean result = true;
+        if (expirationDate != null) {
+            result = expirationDate.isAfter(LocalDateTime.now());
+        }
+        return result;
     }
 
     private boolean validateTokenBySignature(String settings, String claims, String signature) {
@@ -107,7 +115,7 @@ public class JwtPrincipalProvider extends PrincipalProvider {
         try {
             byte[] hash = calculateSignature(settings, claims);
             if (hash != null) {
-                result = Arrays.equals(hash, signature.getBytes());
+                result = Arrays.equals(base64Decoder.decode(signature), hash);
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to validate token", e);
@@ -142,7 +150,8 @@ public class JwtPrincipalProvider extends PrincipalProvider {
                 generator.writeObject(claim.get());
             }
             generator.writeEndObject();
-            return Base64.getEncoder().encodeToString(writer.toString().getBytes());
+            generator.flush();
+            return base64Encoder.encodeToString(writer.toString().getBytes());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Failed to write principal to JSON", e);
         }
