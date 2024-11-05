@@ -2,7 +2,7 @@ package ch.zhaw.studyflow.webserver.sun;
 
 import ch.zhaw.studyflow.services.ServiceCollection;
 import ch.zhaw.studyflow.utils.Result;
-import ch.zhaw.studyflow.webserver.Tuple;
+import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.controllers.EndpointMetadata;
 import ch.zhaw.studyflow.webserver.controllers.routing.RouteSegment;
 import ch.zhaw.studyflow.webserver.controllers.routing.RouteTrie;
@@ -11,7 +11,6 @@ import ch.zhaw.studyflow.webserver.http.*;
 import ch.zhaw.studyflow.webserver.http.contents.BodyContent;
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContentFactory;
-import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContentInstanceFactory;
 import ch.zhaw.studyflow.webserver.http.cookies.Cookie;
 import ch.zhaw.studyflow.webserver.http.cookies.CookieContainer;
 import ch.zhaw.studyflow.webserver.http.cookies.HashMapCookieContainer;
@@ -20,7 +19,6 @@ import ch.zhaw.studyflow.webserver.http.pipeline.RequestProcessor;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
