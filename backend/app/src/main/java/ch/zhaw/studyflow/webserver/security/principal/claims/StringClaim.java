@@ -6,6 +6,6 @@ import java.util.function.Function;
 
 public class StringClaim extends Claim<String> {
     public  StringClaim(String name) {
-        super(name, String.class, Function.identity(), Function.identity());
+        super(name, String.class);
     }
 }

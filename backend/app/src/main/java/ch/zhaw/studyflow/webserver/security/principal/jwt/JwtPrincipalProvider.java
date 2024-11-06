@@ -14,8 +14,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Base64;
@@ -24,6 +26,9 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * A PrincipalProvider that uses JWTs to store the principal.
+ */
 public class JwtPrincipalProvider extends PrincipalProvider {
     private static final Logger LOGGER = Logger.getLogger(JwtPrincipalProvider.class.getName());
 
@@ -34,7 +39,11 @@ public class JwtPrincipalProvider extends PrincipalProvider {
     private final ObjectMapper objectMapper;
     private final String precomputedHeader;
 
-
+    /**
+     * Creates a new JwtPrincipalProvider.
+     * @param options The options for the provider.
+     * @param knownClaims The known claims that the provider should look for in the JWT.
+     */
     public JwtPrincipalProvider(JwtPrincipalProviderOptions options, List<Claim<?>> knownClaims) {
         super(knownClaims);
 
@@ -97,11 +106,20 @@ public class JwtPrincipalProvider extends PrincipalProvider {
         }
     }
 
+    /**
+     * Builds the precomputed header part of the JWT (contains the algorithm and type).
+     * @return The precomputed header.
+     */
     private String buildPrecomputedHeader() {
         return base64Encoder.encodeToString(("{\"alg\":\"" + options.getHashAlgorithm().getJwtName() + "\",\"typ\":\"JWT\"}").getBytes());
     }
 
 
+    /**
+     * Validates the lifetime of a token.
+     * @param expirationDate The expiration date of the token.
+     * @return True if the token is still valid, false otherwise.
+     */
     private boolean validateTokenLifetime(LocalDateTime expirationDate) {
         boolean result = true;
         if (expirationDate != null) {
@@ -110,34 +128,50 @@ public class JwtPrincipalProvider extends PrincipalProvider {
         return result;
     }
 
+    /**
+     * Validates a token by its signature.
+     * @param settings The settings part of the token.
+     * @param claims The claims part of the token.
+     * @param signature The signature part of the token.
+     * @return True if the token is valid, false otherwise.
+     */
     private boolean validateTokenBySignature(String settings, String claims, String signature) {
-        boolean result = false;
         byte[] hash = calculateSignature(settings, claims);
+
+        boolean result = false;
         if (hash != null) {
             result = Arrays.equals(base64Decoder.decode(signature), hash);
         }
         return result;
     }
 
+    /**
+     * Calculates the signature of a token.
+     * @param settings The settings part of the token.
+     * @param claims The claims part of the token.
+     * @return The signature of the token.
+     */
     private byte[] calculateSignature(String settings, String claims) {
+        byte[] result = null;
         try {
+            // TODO: Check if a Mac instanced can be reused / cached.
             Mac mac = Mac.getInstance(options.getHashAlgorithm().getMacName());
             mac.init(keySpec);
             mac.update(settings.getBytes());
             mac.update(claims.getBytes());
-            return mac.doFinal(options.getSecret().getBytes());
+            result = mac.doFinal(options.getSecret().getBytes());
         } catch (Exception e) {
             /*
              * Since we check the algorithm availability in the constructor, this should never happen.
              */
             LOGGER.log(Level.SEVERE, "Failed to validate token", e);
         }
-        return null;
+        return result;
     }
 
     private String buildClaimsPart(Principal principal) {
-        StringWriter writer = new StringWriter();
-        try (JsonGenerator generator = objectMapper.createGenerator(writer)) {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        try (JsonGenerator generator = objectMapper.createGenerator(buffer)) {
             generator.writeStartObject();
             for (Claim<?> knownClaim : principal.getClaims()) {
                 Optional<?> claim = principal.getClaim(knownClaim);
@@ -150,11 +184,10 @@ public class JwtPrincipalProvider extends PrincipalProvider {
             }
             generator.writeEndObject();
             generator.flush();
-            return base64Encoder.encodeToString(writer.toString().getBytes());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Failed to write principal to JSON", e);
         }
-        return null;
+        return base64Encoder.encodeToString(buffer.toByteArray());
     }
 
     /**

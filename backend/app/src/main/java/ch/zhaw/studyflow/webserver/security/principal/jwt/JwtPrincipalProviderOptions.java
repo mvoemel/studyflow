@@ -7,7 +7,6 @@ import java.util.Objects;
 
 /**
  * Options for the JwtPrincipalProvider.
- * All options are required.
  */
 public class JwtPrincipalProviderOptions {
     private final String cookieName;
@@ -15,13 +14,19 @@ public class JwtPrincipalProviderOptions {
     private final String secret;
     private final Duration expiresAfter;
 
-
+    /**
+     * Creates a new instance of JwtPrincipalProviderOptions.
+     * @param cookieName The name of the cookie that will be used to store the JWT.
+     * @param hashAlgorithm The hash algorithm that will be used to sign the JWT.
+     * @param secret The secret that will be used to sign the JWT.
+     * @param expiresAfter The time a jwt token is considered valid in seconds.
+     */
     public JwtPrincipalProviderOptions(String cookieName, JwtHashAlgorithm hashAlgorithm, String secret, Duration expiresAfter) {
         Objects.requireNonNull(cookieName, "cookieName must not be null");
         Objects.requireNonNull(hashAlgorithm, "hashAlgorithm must not be null");
         Objects.requireNonNull(secret, "secret must not be null");
         Objects.requireNonNull(expiresAfter, "expiresAfter must not be null");
-        checkAlgorithmAvailability(hashAlgorithm.getMacName());
+        checkAlgorithmAvailability(hashAlgorithm);
 
         this.cookieName     = cookieName;
         this.hashAlgorithm  = hashAlgorithm;
@@ -61,13 +66,17 @@ public class JwtPrincipalProviderOptions {
     }
 
 
-    private void checkAlgorithmAvailability(String name) {
+    /**
+     * Checks if the provided algorithm is available.
+     * @param algorithm The algorithm to check.
+     */
+    private void checkAlgorithmAvailability(JwtHashAlgorithm algorithm) {
         // check if the algorithm provided in name is available
         for (Provider provider : Security.getProviders()) {
-            if (provider.getService("Mac", name) != null) {
+            if (provider.getService("Mac", algorithm.getMacName()) != null) {
                 return;
             }
         }
-        throw new IllegalArgumentException("Algorithm not available: " + name);
+        throw new IllegalArgumentException("Algorithm not available: " + algorithm.getMacName());
     }
 }
