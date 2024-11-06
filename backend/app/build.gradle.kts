@@ -1,4 +1,5 @@
 val JUNIT_VERSION               = "5.11.+"
+val MOCKITO_VERSION             = "5.3.1"
 
 val JACKSON_CORE_VERSION        = "2.18.0"
 val JACKSON_ANNOTATIONS_VERSION = "2.18.0"
@@ -20,6 +21,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-core:$JACKSON_CORE_VERSION")
     implementation("com.fasterxml.jackson.core:jackson-annotations:$JACKSON_ANNOTATIONS_VERSION")
     implementation("com.fasterxml.jackson.core:jackson-databind:$JACKSON_DATABIND_VERSION")
+
+    testImplementation("org.mockito:mockito-core:$MOCKITO_VERSION")
 }
 
 application {
