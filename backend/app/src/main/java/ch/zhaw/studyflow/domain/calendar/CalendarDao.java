@@ -10,10 +10,11 @@ public interface CalendarDao {
     /**
      * Saves a calendar.
      *
+     * @param userId the ID of the user
      * @param calendar the calendar to save
      * @return the saved calendar
      */
-    Calendar save(Calendar calendar);
+    Calendar save(long userId, Calendar calendar);
 
     /**
      * Reads all calendars for a user.
@@ -43,8 +44,9 @@ public interface CalendarDao {
     /**
      * Updates a calendar.
      *
+     * @param userId the ID of the user
      * @param calendar the calendar to update
      * @return the updated calendar
      */
-    Calendar update(Calendar calendar);
+    Calendar update(long userId, Calendar calendar);
 }

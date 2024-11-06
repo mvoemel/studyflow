@@ -21,18 +21,13 @@ public class SQLCalendarDao implements CalendarDao {
         this.connection = connection;
     }
 
-    /**
-     * Saves a calendar to the SQL database.
-     *
-     * @param calendar the calendar to save
-     * @return the saved calendar
-     */
     @Override
-    public Calendar save(Calendar calendar) {
-        String sql = "INSERT INTO calendars (id, name) VALUES (?, ?)";
+    public Calendar save(long userId, Calendar calendar) {
+        String sql = "INSERT INTO calendars (id, user_id, name) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setLong(1, calendar.getId());
-            stmt.setString(2, calendar.getName());
+            stmt.setLong(2, userId);
+            stmt.setString(3, calendar.getName());
             stmt.executeUpdate();
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -45,12 +40,6 @@ public class SQLCalendarDao implements CalendarDao {
         return calendar;
     }
 
-    /**
-     * Reads all calendars for a specific user from the SQL database.
-     *
-     * @param userId the ID of the user
-     * @return a list of calendars for the specified user
-     */
     @Override
     public List<Calendar> readAll(long userId) {
         List<Calendar> calendars = new ArrayList<>();
@@ -69,13 +58,6 @@ public class SQLCalendarDao implements CalendarDao {
         return calendars;
     }
 
-    /**
-     * Reads a specific calendar for a user from the SQL database.
-     *
-     * @param userId the ID of the user
-     * @param calendarId the ID of the calendar
-     * @return the calendar with the specified ID for the specified user, or null if not found
-     */
     @Override
     public Calendar read(long userId, long calendarId) {
         Calendar calendar = null;
@@ -94,12 +76,6 @@ public class SQLCalendarDao implements CalendarDao {
         return calendar;
     }
 
-    /**
-     * Deletes a specific calendar for a user from the SQL database.
-     *
-     * @param userId the ID of the user
-     * @param calendarId the ID of the calendar to delete
-     */
     @Override
     public void delete(long userId, long calendarId) {
         String sql = "DELETE FROM calendars WHERE user_id = ? AND id = ?";
@@ -112,18 +88,13 @@ public class SQLCalendarDao implements CalendarDao {
         }
     }
 
-    /**
-     * Updates a calendar in the SQL database.
-     *
-     * @param calendar the calendar to update
-     * @return the updated calendar
-     */
     @Override
-    public Calendar update(Calendar calendar) {
-        String sql = "UPDATE calendars SET name = ? WHERE id = ?";
+    public Calendar update(long userId, Calendar calendar) {
+        String sql = "UPDATE calendars SET name = ? WHERE id = ? AND user_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, calendar.getName());
             stmt.setLong(2, calendar.getId());
+            stmt.setLong(3, userId);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

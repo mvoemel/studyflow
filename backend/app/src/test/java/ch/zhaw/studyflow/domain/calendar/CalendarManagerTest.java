@@ -22,11 +22,11 @@ class CalendarManagerTest {
     @Test
     void testSave() {
         Calendar calendar = new Calendar(1, "Test Calendar");
-        when(calendarDao.save(calendar)).thenReturn(calendar);
+        when(calendarDao.save(1L, calendar)).thenReturn(calendar);
 
-        Calendar savedCalendar = calendarManager.save(calendar);
+        Calendar savedCalendar = calendarManager.save(1L, calendar);
         assertEquals(calendar, savedCalendar);
-        verify(calendarDao).save(calendar);
+        verify(calendarDao).save(1L, calendar);
     }
 
     @Test
@@ -63,10 +63,10 @@ class CalendarManagerTest {
     @Test
     void testUpdate() {
         Calendar calendar = new Calendar(1, "Test Calendar");
-        when(calendarDao.update(calendar)).thenReturn(calendar);
+        when(calendarDao.update(1L, calendar)).thenReturn(calendar);
 
-        Calendar updatedCalendar = calendarManager.update(calendar);
+        Calendar updatedCalendar = calendarManager.update(1L, calendar);
         assertEquals(calendar, updatedCalendar);
-        verify(calendarDao).update(calendar);
+        verify(calendarDao).update(1L, calendar);
     }
 }
