@@ -8,11 +8,16 @@ import java.util.Objects;
  * since it is not guaranteed to be secure.
  * @param <T> The type of the value.
  */
-public abstract class Claim<T> {
+public class Claim<T> {
     private final String name;
     private final Class<T> valueType;
 
-    protected Claim(String name, Class<T> valueType) {
+    /**
+     * Creates a new claim.
+     * @param name The name of the claim.
+     * @param valueType The type of the value of the claim.
+     */
+    public Claim(String name, Class<T> valueType) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(valueType);
 
