@@ -16,6 +16,8 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.security.Provider;
+import java.security.Security;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Base64;
@@ -98,7 +100,7 @@ public class JwtPrincipalProvider extends PrincipalProvider {
     }
 
     private String buildPrecomputedHeader() {
-        return base64Encoder.encodeToString(("{\"alg\":\"" + options.getHashAlgorithm().getMacName() + "\",\"typ\":\"JWT\"}").getBytes());
+        return base64Encoder.encodeToString(("{\"alg\":\"" + options.getHashAlgorithm().getJwtName() + "\",\"typ\":\"JWT\"}").getBytes());
     }
 
 
@@ -112,13 +114,9 @@ public class JwtPrincipalProvider extends PrincipalProvider {
 
     private boolean validateTokenBySignature(String settings, String claims, String signature) {
         boolean result = false;
-        try {
-            byte[] hash = calculateSignature(settings, claims);
-            if (hash != null) {
-                result = Arrays.equals(base64Decoder.decode(signature), hash);
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Failed to validate token", e);
+        byte[] hash = calculateSignature(settings, claims);
+        if (hash != null) {
+            result = Arrays.equals(base64Decoder.decode(signature), hash);
         }
         return result;
     }
@@ -131,6 +129,9 @@ public class JwtPrincipalProvider extends PrincipalProvider {
             mac.update(claims.getBytes());
             return mac.doFinal(options.getSecret().getBytes());
         } catch (Exception e) {
+            /*
+             * Since we check the algorithm availability in the constructor, this should never happen.
+             */
             LOGGER.log(Level.SEVERE, "Failed to validate token", e);
         }
         return null;

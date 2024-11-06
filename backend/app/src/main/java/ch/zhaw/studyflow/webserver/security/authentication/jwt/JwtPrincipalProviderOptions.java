@@ -1,6 +1,9 @@
 package ch.zhaw.studyflow.webserver.security.authentication.jwt;
 
+import java.security.Provider;
+import java.security.Security;
 import java.time.Duration;
+import java.util.Objects;
 
 /**
  * Options for the JwtPrincipalProvider.
@@ -14,6 +17,12 @@ public class JwtPrincipalProviderOptions {
 
 
     public JwtPrincipalProviderOptions(String cookieName, JwtHashAlgorithm hashAlgorithm, String secret, Duration expiresAfter) {
+        Objects.requireNonNull(cookieName, "cookieName must not be null");
+        Objects.requireNonNull(hashAlgorithm, "hashAlgorithm must not be null");
+        Objects.requireNonNull(secret, "secret must not be null");
+        Objects.requireNonNull(expiresAfter, "expiresAfter must not be null");
+        checkAlgorithmAvailability(hashAlgorithm.getMacName());
+        
         this.cookieName     = cookieName;
         this.hashAlgorithm  = hashAlgorithm;
         this.secret         = secret;
@@ -49,5 +58,16 @@ public class JwtPrincipalProviderOptions {
      */
     public Duration getExpiresAfter() {
         return expiresAfter;
+    }
+
+
+    private void checkAlgorithmAvailability(String name) {
+        // check if the algorithm provided in name is available
+        for (Provider provider : Security.getProviders()) {
+            if (provider.getService("Mac", name) != null) {
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Algorithm not available: " + name);
     }
 }
