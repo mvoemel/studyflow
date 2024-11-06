@@ -26,10 +26,12 @@ const formsSchema = z.object({
 
 type ModuleFormsProps = {
     defaultValues?: Partial<z.infer<typeof formsSchema>>;
+    onClose: () => void;
+    isEdit: boolean;
 }
 
 
-export function ModuleForms({defaultValues}: ModuleFormsProps) {
+export function ModuleForms({defaultValues, onClose, isEdit}: ModuleFormsProps) {
     const form = useForm<z.infer<typeof formsSchema>>({
         resolver: zodResolver(formsSchema),
         defaultValues: defaultValues || {
@@ -43,7 +45,13 @@ export function ModuleForms({defaultValues}: ModuleFormsProps) {
     })
 
     function onSubmit(values: z.infer<typeof formsSchema>) {
-        console.log(values)
+        if(isEdit) {
+            console.log("Edit", values)
+            onClose()
+        } else {
+            console.log("Add", values)
+            onClose()
+        }
     }
 
     return (
@@ -141,7 +149,8 @@ export function ModuleForms({defaultValues}: ModuleFormsProps) {
                 <FormDescription>
                     Rate these values from 0-10.
                 </FormDescription>
-                <Button type="submit">Submit</Button>
+                <Button type="submit">{isEdit? "Save" : "Add"}</Button>
+                <Button variant="ghost" onClick={onClose}>Cancel</Button>
             </form>
         </Form>
     )
