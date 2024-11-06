@@ -3,8 +3,6 @@ package ch.zhaw.studyflow.domain.calendar;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -20,31 +18,18 @@ class CalendarManagerTest {
     }
 
     @Test
-    void testSave() {
-        Calendar calendar = new Calendar(1, "Test Calendar");
-        when(calendarDao.save(1L, calendar)).thenReturn(calendar);
+    void testCreate() {
+        Calendar calendar = new Calendar(1, "Test Calendar", 1L);
+        when(calendarDao.create(calendar)).thenReturn(calendar);
 
-        Calendar savedCalendar = calendarManager.save(1L, calendar);
-        assertEquals(calendar, savedCalendar);
-        verify(calendarDao).save(1L, calendar);
-    }
-
-    @Test
-    void testReadAll() {
-        Calendar calendar1 = new Calendar(1, "Test Calendar 1");
-        Calendar calendar2 = new Calendar(2, "Test Calendar 2");
-        when(calendarDao.readAll(1L)).thenReturn(List.of(calendar1, calendar2));
-
-        List<Calendar> calendars = calendarManager.readAll(1L);
-        assertEquals(2, calendars.size());
-        assertTrue(calendars.contains(calendar1));
-        assertTrue(calendars.contains(calendar2));
-        verify(calendarDao).readAll(1L);
+        Calendar createdCalendar = calendarManager.create(calendar);
+        assertEquals(calendar, createdCalendar);
+        verify(calendarDao).create(calendar);
     }
 
     @Test
     void testRead() {
-        Calendar calendar = new Calendar(1, "Test Calendar");
+        Calendar calendar = new Calendar(1, "Test Calendar", 1L);
         when(calendarDao.read(1L, 1L)).thenReturn(calendar);
 
         Calendar readCalendar = calendarManager.read(1L, 1L);
@@ -62,11 +47,31 @@ class CalendarManagerTest {
 
     @Test
     void testUpdate() {
-        Calendar calendar = new Calendar(1, "Test Calendar");
-        when(calendarDao.update(1L, calendar)).thenReturn(calendar);
+        Calendar calendar = new Calendar(1, "Test Calendar", 1L);
+        when(calendarDao.update(calendar)).thenReturn(calendar);
 
-        Calendar updatedCalendar = calendarManager.update(1L, calendar);
+        Calendar updatedCalendar = calendarManager.update(calendar);
         assertEquals(calendar, updatedCalendar);
-        verify(calendarDao).update(1L, calendar);
+        verify(calendarDao).update(calendar);
+    }
+
+    @Test
+    void testGetCalendarId() {
+        Calendar calendar = new Calendar(1, "Test Calendar", 1L);
+        when(calendarDao.getCalendarId(calendar)).thenReturn(1L);
+
+        long calendarId = calendarManager.getCalendarId(calendar);
+        assertEquals(1L, calendarId);
+        verify(calendarDao).getCalendarId(calendar);
+    }
+
+    @Test
+    void testSetCalendarId() {
+        Calendar calendar = new Calendar(1, "Test Calendar", 1L);
+        doNothing().when(calendarDao).setCalendarId(calendar, 2L);
+
+        calendarManager.setCalendarId(calendar, 2L);
+        assertEquals(2L, calendar.getId());
+        verify(calendarDao).setCalendarId(calendar, 2L);
     }
 }

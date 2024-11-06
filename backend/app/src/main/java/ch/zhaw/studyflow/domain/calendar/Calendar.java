@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 public class Calendar {
     private long id;
     private String name;
+    private long ownerId;
 
     /**
      * Default constructor.
@@ -16,14 +17,16 @@ public class Calendar {
     public Calendar() {}
 
     /**
-     * Constructs a calendar with the specified ID and name.
+     * Constructs a calendar with the specified ID, name, and owner ID.
      *
      * @param id the ID of the calendar
      * @param name the name of the calendar
+     * @param ownerId the ID of the owner
      */
-    public Calendar(long id, String name) {
+    public Calendar(long id, String name, long ownerId) {
         this.id = id;
         this.name = name;
+        this.ownerId = ownerId;
     }
 
     /**
@@ -47,6 +50,16 @@ public class Calendar {
     }
 
     /**
+     * Gets the owner ID of the calendar.
+     *
+     * @return the owner ID of the calendar
+     */
+    @JsonGetter("ownerId")
+    public long getOwnerId() {
+        return ownerId;
+    }
+
+    /**
      * Sets the ID of the calendar.
      *
      * @param id the new ID of the calendar
@@ -64,5 +77,33 @@ public class Calendar {
     @JsonSetter("name")
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Sets the owner ID of the calendar.
+     *
+     * @param ownerId the new owner ID of the calendar
+     */
+    @JsonSetter("ownerId")
+    public void setOwnerId(long ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    /**
+     * Gets the calendar ID.
+     *
+     * @return the calendar ID
+     */
+    public long getCalendarId() {
+        return id;
+    }
+
+    /**
+     * Sets the calendar ID.
+     *
+     * @param calendarId the new calendar ID
+     */
+    public void setCalendarId(long calendarId) {
+        this.id = calendarId;
     }
 }

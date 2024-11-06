@@ -1,5 +1,6 @@
 package ch.zhaw.studyflow.domain.appointment;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,27 +19,27 @@ public class AppointmentManager implements AppointmentDao {
     }
 
     @Override
-    public Appointment save(long userId, long calendarId, Appointment appointment) {
-        return appointmentDao.save(userId, calendarId, appointment);
+    public Appointment create(Appointment appointment) {
+        return appointmentDao.create(appointment);
     }
 
     @Override
-    public List<Appointment> readAll(long userId, long calendarId) {
-        return appointmentDao.readAll(userId, calendarId);
+    public Appointment read(long calendarId, long id) {
+        return appointmentDao.read(calendarId, id);
     }
 
     @Override
-    public Appointment read(long userId, long calendarId, long appointmentId) {
-        return appointmentDao.read(userId, calendarId, appointmentId);
+    public List<Appointment> readAllBy(long calendarId, Date from, Date to) {
+        return appointmentDao.readAllBy(calendarId, from, to);
     }
 
     @Override
-    public Appointment update(long userId, long calendarId, Appointment appointment) {
-        return appointmentDao.update(userId, calendarId, appointment);
+    public void delete(long id) {
+        appointmentDao.delete(id);
     }
 
     @Override
-    public void delete(long userId, long calendarId, long appointmentId) {
-        appointmentDao.delete(userId, calendarId, appointmentId);
+    public Appointment update(Appointment appointment) {
+        return appointmentDao.update(appointment);
     }
 }

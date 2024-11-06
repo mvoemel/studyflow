@@ -14,14 +14,9 @@ public class MemoryCalendarDao implements CalendarDao {
     private final Map<Long, Map<Long, Calendar>> userCalendars = new HashMap<>();
 
     @Override
-    public Calendar save(long userId, Calendar calendar) {
-        userCalendars.computeIfAbsent(userId, k -> new HashMap<>()).put(calendar.getId(), calendar);
+    public Calendar create(Calendar calendar) {
+        userCalendars.computeIfAbsent(calendar.getOwnerId(), k -> new HashMap<>()).put(calendar.getId(), calendar);
         return calendar;
-    }
-
-    @Override
-    public List<Calendar> readAll(long userId) {
-        return new ArrayList<>(userCalendars.getOrDefault(userId, new HashMap<>()).values());
     }
 
     @Override
@@ -38,11 +33,21 @@ public class MemoryCalendarDao implements CalendarDao {
     }
 
     @Override
-    public Calendar update(long userId, Calendar calendar) {
-        Map<Long, Calendar> calendars = userCalendars.get(userId);
+    public Calendar update(Calendar calendar) {
+        Map<Long, Calendar> calendars = userCalendars.get(calendar.getOwnerId());
         if (calendars != null) {
             calendars.put(calendar.getId(), calendar);
         }
         return calendar;
+    }
+
+    @Override
+    public long getCalendarId(Calendar calendar) {
+        return calendar.getId();
+    }
+
+    @Override
+    public void setCalendarId(Calendar calendar, long calendarId) {
+        calendar.setId(calendarId);
     }
 }

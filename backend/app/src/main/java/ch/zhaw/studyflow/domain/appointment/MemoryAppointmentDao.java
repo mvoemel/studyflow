@@ -1,68 +1,49 @@
 package ch.zhaw.studyflow.domain.appointment;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * In-memory implementation of the AppointmentDao interface.
- * This class provides methods to perform CRUD operations on Appointment objects
- * stored in memory.
  */
 public class MemoryAppointmentDao implements AppointmentDao {
-    private final Map<Long, Map<Long, List<Appointment>>> userCalendarAppointments = new HashMap<>();
+    private final List<Appointment> appointments = new ArrayList<>();
 
     @Override
-    public Appointment save(long userId, long calendarId, Appointment appointment) {
-        userCalendarAppointments
-                .computeIfAbsent(userId, k -> new HashMap<>())
-                .computeIfAbsent(calendarId, k -> new ArrayList<>())
-                .add(appointment);
+    public Appointment create(Appointment appointment) {
+        appointments.add(appointment);
         return appointment;
     }
 
     @Override
-    public List<Appointment> readAll(long userId, long calendarId) {
-        return userCalendarAppointments
-                .getOrDefault(userId, new HashMap<>())
-                .getOrDefault(calendarId, new ArrayList<>());
-    }
-
-    @Override
-    public Appointment read(long userId, long calendarId, long appointmentId) {
-        return userCalendarAppointments
-                .getOrDefault(userId, new HashMap<>())
-                .getOrDefault(calendarId, new ArrayList<>())
-                .stream()
-                .filter(appointment -> appointment.getId() == appointmentId)
+    public Appointment read(long calendarId, long id) {
+        return appointments.stream()
+                .filter(a -> a.getCalendarId() == calendarId && a.getId() == id)
                 .findFirst()
                 .orElse(null);
     }
 
     @Override
-    public Appointment update(long userId, long calendarId, Appointment appointment) {
-        List<Appointment> appointments = userCalendarAppointments
-                .getOrDefault(userId, new HashMap<>())
-                .get(calendarId);
-        if (appointments != null) {
-            for (int i = 0; i < appointments.size(); i++) {
-                if (appointments.get(i).getId() == appointment.getId()) {
-                    appointments.set(i, appointment);
-                    return appointment;
-                }
-            }
-        }
-        return null;
+    public List<Appointment> readAllBy(long calendarId, Date from, Date to) {
+        return appointments.stream()
+                .filter(a -> a.getCalendarId() == calendarId &&
+                        !a.getStartTime().isBefore(from.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) &&
+                        !a.getEndTime().isAfter(to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void delete(long userId, long calendarId, long appointmentId) {
-        List<Appointment> appointments = userCalendarAppointments
-                .getOrDefault(userId, new HashMap<>())
-                .get(calendarId);
-        if (appointments != null) {
-            appointments.removeIf(appointment -> appointment.getId() == appointmentId);
-        }
+    public void delete(long id) {
+        appointments.removeIf(a -> a.getId() == id);
+    }
+
+    @Override
+    public Appointment update(Appointment appointment) {
+        delete(appointment.getId());
+        appointments.add(appointment);
+        return appointment;
     }
 }

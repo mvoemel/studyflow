@@ -1,5 +1,6 @@
 package ch.zhaw.studyflow.domain.appointment;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -8,50 +9,44 @@ import java.util.List;
 public interface AppointmentDao {
 
     /**
-     * Saves an appointment.
+     * Creates a new appointment.
      *
-     * @param userId the ID of the user
-     * @param calendarId the ID of the calendar
-     * @param appointment the appointment to save
-     * @return the saved appointment
+     * @param appointment the appointment to create
+     * @return the created appointment
      */
-    Appointment save(long userId, long calendarId, Appointment appointment);
+    Appointment create(Appointment appointment);
 
     /**
-     * Reads all appointments for a user and calendar.
+     * Reads a specific appointment by calendar ID and appointment ID.
      *
-     * @param userId the ID of the user
      * @param calendarId the ID of the calendar
-     * @return a list of appointments
-     */
-    List<Appointment> readAll(long userId, long calendarId);
-
-    /**
-     * Reads a specific appointment for a user and calendar.
-     *
-     * @param userId the ID of the user
-     * @param calendarId the ID of the calendar
-     * @param appointmentId the ID of the appointment
+     * @param id the ID of the appointment
      * @return the appointment, or null if not found
      */
-    Appointment read(long userId, long calendarId, long appointmentId);
+    Appointment read(long calendarId, long id);
 
     /**
-     * Deletes a specific appointment for a user and calendar.
+     * Reads all appointments for a calendar within a date range.
      *
-     * @param userId the ID of the user
      * @param calendarId the ID of the calendar
-     * @param appointmentId the ID of the appointment
+     * @param from the start date
+     * @param to the end date
+     * @return a list of appointments
      */
-    void delete(long userId, long calendarId, long appointmentId);
+    List<Appointment> readAllBy(long calendarId, Date from, Date to);
+
+    /**
+     * Deletes a specific appointment by appointment ID.
+     *
+     * @param id the ID of the appointment
+     */
+    void delete(long id);
 
     /**
      * Updates an appointment.
      *
-     * @param userId the ID of the user
-     * @param calendarId the ID of the calendar
      * @param appointment the appointment to update
      * @return the updated appointment
      */
-    Appointment update(long userId, long calendarId, Appointment appointment);
+    Appointment update(Appointment appointment);
 }
