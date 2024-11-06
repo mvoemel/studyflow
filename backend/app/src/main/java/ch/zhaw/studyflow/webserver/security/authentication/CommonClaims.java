@@ -19,5 +19,5 @@ public final class CommonClaims {
     /**
      * The user id claim is used to store the user id of a user.
      */
-    public static final Claim<Integer> USERID = new IntegerClaim("id");
+    public static final Claim<Integer> USER_ID = new IntegerClaim("id");
 }
