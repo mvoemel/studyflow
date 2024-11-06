@@ -11,22 +11,29 @@ import java.util.Map;
  * stored in memory.
  */
 public class MemoryAppointmentDao implements AppointmentDao {
-    private final Map<Long, List<Appointment>> userAppointments = new HashMap<>();
+    private final Map<Long, Map<Long, List<Appointment>>> userCalendarAppointments = new HashMap<>();
 
     @Override
-    public Appointment save(long userId, Appointment appointment) {
-        userAppointments.computeIfAbsent(userId, k -> new ArrayList<>()).add(appointment);
+    public Appointment save(long userId, long calendarId, Appointment appointment) {
+        userCalendarAppointments
+                .computeIfAbsent(userId, k -> new HashMap<>())
+                .computeIfAbsent(calendarId, k -> new ArrayList<>())
+                .add(appointment);
         return appointment;
     }
 
     @Override
-    public List<Appointment> readAll(long userId) {
-        return userAppointments.getOrDefault(userId, new ArrayList<>());
+    public List<Appointment> readAll(long userId, long calendarId) {
+        return userCalendarAppointments
+                .getOrDefault(userId, new HashMap<>())
+                .getOrDefault(calendarId, new ArrayList<>());
     }
 
     @Override
-    public Appointment read(long userId, long appointmentId) {
-        return userAppointments.getOrDefault(userId, new ArrayList<>())
+    public Appointment read(long userId, long calendarId, long appointmentId) {
+        return userCalendarAppointments
+                .getOrDefault(userId, new HashMap<>())
+                .getOrDefault(calendarId, new ArrayList<>())
                 .stream()
                 .filter(appointment -> appointment.getId() == appointmentId)
                 .findFirst()
@@ -34,8 +41,10 @@ public class MemoryAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public Appointment update(long userId, Appointment appointment) {
-        List<Appointment> appointments = userAppointments.get(userId);
+    public Appointment update(long userId, long calendarId, Appointment appointment) {
+        List<Appointment> appointments = userCalendarAppointments
+                .getOrDefault(userId, new HashMap<>())
+                .get(calendarId);
         if (appointments != null) {
             for (int i = 0; i < appointments.size(); i++) {
                 if (appointments.get(i).getId() == appointment.getId()) {
@@ -48,8 +57,10 @@ public class MemoryAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public void delete(long userId, long appointmentId) {
-        List<Appointment> appointments = userAppointments.get(userId);
+    public void delete(long userId, long calendarId, long appointmentId) {
+        List<Appointment> appointments = userCalendarAppointments
+                .getOrDefault(userId, new HashMap<>())
+                .get(calendarId);
         if (appointments != null) {
             appointments.removeIf(appointment -> appointment.getId() == appointmentId);
         }

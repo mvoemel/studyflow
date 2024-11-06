@@ -22,13 +22,14 @@ public class SQLAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public Appointment save(long userId, Appointment appointment) {
-        String sql = "INSERT INTO appointments (id, user_id, start_time, end_time) VALUES (?, ?, ?, ?)";
+    public Appointment save(long userId, long calendarId, Appointment appointment) {
+        String sql = "INSERT INTO appointments (id, user_id, calendar_id, start_time, end_time) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setLong(1, appointment.getId());
             stmt.setLong(2, userId);
-            stmt.setTimestamp(3, Timestamp.valueOf(appointment.getStartTime()));
-            stmt.setTimestamp(4, Timestamp.valueOf(appointment.getEndTime()));
+            stmt.setLong(3, calendarId);
+            stmt.setTimestamp(4, Timestamp.valueOf(appointment.getStartTime()));
+            stmt.setTimestamp(5, Timestamp.valueOf(appointment.getEndTime()));
             stmt.executeUpdate();
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -42,11 +43,12 @@ public class SQLAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public List<Appointment> readAll(long userId) {
+    public List<Appointment> readAll(long userId, long calendarId) {
         List<Appointment> appointments = new ArrayList<>();
-        String sql = "SELECT * FROM appointments WHERE user_id = ?";
+        String sql = "SELECT * FROM appointments WHERE user_id = ? AND calendar_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, userId);
+            stmt.setLong(2, calendarId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Appointment appointment = new Appointment(
@@ -64,12 +66,13 @@ public class SQLAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public Appointment read(long userId, long appointmentId) {
+    public Appointment read(long userId, long calendarId, long appointmentId) {
         Appointment appointment = null;
-        String sql = "SELECT * FROM appointments WHERE user_id = ? AND id = ?";
+        String sql = "SELECT * FROM appointments WHERE user_id = ? AND calendar_id = ? AND id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, userId);
-            stmt.setLong(2, appointmentId);
+            stmt.setLong(2, calendarId);
+            stmt.setLong(3, appointmentId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     appointment = new Appointment(
@@ -86,13 +89,14 @@ public class SQLAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public Appointment update(long userId, Appointment appointment) {
-        String sql = "UPDATE appointments SET start_time = ?, end_time = ? WHERE id = ? AND user_id = ?";
+    public Appointment update(long userId, long calendarId, Appointment appointment) {
+        String sql = "UPDATE appointments SET start_time = ?, end_time = ? WHERE id = ? AND user_id = ? AND calendar_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setTimestamp(1, Timestamp.valueOf(appointment.getStartTime()));
             stmt.setTimestamp(2, Timestamp.valueOf(appointment.getEndTime()));
             stmt.setLong(3, appointment.getId());
             stmt.setLong(4, userId);
+            stmt.setLong(5, calendarId);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -101,11 +105,12 @@ public class SQLAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public void delete(long userId, long appointmentId) {
-        String sql = "DELETE FROM appointments WHERE user_id = ? AND id = ?";
+    public void delete(long userId, long calendarId, long appointmentId) {
+        String sql = "DELETE FROM appointments WHERE user_id = ? AND calendar_id = ? AND id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, userId);
-            stmt.setLong(2, appointmentId);
+            stmt.setLong(2, calendarId);
+            stmt.setLong(3, appointmentId);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
