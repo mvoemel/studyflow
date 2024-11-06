@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.webserver.security.authentication.jwt;
+package ch.zhaw.studyflow.webserver.security.principal.jwt;
 
 import java.security.Provider;
 import java.security.Security;
@@ -22,7 +22,7 @@ public class JwtPrincipalProviderOptions {
         Objects.requireNonNull(secret, "secret must not be null");
         Objects.requireNonNull(expiresAfter, "expiresAfter must not be null");
         checkAlgorithmAvailability(hashAlgorithm.getMacName());
-        
+
         this.cookieName     = cookieName;
         this.hashAlgorithm  = hashAlgorithm;
         this.secret         = secret;

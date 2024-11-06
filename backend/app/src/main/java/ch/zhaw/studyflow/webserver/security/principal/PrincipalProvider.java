@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.webserver.security.authentication;
+package ch.zhaw.studyflow.webserver.security.principal;
 
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
@@ -21,6 +21,17 @@ public abstract class PrincipalProvider {
         return knownClaims;
     }
 
+    /**
+     * Extracts a principal from a request.
+     * @param request The request to extract the principal from.
+     * @return The principal that was extracted from the request.
+     */
     public abstract Principal getPrincipal(HttpRequest request);
+
+    /**
+     * Sets a principal in a response.
+     * @param response The response to set the principal in.
+     * @param principal The principal to set in the response.
+     */
     public abstract void setPrincipal(HttpResponse response, Principal principal);
 }

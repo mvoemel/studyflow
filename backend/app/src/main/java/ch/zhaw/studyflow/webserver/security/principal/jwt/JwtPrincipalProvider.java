@@ -1,12 +1,12 @@
-package ch.zhaw.studyflow.webserver.security.authentication.jwt;
+package ch.zhaw.studyflow.webserver.security.principal.jwt;
 
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.cookies.Cookie;
-import ch.zhaw.studyflow.webserver.security.authentication.Principal;
-import ch.zhaw.studyflow.webserver.security.authentication.impls.PrincipalImpl;
-import ch.zhaw.studyflow.webserver.security.authentication.PrincipalProvider;
-import ch.zhaw.studyflow.webserver.security.authentication.Claim;
+import ch.zhaw.studyflow.webserver.security.principal.Principal;
+import ch.zhaw.studyflow.webserver.security.principal.impls.PrincipalImpl;
+import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
+import ch.zhaw.studyflow.webserver.security.principal.Claim;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,8 +16,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.security.Provider;
-import java.security.Security;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Base64;

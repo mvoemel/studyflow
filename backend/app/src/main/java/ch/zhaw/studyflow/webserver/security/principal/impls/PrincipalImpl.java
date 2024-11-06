@@ -1,7 +1,7 @@
-package ch.zhaw.studyflow.webserver.security.authentication.impls;
+package ch.zhaw.studyflow.webserver.security.principal.impls;
 
-import ch.zhaw.studyflow.webserver.security.authentication.Claim;
-import ch.zhaw.studyflow.webserver.security.authentication.Principal;
+import ch.zhaw.studyflow.webserver.security.principal.Claim;
+import ch.zhaw.studyflow.webserver.security.principal.Principal;
 
 import java.util.HashMap;
 import java.util.Optional;

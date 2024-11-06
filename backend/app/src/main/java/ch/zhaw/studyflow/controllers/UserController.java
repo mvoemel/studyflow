@@ -4,37 +4,46 @@ import ch.zhaw.studyflow.webserver.http.HttpMethod;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.annotations.*;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
+import ch.zhaw.studyflow.webserver.http.contents.TextContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
-import ch.zhaw.studyflow.webserver.security.authentication.CommonClaims;
-import ch.zhaw.studyflow.webserver.security.authentication.PrincipalProvider;
-import ch.zhaw.studyflow.webserver.security.authentication.jwt.JwtHashAlgorithm;
-import ch.zhaw.studyflow.webserver.security.authentication.impls.PrincipalImpl;
-import ch.zhaw.studyflow.webserver.security.authentication.jwt.JwtPrincipalProvider;
-import ch.zhaw.studyflow.webserver.security.authentication.jwt.JwtPrincipalProviderOptions;
+import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
+import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
+import ch.zhaw.studyflow.webserver.security.principal.Principal;
+import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 
-import java.time.Duration;
-import java.util.ArrayList;
+import java.util.Random;
 
 @Route(path = "user")
 public class UserController {
-    public UserController() {
+    private final AuthenticationHandler authenticator;
+    private final PrincipalProvider principalProvider;
 
+    public UserController(AuthenticationHandler authenticator, PrincipalProvider principalProvider) {
+        this.authenticator      = authenticator;
+        this.principalProvider  = principalProvider;
     }
 
     // user/current/1:2/a/b/c
-    @Route(path = "current/{userId}")
+    @Route(path = "login")
     @Endpoint(method = HttpMethod.GET)
-    public HttpResponse getUser(RequestContext context) {
-        PrincipalProvider principalProvider = new JwtPrincipalProvider(
-                new JwtPrincipalProviderOptions("secret", JwtHashAlgorithm.HS256, "jwt", Duration.ofDays(32)),
-                new ArrayList<>()
-        );
+    public HttpResponse login(RequestContext context) {
+
         HttpResponse response = context.getRequest().createResponse();
-        PrincipalImpl principal = new PrincipalImpl();
-        principal.addClaim(CommonClaims.USERID, 1243);
+        Principal principal = principalProvider.getPrincipal(context.getRequest());
+        principal.addClaim(CommonClaims.USER_ID, new Random().nextInt());
         principal.addClaim(CommonClaims.AUTHENTICATED, true);
         principalProvider.setPrincipal(response, principal);
         response.setStatusCode(HttpStatusCode.OK);
         return response;
+    }
+
+    // user/current/1:2/a/b/c
+    @Route(path = "test")
+    @Endpoint(method = HttpMethod.GET)
+    public HttpResponse logout(RequestContext context) {
+        return authenticator.check(context.getRequest(), principal -> context.getRequest()
+                 .createResponse()
+                 .setResponseBody(TextContent.writableOf("UserId " + principal.getClaim(CommonClaims.USER_ID).get()))
+                 .setStatusCode(HttpStatusCode.OK));
     }
 }

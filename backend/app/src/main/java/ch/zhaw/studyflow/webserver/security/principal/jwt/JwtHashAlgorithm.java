@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.webserver.security.authentication.jwt;
+package ch.zhaw.studyflow.webserver.security.principal.jwt;
 
 /**
  * The hash algorithm that is used to sign the JWT.
@@ -8,7 +8,7 @@ public enum JwtHashAlgorithm {
     HS256("HS256", "HmacSHA256"),
     HS512("HS512", "HmacSHA512");
 
-    
+
     private final String jwtName;
     private final String javaName;
 

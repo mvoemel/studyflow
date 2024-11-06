@@ -1,7 +1,7 @@
-package ch.zhaw.studyflow.webserver.security.authentication;
+package ch.zhaw.studyflow.webserver.security.principal;
 
-import ch.zhaw.studyflow.webserver.security.authentication.claims.BooleanClaim;
-import ch.zhaw.studyflow.webserver.security.authentication.claims.IntegerClaim;
+import ch.zhaw.studyflow.webserver.security.principal.claims.BooleanClaim;
+import ch.zhaw.studyflow.webserver.security.principal.claims.IntegerClaim;
 
 /**
  * Common claims that are used in the application.

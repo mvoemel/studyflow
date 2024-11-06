@@ -1,6 +1,6 @@
-package ch.zhaw.studyflow.webserver.security.authentication.claims;
+package ch.zhaw.studyflow.webserver.security.principal.claims;
 
-import ch.zhaw.studyflow.webserver.security.authentication.Claim;
+import ch.zhaw.studyflow.webserver.security.principal.Claim;
 
 import java.util.function.Function;
 

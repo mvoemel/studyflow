@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.webserver.security.authentication;
+package ch.zhaw.studyflow.webserver.security.principal;
 
 import java.util.Optional;
 import java.util.Set;
