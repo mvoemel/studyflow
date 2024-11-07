@@ -1,7 +1,7 @@
 package ch.zhaw.studyflow.webserver.sun;
 
 import ch.zhaw.studyflow.services.ServiceCollection;
-import ch.zhaw.studyflow.webserver.Tuple;
+import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.controllers.routing.RouteTrie;
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContentFactory;
 import com.sun.net.httpserver.HttpExchange;

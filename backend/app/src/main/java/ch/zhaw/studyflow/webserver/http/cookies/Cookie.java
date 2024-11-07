@@ -28,8 +28,10 @@ public final class Cookie {
         Objects.requireNonNull(name, "name must not be null");
         Objects.requireNonNull(value, "value must not be null");
 
-        this.name   = name;
-        this.value  = value;
+        this.name       = name;
+        this.value      = value;
+        this.path       = "/";
+        this.httpOnly   = true;
     }
 
 
