@@ -30,7 +30,7 @@ public class UserController {
 
         HttpResponse response = context.getRequest().createResponse();
         Principal principal = principalProvider.getPrincipal(context.getRequest());
-        principal.addClaim(CommonClaims.USER_ID, new Random().nextInt());
+        principal.addClaim(CommonClaims.USER_ID, new Random().nextLong());
         principal.addClaim(CommonClaims.AUTHENTICATED, true);
         principalProvider.setPrincipal(response, principal);
         response.setStatusCode(HttpStatusCode.OK);
