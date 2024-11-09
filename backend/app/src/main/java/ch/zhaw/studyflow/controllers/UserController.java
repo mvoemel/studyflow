@@ -41,7 +41,7 @@ public class UserController {
     @Route(path = "test")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse logout(RequestContext context) {
-        return authenticator.check(context.getRequest(), principal -> context.getRequest()
+        return authenticator.handleIfAuthenticated(context.getRequest(), principal -> context.getRequest()
                  .createResponse()
                  .setResponseBody(TextContent.writableOf("UserId " + principal.getClaim(CommonClaims.USER_ID).get()))
                  .setStatusCode(HttpStatusCode.OK));

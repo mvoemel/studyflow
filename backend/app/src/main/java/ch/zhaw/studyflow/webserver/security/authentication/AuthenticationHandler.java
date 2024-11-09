@@ -18,5 +18,5 @@ public interface AuthenticationHandler {
      * @param handler The handler function to call if the request is authenticated.
      * @return The response of the handler function or a response with status code 401 if the request is not authenticated.
      */
-    HttpResponse check(HttpRequest request, Function<Principal, HttpResponse> handler);
+    HttpResponse handleIfAuthenticated(HttpRequest request, Function<Principal, HttpResponse> handler);
 }
