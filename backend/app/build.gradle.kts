@@ -8,7 +8,6 @@ val MOCKITO_VERSION             = "5.10.+"
 val MOCKITO_JUNIT_VERSION       = "5.10.+"
 
 plugins {
-    // Apply the application plugin to add support for building a CLI application in Java.
     application
 }
 
@@ -27,7 +26,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-annotations:$JACKSON_ANNOTATIONS_VERSION")
     implementation("com.fasterxml.jackson.core:jackson-databind:$JACKSON_DATABIND_VERSION")
 
-    testImplementation("org.mockito:mockito-core:$MOCKITO_VERSION")
+    implementation("org.springframework.boot:spring-boot-starter-web:3.1.0")
 }
 
 application {

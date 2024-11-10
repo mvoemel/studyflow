@@ -1,5 +1,7 @@
 package ch.zhaw.studyflow.domain.calendar;
 
+import java.util.List;
+
 public class CalendarManager {
     private final CalendarDao calendarDao;
 
@@ -30,5 +32,9 @@ public class CalendarManager {
     public void setCalendarId(Calendar calendar, long newId) {
         calendar.setId(newId);
         calendarDao.setCalendarId(calendar, newId);
+    }
+
+    public List<Calendar> getCalendars() {
+        return calendarDao.getAll();
     }
 }

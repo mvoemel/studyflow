@@ -54,4 +54,12 @@ public interface CalendarDao {
      * @param calendarId the new calendar ID
      */
     void setCalendarId(Calendar calendar, long calendarId);
+
+    /**
+     * Retrieves all calendars.
+     *
+     * @return a list of all calendars
+     */
+    List<Calendar> getAll();
+
 }
