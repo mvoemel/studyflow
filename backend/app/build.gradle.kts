@@ -1,5 +1,4 @@
 val JUNIT_VERSION               = "5.11.+"
-val MOCKITO_VERSION             = "5.3.1"
 
 val JACKSON_CORE_VERSION        = "2.18.0"
 val JACKSON_ANNOTATIONS_VERSION = "2.18.0"
