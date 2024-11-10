@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.webserver;
+package ch.zhaw.studyflow.utils;
 
 /**
  * A simple tuple class to hold two values.

@@ -18,20 +18,14 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter
-} from "@/components/ui/dialog";
-import { ModuleForms } from "@/components/settings/modules/moduleForms";
-import { Progress } from "@/components/ui/progress"
-
+import { useParams } from 'next/navigation';
+import { useDegree } from '@/context/DegreeContext';
+import { ModuleDialog } from "@/components/dialogs/moduleDialog";
 
 type Module = {
     id: number;
+    degreeId: number;
+    semesterId: number;
     name: string;
     ECTS: string;
     Understanding: string;
@@ -46,6 +40,17 @@ const ModulesSettingsPage = () => {
     const [modules, setModules] = useState<Module[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { degreeId, semesterId } = useParams();
+    const { degrees } = useDegree();
+    const [title, setTitle] = useState<string>('');
+
+    useEffect(() => {
+        const degree = degrees.find(degree => degree.id === parseInt(Array.isArray(degreeId) ? degreeId[0] : degreeId));
+        const semester = degree?.semesters.find(semester => semester.id === parseInt(Array.isArray(semesterId) ? semesterId[0] : semesterId));
+        if (degree && semester) {
+            setTitle(`Modules for ${semester.name} of ${degree.name}`);
+        }
+    }, [degreeId, semesterId, degrees]);
 
     useEffect(() => {
         const fetchModules = async () => {
@@ -55,7 +60,11 @@ const ModulesSettingsPage = () => {
                     throw new Error('Failed to fetch modules');
                 }
                 const data = await response.json();
-                setModules(data);
+                const filteredModules = data.filter((module: Module) =>
+                    module.degreeId === parseInt(Array.isArray(degreeId) ? degreeId[0] : degreeId) &&
+                    module.semesterId === parseInt(Array.isArray(semesterId) ? semesterId[0] : semesterId)
+                );
+                setModules(filteredModules);
             } catch (error) {
                 setError((error as Error).message);
             } finally {
@@ -64,7 +73,7 @@ const ModulesSettingsPage = () => {
         };
 
         fetchModules();
-    }, []);
+    }, [degreeId, semesterId]);
 
     const openEditDialog = useCallback((module: Module) => {
         setSelectedModule(module);
@@ -88,8 +97,9 @@ const ModulesSettingsPage = () => {
     }
 
     return (
-        <>
-            <Card>
+        <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
+            <h1 className="text-3xl font-semibold">{title || "Select a Semester"}</h1>
+            <Card className="max-w-[60%]">
                 <CardHeader>
                     <CardTitle>Modules</CardTitle>
                     <CardDescription>
@@ -111,7 +121,7 @@ const ModulesSettingsPage = () => {
                         </TableHeader>
                         <TableBody>
                             {modules.map((module) => (
-                                <TableRow key={module.id}>
+                                <TableRow key={`${module.id}-${module.degreeId}-${module.semesterId}`}>
                                     <TableCell className="font-medium">{module.name}</TableCell>
                                     <TableCell>{module.ECTS}</TableCell>
                                     <TableCell>{module.Understanding + "/10"}</TableCell>
@@ -131,9 +141,9 @@ const ModulesSettingsPage = () => {
                                                 strokeLinejoin="round"
                                                 className="lucide lucide-ellipsis"
                                             >
-                                                <circle cx="12" cy="12" r="1" />
-                                                <circle cx="19" cy="12" r="1" />
-                                                <circle cx="5" cy="12" r="1" />
+                                                <circle cx="12" cy="12" r="1"/>
+                                                <circle cx="19" cy="12" r="1"/>
+                                                <circle cx="5" cy="12" r="1"/>
                                             </svg>
                                         </button>
                                     </TableCell>
@@ -147,47 +157,20 @@ const ModulesSettingsPage = () => {
                 </CardFooter>
             </Card>
 
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-h-screen overflow-scroll">
-                    <DialogHeader>
-                        <DialogTitle>Edit Module</DialogTitle>
-                        <DialogDescription>
-                            Edit the details of the module.
-                        </DialogDescription>
-                    </DialogHeader>
-                    {selectedModule && (
-                        <ModuleForms
-                            defaultValues={{
-                                moduleName: selectedModule.name,
-                                moduleDescription: "",
-                                moduleECTS: parseInt(selectedModule.ECTS),
-                                moduleUnderstanding: parseInt(selectedModule.Understanding),
-                                moduleTime: parseInt(selectedModule.Time),
-                                moduleImportance: parseInt(selectedModule.Importance),
-                            }}
-                        />
-                    )}
-                    <DialogFooter>
-                        <Button onClick={closeEditDialog}>Close</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <ModuleDialog
+                isOpen={isDialogOpen}
+                onClose={closeEditDialog}
+                isEdit={true}
+                module={selectedModule}
+            />
 
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                <DialogContent className="max-h-screen overflow-scroll">
-                    <DialogHeader>
-                        <DialogTitle>Add Module</DialogTitle>
-                        <DialogDescription>
-                            Fill in the details for the new module.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <ModuleForms />
-                    <DialogFooter>
-                        <Button onClick={closeAddDialog}>Close</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </>
+            <ModuleDialog
+                isOpen={isAddDialogOpen}
+                onClose={closeAddDialog}
+                isEdit={false}
+            />
+
+        </div>
     );
 };
 

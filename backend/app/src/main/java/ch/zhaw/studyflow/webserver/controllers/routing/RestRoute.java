@@ -1,6 +1,6 @@
 package ch.zhaw.studyflow.webserver.controllers.routing;
 
-import ch.zhaw.studyflow.webserver.Tuple;
+import ch.zhaw.studyflow.utils.Tuple;
 
 import java.util.ArrayList;
 import java.util.Collections;
