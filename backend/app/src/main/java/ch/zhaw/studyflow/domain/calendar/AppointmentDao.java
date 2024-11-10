@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.domain.appointment;
+package ch.zhaw.studyflow.domain.calendar;
 
 import java.util.Date;
 import java.util.List;
@@ -12,9 +12,8 @@ public interface AppointmentDao {
      * Creates a new appointment.
      *
      * @param appointment the appointment to create
-     * @return the created appointment
      */
-    Appointment create(Appointment appointment);
+    void create(Appointment appointment);
 
     /**
      * Reads a specific appointment by calendar ID and appointment ID.
@@ -46,7 +45,6 @@ public interface AppointmentDao {
      * Updates an appointment.
      *
      * @param appointment the appointment to update
-     * @return the updated appointment
      */
-    Appointment update(Appointment appointment);
+    void update(Appointment appointment);
 }

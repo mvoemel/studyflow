@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.domain.appointment;
+package ch.zhaw.studyflow.domain.calendar;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -113,21 +113,4 @@ public class Appointment {
         this.calendarId = calendarId;
     }
 
-    /**
-     * Gets the appointment ID.
-     *
-     * @return the appointment ID
-     */
-    public long getAppointmentId() {
-        return id;
-    }
-
-    /**
-     * Sets the appointment ID.
-     *
-     * @param appointmentId the new appointment ID
-     */
-    public void setAppointmentId(long appointmentId) {
-        this.id = appointmentId;
-    }
 }

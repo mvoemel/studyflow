@@ -20,10 +20,9 @@ class CalendarManagerTest {
     @Test
     void testCreate() {
         Calendar calendar = new Calendar(1, "Test Calendar", 1L);
-        when(calendarDao.create(calendar)).thenReturn(calendar);
+        doNothing().when(calendarDao).create(calendar);
 
-        Calendar createdCalendar = calendarManager.create(calendar);
-        assertEquals(calendar, createdCalendar);
+        calendarManager.create(calendar);
         verify(calendarDao).create(calendar);
     }
 

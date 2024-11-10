@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.domain.appointment;
+package ch.zhaw.studyflow.domain.calendar;
 
 import java.util.Date;
 import java.util.List;
@@ -19,8 +19,8 @@ public class AppointmentManager implements AppointmentDao {
     }
 
     @Override
-    public Appointment create(Appointment appointment) {
-        return appointmentDao.create(appointment);
+    public void create(Appointment appointment) {
+        appointmentDao.create(appointment);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class AppointmentManager implements AppointmentDao {
     }
 
     @Override
-    public Appointment update(Appointment appointment) {
-        return appointmentDao.update(appointment);
+    public void update(Appointment appointment) {
+        appointmentDao.update(appointment);
     }
 }

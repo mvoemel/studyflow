@@ -7,8 +7,8 @@ public class CalendarManager {
         this.calendarDao = calendarDao;
     }
 
-    public Calendar create(Calendar calendar) {
-        return calendarDao.create(calendar);
+    public void create(Calendar calendar) {
+        calendarDao.create(calendar);
     }
 
     public Calendar read(long userId, long calendarId) {

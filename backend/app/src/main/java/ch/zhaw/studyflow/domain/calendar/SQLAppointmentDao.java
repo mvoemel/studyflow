@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.domain.appointment;
+package ch.zhaw.studyflow.domain.calendar;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,19 +18,22 @@ public class SQLAppointmentDao implements AppointmentDao {
         this.connection = connection;
     }
 
-    @Override
-    public Appointment create(Appointment appointment) {
-        String sql = "INSERT INTO appointments (id, start_time, end_time, calendar_id) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, appointment.getId());
-            stmt.setTimestamp(2, java.sql.Timestamp.valueOf(appointment.getStartTime()));
-            stmt.setTimestamp(3, java.sql.Timestamp.valueOf(appointment.getEndTime()));
-            stmt.setLong(4, appointment.getCalendarId());
+    public void create(Appointment appointment) {
+        String sql = "INSERT INTO appointments (start_time, end_time, calendar_id) VALUES (?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            stmt.setTimestamp(1, java.sql.Timestamp.valueOf(appointment.getStartTime()));
+            stmt.setTimestamp(2, java.sql.Timestamp.valueOf(appointment.getEndTime()));
+            stmt.setLong(3, appointment.getCalendarId());
             stmt.executeUpdate();
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    appointment.setId(generatedKeys.getLong(1));
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return appointment;
     }
 
     @Override
@@ -91,7 +94,7 @@ public class SQLAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public Appointment update(Appointment appointment) {
+    public void update(Appointment appointment) {
         String sql = "UPDATE appointments SET start_time = ?, end_time = ?, calendar_id = ? WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setTimestamp(1, java.sql.Timestamp.valueOf(appointment.getStartTime()));
@@ -102,6 +105,5 @@ public class SQLAppointmentDao implements AppointmentDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return appointment;
     }
 }

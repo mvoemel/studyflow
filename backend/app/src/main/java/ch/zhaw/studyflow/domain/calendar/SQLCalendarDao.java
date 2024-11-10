@@ -17,18 +17,21 @@ public class SQLCalendarDao implements CalendarDao {
         this.connection = connection;
     }
 
-    @Override
-    public Calendar create(Calendar calendar) {
-        String sql = "INSERT INTO calendars (id, name, owner_id) VALUES (?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, calendar.getId());
-            stmt.setString(2, calendar.getName());
-            stmt.setLong(3, calendar.getOwnerId());
+    public void create(Calendar calendar) {
+        String sql = "INSERT INTO calendars (name, owner_id) VALUES (?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, calendar.getName());
+            stmt.setLong(2, calendar.getOwnerId());
             stmt.executeUpdate();
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    calendar.setId(generatedKeys.getLong(1));
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return calendar;
     }
 
     @Override

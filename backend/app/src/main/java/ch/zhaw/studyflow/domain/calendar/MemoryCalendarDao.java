@@ -14,9 +14,16 @@ public class MemoryCalendarDao implements CalendarDao {
     private final Map<Long, Map<Long, Calendar>> userCalendars = new HashMap<>();
 
     @Override
-    public Calendar create(Calendar calendar) {
+    public void create(Calendar calendar) {
+        if (calendar == null) {
+            throw new IllegalArgumentException("Calendar cannot be null");
+        }
+        long newId = userCalendars.values().stream()
+                .flatMap(map -> map.keySet().stream())
+                .max(Long::compare)
+                .orElse(0L) + 1;
+        calendar.setId(newId);
         userCalendars.computeIfAbsent(calendar.getOwnerId(), k -> new HashMap<>()).put(calendar.getId(), calendar);
-        return calendar;
     }
 
     @Override

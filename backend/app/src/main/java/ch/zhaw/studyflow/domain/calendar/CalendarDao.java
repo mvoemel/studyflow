@@ -11,9 +11,8 @@ public interface CalendarDao {
      * Creates a new calendar.
      *
      * @param calendar the calendar to create
-     * @return the created calendar
      */
-    Calendar create(Calendar calendar);
+    void create(Calendar calendar);
 
     /**
      * Reads a specific calendar for a user.

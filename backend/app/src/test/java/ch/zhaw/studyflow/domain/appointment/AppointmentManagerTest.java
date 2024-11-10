@@ -1,8 +1,8 @@
 package ch.zhaw.studyflow.domain.appointment;
 
-import ch.zhaw.studyflow.domain.appointment.Appointment;
-import ch.zhaw.studyflow.domain.appointment.AppointmentDao;
-import ch.zhaw.studyflow.domain.appointment.AppointmentManager;
+import ch.zhaw.studyflow.domain.calendar.Appointment;
+import ch.zhaw.studyflow.domain.calendar.AppointmentDao;
+import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,10 +27,9 @@ class AppointmentManagerTest {
     @Test
     void testCreate() {
         Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L);
-        when(appointmentDao.create(appointment)).thenReturn(appointment);
+        doNothing().when(appointmentDao).create(appointment);
 
-        Appointment createdAppointment = appointmentManager.create(appointment);
-        assertEquals(appointment, createdAppointment);
+        appointmentManager.create(appointment);
         verify(appointmentDao).create(appointment);
     }
 
@@ -70,10 +69,9 @@ class AppointmentManagerTest {
     @Test
     void testUpdate() {
         Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L);
-        when(appointmentDao.update(appointment)).thenReturn(appointment);
+        doNothing().when(appointmentDao).update(appointment);
 
-        Appointment updatedAppointment = appointmentManager.update(appointment);
-        assertEquals(appointment, updatedAppointment);
+        appointmentManager.update(appointment);
         verify(appointmentDao).update(appointment);
     }
 }

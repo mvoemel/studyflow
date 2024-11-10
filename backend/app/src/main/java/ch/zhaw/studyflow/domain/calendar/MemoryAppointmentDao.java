@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.domain.appointment;
+package ch.zhaw.studyflow.domain.calendar;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -13,9 +13,13 @@ public class MemoryAppointmentDao implements AppointmentDao {
     private final List<Appointment> appointments = new ArrayList<>();
 
     @Override
-    public Appointment create(Appointment appointment) {
+    public void create(Appointment appointment) {
+        if (appointment == null) {
+            throw new IllegalArgumentException("Appointment cannot be null");
+        }
+        long newId = appointments.size() + 1;
+        appointment.setId(newId);
         appointments.add(appointment);
-        return appointment;
     }
 
     @Override
@@ -41,9 +45,8 @@ public class MemoryAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public Appointment update(Appointment appointment) {
+    public void update(Appointment appointment) {
         delete(appointment.getId());
         appointments.add(appointment);
-        return appointment;
     }
 }
