@@ -82,7 +82,7 @@ public class StudentController {
 
         @Route(path = "logout")
         public HttpResponse logout (RequestContext requestContext){
-            return authenticator.check(requestContext.getRequest(), principal -> {
+            return authenticator.handleIfAuthenticated(requestContext.getRequest(), principal -> {
                 principal.addClaim(CommonClaims.AUTHENTICATED, false);
                 principal.addClaim(CommonClaims.USER_ID, -1L);
 

@@ -30,4 +30,9 @@ public class StudentManagerImpl implements StudentManager {
     public Optional<Student> getStudent(long studentId) {
         return null;
     }
+
+    @Override
+    public Optional<Student> register(Student student) {
+        return Optional.empty();
+    }
 }

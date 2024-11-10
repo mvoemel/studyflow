@@ -26,7 +26,7 @@ public class ClaimBasedAuthenticationHandler implements AuthenticationHandler {
 
 
     @Override
-    public HttpResponse check(HttpRequest request, Function<Principal, HttpResponse> handler) {
+    public HttpResponse handleIfAuthenticated(HttpRequest request, Function<Principal, HttpResponse> handler) {
         Principal principal = principalProvider.getPrincipal(request);
         Optional<Boolean> claim = principal.getClaim(requiredClaim);
         if (claim.isPresent() && Boolean.TRUE.equals(claim.get())) {
