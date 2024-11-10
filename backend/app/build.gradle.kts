@@ -26,6 +26,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-core:$JACKSON_CORE_VERSION")
     implementation("com.fasterxml.jackson.core:jackson-annotations:$JACKSON_ANNOTATIONS_VERSION")
     implementation("com.fasterxml.jackson.core:jackson-databind:$JACKSON_DATABIND_VERSION")
+
+    testImplementation("org.mockito:mockito-core:$MOCKITO_VERSION")
 }
 
 application {
