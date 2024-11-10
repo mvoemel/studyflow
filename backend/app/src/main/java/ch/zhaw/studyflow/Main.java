@@ -1,6 +1,6 @@
 package ch.zhaw.studyflow;
 
-import ch.zhaw.studyflow.controllers.UserController;
+import ch.zhaw.studyflow.domain.user.UserController;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
 import ch.zhaw.studyflow.webserver.http.contents.*;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;

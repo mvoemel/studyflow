@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.controllers;
+package ch.zhaw.studyflow.domain.user;
 
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;

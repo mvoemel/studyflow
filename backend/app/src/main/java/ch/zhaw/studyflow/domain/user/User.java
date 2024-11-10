@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.controllers;
+package ch.zhaw.studyflow.domain.user;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
