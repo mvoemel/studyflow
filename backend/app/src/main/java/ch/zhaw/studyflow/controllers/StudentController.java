@@ -111,19 +111,22 @@ public class StudentController {
 
         final Principal principal = principalProvider.getPrincipal(request);
         HttpResponse response = requestContext.getRequest().createResponse();
-        if (!principal.getClaim(CommonClaims.AUTHENTICATED).orElse(false)
-                && request.getRequestBody().isPresent()) {
-            request.getRequestBody()
-                    .flatMap(body -> body.tryRead(LoginRequest.class))
-                    .flatMap(loginRequest -> studentManager.login(loginRequest.getEmail(), loginRequest.getPassword()))
-                    .ifPresentOrElse(student -> {
-                                principal.addClaim(CommonClaims.AUTHENTICATED, true);
-                                principal.addClaim(CommonClaims.USER_ID, student.getId());
-                                principalProvider.setPrincipal(response, principal);
-                                response.setStatusCode(HttpStatusCode.OK);
-                            },
-                            () -> response.setStatusCode(HttpStatusCode.UNAUTHORIZED)
-                    );
+        if (!principal.getClaim(CommonClaims.AUTHENTICATED).orElse(false)) {
+            if (request.getRequestBody().isPresent()) {
+                request.getRequestBody()
+                        .flatMap(body -> body.tryRead(LoginRequest.class))
+                        .flatMap(loginRequest -> studentManager.login(loginRequest.getEmail(), loginRequest.getPassword()))
+                        .ifPresentOrElse(student -> {
+                                    principal.addClaim(CommonClaims.AUTHENTICATED, true);
+                                    principal.addClaim(CommonClaims.USER_ID, student.getId());
+                                    principalProvider.setPrincipal(response, principal);
+                                    response.setStatusCode(HttpStatusCode.OK);
+                                },
+                                () -> response.setStatusCode(HttpStatusCode.UNAUTHORIZED)
+                        );
+            }
+        } else {
+            response.setStatusCode(HttpStatusCode.OK);
         }
         return response;
     }
