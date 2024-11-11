@@ -1,7 +1,7 @@
 ## Domain
 
-![domain](/docs/assets/domain.png)
+![domain](/docs/assets/Domain.png)
 
 
 ## Webserver
-![webserver](/docs/assets/web.png)
+![webserver](/docs/assets/Web.png)
