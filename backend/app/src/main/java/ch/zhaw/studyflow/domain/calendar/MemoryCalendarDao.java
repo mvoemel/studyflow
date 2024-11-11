@@ -48,15 +48,6 @@ public class MemoryCalendarDao implements CalendarDao {
         return calendar;
     }
 
-    @Override
-    public long getCalendarId(Calendar calendar) {
-        return calendar.getId();
-    }
-
-    @Override
-    public void setCalendarId(Calendar calendar, long calendarId) {
-        calendar.setId(calendarId);
-    }
 
     @Override
     public List<Calendar> getAll() {

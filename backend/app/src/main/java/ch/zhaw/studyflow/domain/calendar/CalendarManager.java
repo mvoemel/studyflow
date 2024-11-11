@@ -25,14 +25,6 @@ public class CalendarManager {
         return calendarDao.update(calendar);
     }
 
-    public long getCalendarId(Calendar calendar) {
-        return calendarDao.getCalendarId(calendar);
-    }
-
-    public void setCalendarId(Calendar calendar, long newId) {
-        calendar.setId(newId);
-        calendarDao.setCalendarId(calendar, newId);
-    }
 
     public List<Calendar> getCalendars() {
         return calendarDao.getAll();

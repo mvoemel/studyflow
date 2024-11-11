@@ -39,21 +39,6 @@ public interface CalendarDao {
      */
     Calendar update(Calendar calendar);
 
-    /**
-     * Gets the calendar ID.
-     *
-     * @param calendar the calendar
-     * @return the calendar ID
-     */
-    long getCalendarId(Calendar calendar);
-
-    /**
-     * Sets the calendar ID.
-     *
-     * @param calendar the calendar
-     * @param calendarId the new calendar ID
-     */
-    void setCalendarId(Calendar calendar, long calendarId);
 
     /**
      * Retrieves all calendars.
