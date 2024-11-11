@@ -25,6 +25,17 @@ public class InMemoryStudentDao implements StudentDao {
     }
 
     @Override
+    public void update(Student student) {
+        Objects.requireNonNull(student);
+        studentsById.put(student.getId(), student);
+    }
+
+    @Override
+    public void delete(long studentId) {
+        studentsById.remove(studentId);
+    }
+
+    @Override
     public Optional<Student> readStudentById(long studentId) {
         return Optional.ofNullable(studentsById.get(studentId));
     }

@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface StudentDao {
     void create(Student student);
+    void update(Student student);
+    void delete(long studentId);
     Optional<Student> readStudentById(long studentId);
     Optional<Student> readStudentByEmail(String email);
 }

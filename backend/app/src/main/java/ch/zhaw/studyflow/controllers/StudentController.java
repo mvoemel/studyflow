@@ -10,6 +10,7 @@ import ch.zhaw.studyflow.webserver.http.HttpMethod;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
+import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
@@ -39,6 +40,27 @@ public class StudentController {
         return authenticator.handleIfAuthenticated(requestContext.getRequest(), principal -> {
             HttpResponse response = requestContext.getRequest().createResponse();
             response.setStatusCode(HttpStatusCode.OK);
+            return response;
+        });
+    }
+
+    @Route(path = "settings")
+    @Endpoint(method = HttpMethod.GET)
+    public HttpResponse settings(RequestContext requestContext) {
+        return authenticator.handleIfAuthenticated(requestContext.getRequest(), principal -> {
+            HttpResponse response = requestContext.getRequest().createResponse();
+            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
+            if (userId.isPresent()) {
+                studentManager.getSettings(userId.get())
+                        .ifPresentOrElse(
+                                settings -> response
+                                        .setResponseBody(JsonContent.writableOf(settings))
+                                        .setStatusCode(HttpStatusCode.OK),
+                                () -> response.setStatusCode(HttpStatusCode.NOT_FOUND)
+                        );
+            } else {
+                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+            }
             return response;
         });
     }

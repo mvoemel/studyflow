@@ -3,7 +3,9 @@ package ch.zhaw.studyflow;
 import ch.zhaw.studyflow.controllers.StudentController;
 import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.domain.student.impls.StudentManagerImpl;
+import ch.zhaw.studyflow.services.persistance.InMemorySettingsDao;
 import ch.zhaw.studyflow.services.persistance.InMemoryStudentDao;
+import ch.zhaw.studyflow.services.persistance.SettingsDao;
 import ch.zhaw.studyflow.services.persistance.StudentDao;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
 import ch.zhaw.studyflow.webserver.http.contents.*;
@@ -47,8 +49,10 @@ public class Main {
             ));
 
             builder.registerSingelton(StudentDao.class, serviceCollection -> new InMemoryStudentDao());
+            builder.registerSingelton(SettingsDao.class, serviceCollection -> new InMemorySettingsDao());
             builder.register(StudentManager.class, serviceCollection -> new StudentManagerImpl(
-                    serviceCollection.getRequiredService(StudentDao.class)
+                    serviceCollection.getRequiredService(StudentDao.class),
+                    serviceCollection.getRequiredService(SettingsDao.class)
             ));
 
             builder.registerSingelton(AuthenticationHandler.class, serviceCollection ->

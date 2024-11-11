@@ -7,6 +7,7 @@ import java.util.Optional;
 public interface StudentManager {
     Optional<Student> login(String email, String password);
     Optional<Student> getStudent(long studentId);
+    Optional<Settings> getSettings(long studentId);
 
     Optional<Student> register(Student student);
 }
