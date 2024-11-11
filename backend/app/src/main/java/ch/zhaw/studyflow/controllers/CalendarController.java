@@ -214,7 +214,7 @@ public class CalendarController {
                         .ifPresentOrElse(
                                 appointment -> {
                                     appointmentManager.delete(appointment.getId());
-                                    response.setStatusCode(HttpStatusCode.NO_CONTENT);
+                                    response.setStatusCode(HttpStatusCode.OK);
                                 },
                                 () -> {
                                     response.setStatusCode(HttpStatusCode.BAD_REQUEST);

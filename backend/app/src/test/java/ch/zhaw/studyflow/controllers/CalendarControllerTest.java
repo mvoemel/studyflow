@@ -16,6 +16,7 @@ import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 
 import java.util.Date;
@@ -52,15 +53,17 @@ class CalendarControllerTest {
         when(request.createResponse()).thenReturn(response);
         when(response.getResponseBody()).thenReturn(JsonContent.writableOf(""));
         when(response.setResponseBody(any())).thenReturn(response);
-        when(response.getStatusCode()).thenReturn(HttpStatusCode.OK);
 
         calendarController = new CalendarController(calendarManager, appointmentManager, authenticator, principalProvider);
     }
 
     private Answer<HttpResponse> authenticatedActionAnswer() {
+        return authenticatedActionAnswer(mock(Principal.class));
+    }
+
+    private Answer<HttpResponse> authenticatedActionAnswer(Principal principal) {
         return invocation -> {
             Function<Principal, HttpResponse> action = invocation.getArgument(1);
-            Principal principal = mock(Principal.class);
             return action.apply(principal);
         };
     }
@@ -87,9 +90,11 @@ class CalendarControllerTest {
         when(principalProvider.getPrincipal(any())).thenReturn(mock(Principal.class));
         when(calendarManager.getCalendars()).thenReturn(calendars);
 
-        HttpResponse actualResponse = calendarController.getCalendars(context);
+        ArgumentCaptor<HttpStatusCode> statusCodeCaptor = ArgumentCaptor.forClass(HttpStatusCode.class);
 
-        assertEquals(HttpStatusCode.OK, actualResponse.getStatusCode());
+        HttpResponse actualResponse = calendarController.getCalendars(context);
+        verify(response, times(1)).setStatusCode(statusCodeCaptor.capture());
+        assertEquals(HttpStatusCode.OK, statusCodeCaptor.getValue());
     }
 
     @Test
@@ -136,18 +141,19 @@ class CalendarControllerTest {
         Appointment appointment = new Appointment();
         appointment.setId(1L);
         ReadableBodyContent bodyContent = mock(ReadableBodyContent.class);
-        when(bodyContent.tryRead(Appointment.class)).thenReturn(Optional.of(appointment));
-        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer());
-        when(request.getRequestBody()).thenReturn(Optional.of(bodyContent));
         Principal principal = mock(Principal.class);
         when(principal.getClaim(any())).thenReturn(Optional.of(1));
+
+        when(bodyContent.tryRead(Appointment.class)).thenReturn(Optional.of(appointment));
+        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer(principal));
+        when(request.getRequestBody()).thenReturn(Optional.of(bodyContent));
         when(principalProvider.getPrincipal(any())).thenReturn(principal);
 
 
         HttpResponse actualResponse = calendarController.deleteAppointment(context);
 
         verify(appointmentManager, times(1)).delete(appointment.getId());
-        assertEquals(HttpStatusCode.NO_CONTENT, actualResponse.getStatusCode());
+        assertEquals(HttpStatusCode.OK, actualResponse.getStatusCode());
     }
 
     @Test
