@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * SQL implementation of the CalendarDao interface.
@@ -89,5 +91,24 @@ public class SQLCalendarDao implements CalendarDao {
     @Override
     public void setCalendarId(Calendar calendar, long calendarId) {
         calendar.setId(calendarId);
+    }
+
+    @Override
+    public List<Calendar> getAll() {
+        List<Calendar> calendars = new ArrayList<>();
+        String sql = "SELECT * FROM calendars";
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                calendars.add(new Calendar(
+                        rs.getLong("id"),
+                        rs.getString("name"),
+                        rs.getLong("owner_id")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return calendars;
     }
 }

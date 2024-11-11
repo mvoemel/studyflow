@@ -57,4 +57,13 @@ public class MemoryCalendarDao implements CalendarDao {
     public void setCalendarId(Calendar calendar, long calendarId) {
         calendar.setId(calendarId);
     }
+
+    @Override
+    public List<Calendar> getAll() {
+        List<Calendar> allCalendars = new ArrayList<>();
+        for (Map<Long, Calendar> calendars : userCalendars.values()) {
+            allCalendars.addAll(calendars.values());
+        }
+        return allCalendars;
+    }
 }

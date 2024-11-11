@@ -1,3 +1,4 @@
+
 val JUNIT_VERSION               = "5.11.+"
 
 val JACKSON_CORE_VERSION        = "2.18.0"
@@ -38,6 +39,7 @@ java {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
+
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
