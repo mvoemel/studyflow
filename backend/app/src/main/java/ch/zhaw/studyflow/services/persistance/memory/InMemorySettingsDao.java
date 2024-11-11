@@ -1,6 +1,7 @@
-package ch.zhaw.studyflow.services.persistance;
+package ch.zhaw.studyflow.services.persistance.memory;
 
 import ch.zhaw.studyflow.domain.student.Settings;
+import ch.zhaw.studyflow.services.persistance.SettingsDao;
 import ch.zhaw.studyflow.utils.Tuple;
 
 import java.util.HashMap;

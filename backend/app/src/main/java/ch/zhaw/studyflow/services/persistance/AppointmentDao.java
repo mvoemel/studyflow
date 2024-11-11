@@ -1,4 +1,6 @@
-package ch.zhaw.studyflow.domain.calendar;
+package ch.zhaw.studyflow.services.persistance;
+
+import ch.zhaw.studyflow.domain.calendar.Appointment;
 
 import java.util.Date;
 import java.util.List;

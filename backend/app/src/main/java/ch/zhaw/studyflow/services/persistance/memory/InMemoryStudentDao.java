@@ -1,6 +1,7 @@
-package ch.zhaw.studyflow.services.persistance;
+package ch.zhaw.studyflow.services.persistance.memory;
 
 import ch.zhaw.studyflow.domain.student.Student;
+import ch.zhaw.studyflow.services.persistance.StudentDao;
 
 import java.util.HashMap;
 import java.util.Objects;

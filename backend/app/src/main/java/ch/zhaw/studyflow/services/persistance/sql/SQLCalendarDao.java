@@ -1,4 +1,7 @@
-package ch.zhaw.studyflow.domain.calendar;
+package ch.zhaw.studyflow.services.persistance.sql;
+
+import ch.zhaw.studyflow.domain.calendar.Calendar;
+import ch.zhaw.studyflow.services.persistance.CalendarDao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

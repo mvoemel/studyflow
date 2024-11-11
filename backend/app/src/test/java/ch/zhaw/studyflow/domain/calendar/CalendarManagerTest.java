@@ -1,5 +1,6 @@
 package ch.zhaw.studyflow.domain.calendar;
 
+import ch.zhaw.studyflow.services.persistance.CalendarDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
