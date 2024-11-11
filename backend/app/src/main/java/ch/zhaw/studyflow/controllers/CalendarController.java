@@ -37,93 +37,218 @@ public class CalendarController {
         this.principalProvider = principalProvider;
     }
 
+    @Route(path = "createCalendar")
     @Endpoint(method = HttpMethod.POST)
-    public HttpResponse createCalendar(RequestContext context, long userId, Calendar calendar) {
-        return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
-            calendarManager.create(calendar);
-            HttpResponse response = context.getRequest().createResponse();
-            return response.setResponseBody(JsonContent.writableOf("Calendar created"));
+    public HttpResponse createCalendar(RequestContext context) {
+        final HttpRequest request = context.getRequest();
+        HttpResponse response = context.getRequest().createResponse();
+        return authenticator.handleIfAuthenticated(request, principal -> {
+            request.getRequestBody()
+                    .flatMap(body -> body.tryRead(Calendar.class))
+                    .flatMap(calendar -> {
+                        calendarManager.create(calendar);
+                        return Optional.of(calendar);
+                    })
+                    .ifPresentOrElse(
+                            calendar -> {
+                                response.setResponseBody(JsonContent.writableOf(calendar))
+                                        .setStatusCode(HttpStatusCode.CREATED);
+                            },
+                            () -> {
+                                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+                            }
+                    );
+            return response;
         });
     }
 
     @Route(path = "createAppointment")
     @Endpoint(method = HttpMethod.POST)
-    public HttpResponse createAppointment(RequestContext context, long userId, long calendarId) {
-        return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
-            Appointment appointment = new Appointment();
-            appointmentManager.create(appointment);
-            HttpResponse response = context.getRequest().createResponse();
-            return response.setResponseBody(JsonContent.writableOf("Appointment created"));
+    public HttpResponse createAppointment(RequestContext context) {
+        final HttpRequest request = context.getRequest();
+        HttpResponse response = context.getRequest().createResponse();
+        return authenticator.handleIfAuthenticated(request, principal -> {
+            request.getRequestBody()
+                    .flatMap(body -> body.tryRead(Appointment.class))
+                    .flatMap(appointment -> {
+                        appointmentManager.create(appointment);
+                        return Optional.of(appointment);
+                    })
+                    .ifPresentOrElse(
+                            appointment -> {
+                                response.setResponseBody(JsonContent.writableOf(appointment))
+                                        .setStatusCode(HttpStatusCode.CREATED);
+                            },
+                            () -> {
+                                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+                            }
+                    );
+            return response;
         });
     }
 
     @Route(path = "getCalendar")
     @Endpoint(method = HttpMethod.GET)
-    public HttpResponse getCalendar(RequestContext context, long userId, long calendarId) {
-        return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
-            Calendar calendar = calendarManager.read(userId, calendarId);
-            HttpResponse response = context.getRequest().createResponse();
-            return response.setResponseBody(JsonContent.writableOf(calendar));
+    public HttpResponse getCalendar(RequestContext context) {
+        final HttpRequest request = context.getRequest();
+        HttpResponse response = context.getRequest().createResponse();
+        return authenticator.handleIfAuthenticated(request, principal -> {
+            request.getRequestBody()
+                    .flatMap(body -> body.tryRead(Calendar.class))
+                    .flatMap(calendar -> {
+                        Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+                        if (userId.isPresent()) {
+                            Calendar foundCalendar = calendarManager.read(calendar.getId(), userId.get());
+                            return Optional.of(foundCalendar);
+                        } else {
+                            return Optional.empty();
+                        }
+                    })
+                    .ifPresentOrElse(
+                            calendar -> {
+                                response.setResponseBody(JsonContent.writableOf(calendar));
+                            },
+                            () -> {
+                                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+                            }
+                    );
+            return response;
         });
     }
 
     @Route(path = "getCalendars")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getCalendars(RequestContext context) {
-        return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
-            List<Calendar> calendars = calendarManager.getCalendars();
-            HttpResponse response = context.getRequest().createResponse();
-            return response.setResponseBody(JsonContent.writableOf(calendars));
+        final HttpRequest request = context.getRequest();
+        HttpResponse response = context.getRequest().createResponse();
+        return authenticator.handleIfAuthenticated(request, principal -> {
+            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            if (userId.isPresent()) {
+                List<Calendar> calendars = calendarManager.getCalendars();
+                response.setResponseBody(JsonContent.writableOf(calendars))
+                        .setStatusCode(HttpStatusCode.OK);
+            } else {
+                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+            }
+            return response;
         });
     }
 
     @Route(path = "getAppointments")
     @Endpoint(method = HttpMethod.GET)
-    public HttpResponse getAppointments(RequestContext context, long userId, long calendarId) {
-        return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
-            List<Appointment> appointments = appointmentManager.readAllBy(calendarId, null, null);
-            HttpResponse response = context.getRequest().createResponse();
-            return response.setResponseBody(JsonContent.writableOf(appointments));
+    public HttpResponse getAppointments(RequestContext context) {
+        final HttpRequest request = context.getRequest();
+        HttpResponse response = context.getRequest().createResponse();
+        return authenticator.handleIfAuthenticated(request, principal -> {
+            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            if (userId.isPresent()) {
+                List<Appointment> appointments = appointmentManager.readAllBy(userId.get(), null, null);
+                response.setResponseBody(JsonContent.writableOf(appointments))
+                        .setStatusCode(HttpStatusCode.OK);
+            } else {
+                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+            }
+            return response;
         });
     }
 
     @Route(path = "getAppointmentsByDate")
     @Endpoint(method = HttpMethod.GET)
-    public HttpResponse getAppointments(RequestContext context, long userId, long calendarId, Date from, Date to) {
-        return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
-            List<Appointment> appointments = appointmentManager.readAllBy(calendarId, from, to);
-            HttpResponse response = context.getRequest().createResponse();
-            return response.setResponseBody(JsonContent.writableOf(appointments));
+    public HttpResponse getAppointmentsByDate(RequestContext context, Date from, Date to) {
+        final HttpRequest request = context.getRequest();
+        HttpResponse response = context.getRequest().createResponse();
+        return authenticator.handleIfAuthenticated(request, principal -> {
+            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            if (userId.isPresent()) {
+                List<Appointment> appointments = appointmentManager.readAllBy(userId.get(), from, to);
+                response.setResponseBody(JsonContent.writableOf(appointments))
+                        .setStatusCode(HttpStatusCode.OK);
+            } else {
+                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+            }
+            return response;
         });
     }
 
     @Route(path = "getAppointment")
     @Endpoint(method = HttpMethod.GET)
-    public HttpResponse getAppointment(RequestContext context, long userId, long calendarId, long appointmentId) {
-        return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
-            Appointment appointment = appointmentManager.read(calendarId, appointmentId);
-            HttpResponse response = context.getRequest().createResponse();
-            return response.setResponseBody(JsonContent.writableOf(appointment));
+    public HttpResponse getAppointment(RequestContext context) {
+        final HttpRequest request = context.getRequest();
+        HttpResponse response = context.getRequest().createResponse();
+        return authenticator.handleIfAuthenticated(request, principal -> {
+            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            if (userId.isPresent()) {
+                request.getRequestBody()
+                        .flatMap(body -> body.tryRead(Appointment.class))
+                        .flatMap(appointment -> {
+                            Appointment foundAppointment = appointmentManager.read(appointment.getCalendarId(), appointment.getId());
+                            return Optional.of(foundAppointment);
+                        })
+                        .ifPresentOrElse(
+                                appointment -> {
+                                    response.setResponseBody(JsonContent.writableOf(appointment))
+                                            .setStatusCode(HttpStatusCode.OK);
+                                },
+                                () -> {
+                                    response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+                                }
+                        );
+            } else {
+                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+            }
+            return response;
         });
     }
 
     @Route(path = "deleteAppointment")
     @Endpoint(method = HttpMethod.DELETE)
-    public HttpResponse deleteAppointment(RequestContext context, long calendarId, long appointmentId) {
-        return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
-            appointmentManager.delete(appointmentId);
-            HttpResponse response = context.getRequest().createResponse();
-            return response.setStatusCode(HttpStatusCode.NO_CONTENT);
+    public HttpResponse deleteAppointment(RequestContext context) {
+        final HttpRequest request = context.getRequest();
+        HttpResponse response = context.getRequest().createResponse();
+        return authenticator.handleIfAuthenticated(request, principal -> {
+            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            if (userId.isPresent()) {
+                request.getRequestBody()
+                        .flatMap(body -> body.tryRead(Appointment.class))
+                        .ifPresentOrElse(
+                                appointment -> {
+                                    appointmentManager.delete(appointment.getId());
+                                    response.setStatusCode(HttpStatusCode.NO_CONTENT);
+                                },
+                                () -> {
+                                    response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+                                }
+                        );
+            } else {
+                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+            }
+            return response;
         });
     }
 
     @Route(path = "deleteCalendar")
     @Endpoint(method = HttpMethod.DELETE)
-    public HttpResponse deleteCalendar(RequestContext context, long userId, long id) {
-        return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
-            calendarManager.delete(userId, id);
-            HttpResponse response = context.getRequest().createResponse();
-            return response.setStatusCode(HttpStatusCode.NO_CONTENT);
+    public HttpResponse deleteCalendar(RequestContext context) {
+        final HttpRequest request = context.getRequest();
+        HttpResponse response = context.getRequest().createResponse();
+        return authenticator.handleIfAuthenticated(request, principal -> {
+            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            if (userId.isPresent()) {
+                request.getRequestBody()
+                        .flatMap(body -> body.tryRead(Calendar.class))
+                        .ifPresentOrElse(
+                                calendar -> {
+                                    calendarManager.delete(userId.get(), calendar.getId());
+                                    response.setStatusCode(HttpStatusCode.NO_CONTENT);
+                                },
+                                () -> {
+                                    response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+                                }
+                        );
+            } else {
+                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+            }
+            return response;
         });
     }
 }

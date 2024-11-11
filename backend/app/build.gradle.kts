@@ -27,7 +27,6 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-annotations:$JACKSON_ANNOTATIONS_VERSION")
     implementation("com.fasterxml.jackson.core:jackson-databind:$JACKSON_DATABIND_VERSION")
 
-    implementation("org.springframework.boot:spring-boot-starter-web:3.1.0")
 }
 
 application {
