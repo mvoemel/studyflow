@@ -107,6 +107,7 @@ public class CalendarController {
                     .ifPresentOrElse(
                             calendar -> {
                                 response.setResponseBody(JsonContent.writableOf(calendar));
+                                response.setStatusCode(HttpStatusCode.OK);
                             },
                             () -> {
                                 response.setStatusCode(HttpStatusCode.BAD_REQUEST);
@@ -205,50 +206,46 @@ public class CalendarController {
     @Endpoint(method = HttpMethod.DELETE)
     public HttpResponse deleteAppointment(RequestContext context) {
         final HttpRequest request = context.getRequest();
-        HttpResponse response = context.getRequest().createResponse();
+        HttpResponse response = request.createResponse();
         return authenticator.handleIfAuthenticated(request, principal -> {
-            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
-            if (userId.isPresent()) {
-                request.getRequestBody()
-                        .flatMap(body -> body.tryRead(Appointment.class))
-                        .ifPresentOrElse(
-                                appointment -> {
-                                    appointmentManager.delete(appointment.getId());
-                                    response.setStatusCode(HttpStatusCode.OK);
-                                },
-                                () -> {
-                                    response.setStatusCode(HttpStatusCode.BAD_REQUEST);
-                                }
-                        );
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
-            }
+            request.getRequestBody()
+                    .flatMap(body -> body.tryRead(Appointment.class))
+                    .ifPresentOrElse(
+                            appointment -> {
+                                appointmentManager.delete(appointment.getId());
+                                response.setStatusCode(HttpStatusCode.NO_CONTENT);
+                            },
+                            () -> {
+                                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+                            }
+                    );
             return response;
         });
     }
+
 
     @Route(path = "deleteCalendar")
     @Endpoint(method = HttpMethod.DELETE)
     public HttpResponse deleteCalendar(RequestContext context) {
         final HttpRequest request = context.getRequest();
-        HttpResponse response = context.getRequest().createResponse();
+        HttpResponse response = request.createResponse();
         return authenticator.handleIfAuthenticated(request, principal -> {
-            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
-            if (userId.isPresent()) {
-                request.getRequestBody()
-                        .flatMap(body -> body.tryRead(Calendar.class))
-                        .ifPresentOrElse(
-                                calendar -> {
-                                    calendarManager.delete(userId.get(), calendar.getId());
+            request.getRequestBody()
+                    .flatMap(body -> body.tryRead(Calendar.class))
+                    .ifPresentOrElse(
+                            calendar -> {
+                                Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+                                if (userId.isPresent()) {
+                                    calendarManager.delete(calendar.getId(), userId.get());
                                     response.setStatusCode(HttpStatusCode.NO_CONTENT);
-                                },
-                                () -> {
+                                } else {
                                     response.setStatusCode(HttpStatusCode.BAD_REQUEST);
                                 }
-                        );
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
-            }
+                            },
+                            () -> {
+                                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+                            }
+                    );
             return response;
         });
     }

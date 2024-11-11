@@ -73,20 +73,25 @@ class CalendarControllerTest {
         Calendar calendar = new Calendar();
         ReadableBodyContent bodyContent = mock(ReadableBodyContent.class);
         when(bodyContent.tryRead(Calendar.class)).thenReturn(Optional.of(calendar));
-        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer());
+        Principal principal = createAuthenticatedPrincipal();
+        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer(principal));
         when(request.getRequestBody()).thenReturn(Optional.of(bodyContent));
         when(principalProvider.getPrincipal(any())).thenReturn(mock(Principal.class));
         when(calendarManager.read(anyLong(), anyLong())).thenReturn(calendar);
 
-        HttpResponse actualResponse = calendarController.getCalendar(context);
+        ArgumentCaptor<HttpStatusCode> statusCodeCaptor = ArgumentCaptor.forClass(HttpStatusCode.class);
 
-        assertEquals(HttpStatusCode.OK, actualResponse.getStatusCode());
+        HttpResponse actualResponse = calendarController.getCalendar(context);
+        verify(response, times(1)).setStatusCode(statusCodeCaptor.capture());
+        assertEquals(HttpStatusCode.OK, statusCodeCaptor.getValue());
     }
 
     @Test
     void testGetCalendars() {
         List<Calendar> calendars = List.of(new Calendar());
-        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer());
+
+        Principal principal = createAuthenticatedPrincipal();
+        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer(principal));
         when(principalProvider.getPrincipal(any())).thenReturn(mock(Principal.class));
         when(calendarManager.getCalendars()).thenReturn(calendars);
 
@@ -97,43 +102,62 @@ class CalendarControllerTest {
         assertEquals(HttpStatusCode.OK, statusCodeCaptor.getValue());
     }
 
+    private Principal createAuthenticatedPrincipal() {
+        Principal principal = mock(Principal.class);
+        when(principal.getClaim(CommonClaims.USER_ID)).thenReturn(Optional.of(1));
+        when(principal.getClaim(CommonClaims.AUTHENTICATED)).thenReturn(Optional.of(true));
+        return principal;
+    }
+
     @Test
     void testGetAppointments() {
         List<Appointment> appointments = List.of(new Appointment());
-        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer());
+
+        Principal principal = createAuthenticatedPrincipal();
+        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer(principal));
         when(principalProvider.getPrincipal(any())).thenReturn(mock(Principal.class));
         when(appointmentManager.readAllBy(anyLong(), any(), any())).thenReturn(appointments);
 
-        HttpResponse actualResponse = calendarController.getAppointments(context);
+        ArgumentCaptor<HttpStatusCode> statusCodeCaptor = ArgumentCaptor.forClass(HttpStatusCode.class);
 
-        assertEquals(HttpStatusCode.OK, actualResponse.getStatusCode());
+        HttpResponse actualResponse = calendarController.getAppointments(context);
+        verify(response, times(1)).setStatusCode(statusCodeCaptor.capture());
+        assertEquals(HttpStatusCode.OK, statusCodeCaptor.getValue());
     }
 
     @Test
     void testGetAppointmentsByDate() {
         List<Appointment> appointments = List.of(new Appointment());
-        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer());
+
+        Principal principal = createAuthenticatedPrincipal();
+        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer(principal));
         when(principalProvider.getPrincipal(any())).thenReturn(mock(Principal.class));
         when(appointmentManager.readAllBy(anyLong(), any(Date.class), any(Date.class))).thenReturn(appointments);
 
-        HttpResponse actualResponse = calendarController.getAppointmentsByDate(context, new Date(), new Date());
+        ArgumentCaptor<HttpStatusCode> statusCodeCaptor = ArgumentCaptor.forClass(HttpStatusCode.class);
 
-        assertEquals(HttpStatusCode.OK, actualResponse.getStatusCode());
+        HttpResponse actualResponse = calendarController.getAppointmentsByDate(context, new Date(), new Date());
+        verify(response, times(1)).setStatusCode(statusCodeCaptor.capture());
+        assertEquals(HttpStatusCode.OK, statusCodeCaptor.getValue());
     }
 
     @Test
     void testGetAppointment() {
         Appointment appointment = new Appointment();
         ReadableBodyContent bodyContent = mock(ReadableBodyContent.class);
+
         when(bodyContent.tryRead(Appointment.class)).thenReturn(Optional.of(appointment));
-        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer());
+        Principal principal = createAuthenticatedPrincipal();
+        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer(principal));
         when(request.getRequestBody()).thenReturn(Optional.of(bodyContent));
         when(principalProvider.getPrincipal(any())).thenReturn(mock(Principal.class));
         when(appointmentManager.read(anyLong(), anyLong())).thenReturn(appointment);
 
-        HttpResponse actualResponse = calendarController.getAppointment(context);
+        ArgumentCaptor<HttpStatusCode> statusCodeCaptor = ArgumentCaptor.forClass(HttpStatusCode.class);
 
-        assertEquals(HttpStatusCode.OK, actualResponse.getStatusCode());
+        HttpResponse actualResponse = calendarController.getAppointment(context);
+        verify(response, times(1)).setStatusCode(statusCodeCaptor.capture());
+        assertEquals(HttpStatusCode.OK, statusCodeCaptor.getValue());
     }
 
     @Test
@@ -141,7 +165,7 @@ class CalendarControllerTest {
         Appointment appointment = new Appointment();
         appointment.setId(1L);
         ReadableBodyContent bodyContent = mock(ReadableBodyContent.class);
-        Principal principal = mock(Principal.class);
+        Principal principal = createAuthenticatedPrincipal();
         when(principal.getClaim(any())).thenReturn(Optional.of(1));
 
         when(bodyContent.tryRead(Appointment.class)).thenReturn(Optional.of(appointment));
@@ -149,26 +173,32 @@ class CalendarControllerTest {
         when(request.getRequestBody()).thenReturn(Optional.of(bodyContent));
         when(principalProvider.getPrincipal(any())).thenReturn(principal);
 
+        ArgumentCaptor<HttpStatusCode> statusCodeCaptor = ArgumentCaptor.forClass(HttpStatusCode.class);
 
         HttpResponse actualResponse = calendarController.deleteAppointment(context);
-
+        verify(response, times(1)).setStatusCode(statusCodeCaptor.capture());
         verify(appointmentManager, times(1)).delete(appointment.getId());
-        assertEquals(HttpStatusCode.OK, actualResponse.getStatusCode());
+        assertEquals(HttpStatusCode.NO_CONTENT, statusCodeCaptor.getValue());
     }
 
     @Test
     void testDeleteCalendar() {
         Calendar calendar = new Calendar();
+        calendar.setId(1L);
         ReadableBodyContent bodyContent = mock(ReadableBodyContent.class);
+        Principal principal = createAuthenticatedPrincipal();
+        when(principal.getClaim(any())).thenReturn(Optional.of(1));
+
         when(bodyContent.tryRead(Calendar.class)).thenReturn(Optional.of(calendar));
-        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer());
+        when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer(principal));
         when(request.getRequestBody()).thenReturn(Optional.of(bodyContent));
-        when(principalProvider.getPrincipal(any())).thenReturn(mock(Principal.class));
-        when(principalProvider.getPrincipal(any()).getClaim(any())).thenReturn(Optional.of("1"));
+        when(principalProvider.getPrincipal(any())).thenReturn(principal);
+
+        ArgumentCaptor<HttpStatusCode> statusCodeCaptor = ArgumentCaptor.forClass(HttpStatusCode.class);
 
         HttpResponse actualResponse = calendarController.deleteCalendar(context);
-
-        verify(calendarManager, times(1)).delete(anyLong(), anyLong());
-        assertEquals(HttpStatusCode.NO_CONTENT, actualResponse.getStatusCode());
+        verify(response, times(1)).setStatusCode(statusCodeCaptor.capture());
+        verify(calendarManager, times(1)).delete(calendar.getId(), 1L);
+        assertEquals(HttpStatusCode.NO_CONTENT, statusCodeCaptor.getValue());
     }
 }
