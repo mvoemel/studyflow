@@ -200,6 +200,7 @@ public class CalendarController {
         });
     }
 
+
     @Route(path = "deleteAppointment")
     @Endpoint(method = HttpMethod.DELETE)
     public HttpResponse deleteAppointment(RequestContext context) {
