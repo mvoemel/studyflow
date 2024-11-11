@@ -7,22 +7,22 @@ import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
 import ch.zhaw.studyflow.webserver.annotations.Route;
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
+import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
-import ch.zhaw.studyflow.webserver.http.contents.TextContent;
+import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
+import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
+import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
-/**
- * Controller class for handling calendar-related operations.
- * This class provides endpoints for creating, reading, updating, and deleting calendars and appointments.
- */
-@Route(path = "calendar")
+@Route(path = "api/calendar")
 public class CalendarController {
     private static final Logger logger = Logger.getLogger(CalendarController.class.getName());
     private final CalendarManager calendarManager;
@@ -42,11 +42,7 @@ public class CalendarController {
         return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
             calendarManager.create(calendar);
             HttpResponse response = context.getRequest().createResponse();
-            if (response == null) {
-                logger.severe("Failed to create HttpResponse");
-                throw new IllegalStateException("HttpResponse is null");
-            }
-            return response.setResponseBody(TextContent.writableOf("Calendar created"));
+            return response.setResponseBody(JsonContent.writableOf("Calendar created"));
         });
     }
 
@@ -57,7 +53,7 @@ public class CalendarController {
             Appointment appointment = new Appointment();
             appointmentManager.create(appointment);
             HttpResponse response = context.getRequest().createResponse();
-            return response.setResponseBody(TextContent.writableOf("Appointment created"));
+            return response.setResponseBody(JsonContent.writableOf("Appointment created"));
         });
     }
 
@@ -67,7 +63,7 @@ public class CalendarController {
         return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
             Calendar calendar = calendarManager.read(userId, calendarId);
             HttpResponse response = context.getRequest().createResponse();
-            return response.setResponseBody(TextContent.writableOf(calendar.toString()));
+            return response.setResponseBody(JsonContent.writableOf(calendar));
         });
     }
 
@@ -77,7 +73,7 @@ public class CalendarController {
         return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
             List<Calendar> calendars = calendarManager.getCalendars();
             HttpResponse response = context.getRequest().createResponse();
-            return response.setResponseBody(TextContent.writableOf(calendars.toString()));
+            return response.setResponseBody(JsonContent.writableOf(calendars));
         });
     }
 
@@ -87,7 +83,7 @@ public class CalendarController {
         return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
             List<Appointment> appointments = appointmentManager.readAllBy(calendarId, null, null);
             HttpResponse response = context.getRequest().createResponse();
-            return response.setResponseBody(TextContent.writableOf(appointments.toString()));
+            return response.setResponseBody(JsonContent.writableOf(appointments));
         });
     }
 
@@ -97,7 +93,7 @@ public class CalendarController {
         return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
             List<Appointment> appointments = appointmentManager.readAllBy(calendarId, from, to);
             HttpResponse response = context.getRequest().createResponse();
-            return response.setResponseBody(TextContent.writableOf(appointments.toString()));
+            return response.setResponseBody(JsonContent.writableOf(appointments));
         });
     }
 
@@ -107,7 +103,7 @@ public class CalendarController {
         return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
             Appointment appointment = appointmentManager.read(calendarId, appointmentId);
             HttpResponse response = context.getRequest().createResponse();
-            return response.setResponseBody(TextContent.writableOf(appointment.toString()));
+            return response.setResponseBody(JsonContent.writableOf(appointment));
         });
     }
 
