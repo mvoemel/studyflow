@@ -20,7 +20,7 @@ public class StudentManagerImpl implements StudentManager {
         Optional<Student> student = studentDao.readStudentByEmail(email);
         if (student.isPresent()
         && student.get().checkPassword(password)) {
-            return Optional.of(student.get());
+            return student;
         } else {
             return Optional.empty();
         }
@@ -28,11 +28,18 @@ public class StudentManagerImpl implements StudentManager {
 
     @Override
     public Optional<Student> getStudent(long studentId) {
-        return null;
+        return studentDao.readStudentById(studentId);
     }
 
     @Override
     public Optional<Student> register(Student student) {
-        return Optional.empty();
+        Optional<Student> result;
+        if (studentDao.readStudentByEmail(student.getEmail()).isPresent()) {
+            result = Optional.empty();
+        } else {
+            studentDao.create(student);
+            result = Optional.of(student);
+        }
+        return result;
     }
 }

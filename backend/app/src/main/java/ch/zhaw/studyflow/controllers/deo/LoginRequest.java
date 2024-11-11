@@ -4,17 +4,17 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class LoginRequest {
-    private String username;
+    private String email;
     private String password;
 
     @JsonGetter("email")
     public String getEmail() {
-        return username;
+        return email;
     }
 
     @JsonSetter("email")
     public void setEmail(String username) {
-        this.username = username;
+        this.email = username;
     }
 
     @JsonGetter("password")

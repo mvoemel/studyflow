@@ -1,6 +1,10 @@
 package ch.zhaw.studyflow;
 
-import ch.zhaw.studyflow.domain.user.UserController;
+import ch.zhaw.studyflow.controllers.StudentController;
+import ch.zhaw.studyflow.domain.student.StudentManager;
+import ch.zhaw.studyflow.domain.student.impls.StudentManagerImpl;
+import ch.zhaw.studyflow.services.persistance.InMemoryStudentDao;
+import ch.zhaw.studyflow.services.persistance.StudentDao;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
 import ch.zhaw.studyflow.webserver.http.contents.*;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
@@ -29,16 +33,22 @@ public class Main {
         WebServerBuilder webServerBuilder = SunHttpServerWebServerBuilder.create(new InetSocketAddress(8080));
         webServerBuilder.configureControllers(controllerRegistry -> {
             controllerRegistry.register(
-                    UserController.class,
-                    serviceCollection -> new UserController(
+                    StudentController.class,
+                    serviceCollection -> new StudentController(
                             serviceCollection.getRequiredService(AuthenticationHandler.class),
-                            serviceCollection.getRequiredService(PrincipalProvider.class)
+                            serviceCollection.getRequiredService(PrincipalProvider.class),
+                            serviceCollection.getRequiredService(StudentManager.class)
                     ));
         });
         webServerBuilder.configureServices(builder -> {
             builder.registerSingelton(PrincipalProvider.class, serviceCollection -> new JwtPrincipalProvider(
-                    new JwtPrincipalProviderOptions("secret", JwtHashAlgorithm.HS256, "jwt", Duration.ofDays(1)),
+                    new JwtPrincipalProviderOptions("secret", JwtHashAlgorithm.HS256, "superdupersecret", Duration.ofDays(1)),
                     List.of(CommonClaims.AUTHENTICATED, CommonClaims.USER_ID)
+            ));
+
+            builder.registerSingelton(StudentDao.class, serviceCollection -> new InMemoryStudentDao());
+            builder.register(StudentManager.class, serviceCollection -> new StudentManagerImpl(
+                    serviceCollection.getRequiredService(StudentDao.class)
             ));
 
             builder.registerSingelton(AuthenticationHandler.class, serviceCollection ->
