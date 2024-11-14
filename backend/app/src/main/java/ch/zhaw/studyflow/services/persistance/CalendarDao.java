@@ -1,6 +1,6 @@
-package ch.zhaw.studyflow.domain.calendar;
+package ch.zhaw.studyflow.services.persistance;
 
-import java.util.List;
+import ch.zhaw.studyflow.domain.calendar.Calendar;
 
 /**
  * Interface for managing calendar data.

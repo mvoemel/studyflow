@@ -1,6 +1,8 @@
 package ch.zhaw.studyflow;
 
-import ch.zhaw.studyflow.domain.user.UserController;
+import ch.zhaw.studyflow.controllers.DegreeController;
+import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
+import ch.zhaw.studyflow.services.persistance.DegreeDao;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
 import ch.zhaw.studyflow.webserver.http.contents.*;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
@@ -29,10 +31,10 @@ public class Main {
         WebServerBuilder webServerBuilder = SunHttpServerWebServerBuilder.create(new InetSocketAddress(8080));
         webServerBuilder.configureControllers(controllerRegistry -> {
             controllerRegistry.register(
-                    UserController.class,
-                    serviceCollection -> new UserController(
+                    DegreeController.class,
+                    serviceCollection -> new DegreeController(
                             serviceCollection.getRequiredService(AuthenticationHandler.class),
-                            serviceCollection.getRequiredService(PrincipalProvider.class)
+                            serviceCollection.getRequiredService(DegreeManager.class)
                     ));
         });
         webServerBuilder.configureServices(builder -> {
