@@ -5,6 +5,7 @@ import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
+import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import org.mockito.ArgumentCaptor;
 
@@ -64,6 +65,12 @@ public class HttpMockHelpers {
         ArgumentCaptor<HttpStatusCode> captor = ArgumentCaptor.forClass(HttpStatusCode.class);
         verify(response, atLeast(0)).setStatusCode(captor.capture());
         when(response.getStatusCode()).thenReturn(captor.getValue());
+        return captor;
+    }
+
+    public static ArgumentCaptor<WritableBodyContent> captureResponseBody(HttpResponse response) {
+        ArgumentCaptor<WritableBodyContent> captor = ArgumentCaptor.forClass(WritableBodyContent.class);
+        verify(response, atLeast(0)).setResponseBody(captor.capture());
         return captor;
     }
 }

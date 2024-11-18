@@ -79,9 +79,17 @@ public class DegreeController {
             Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").map(Long::parseLong);
             HttpResponse response = request.createResponse();
             if (userId.isPresent() && degreeId.isPresent()) {
-                request.createResponse()
-                        .setResponseBody(JsonContent.writableOf(degreeManager.getDegree(degreeId.get())))
-                        .setStatusCode(HttpStatusCode.OK);
+                final Degree requestedDegree = degreeManager.getDegree(degreeId.get());
+                if (requestedDegree != null) {
+                    if (requestedDegree.getOwnerId() != userId.get()) {
+                        response.setStatusCode(HttpStatusCode.FORBIDDEN);
+                    } else {
+                        response.setResponseBody(JsonContent.writableOf(requestedDegree))
+                                .setStatusCode(HttpStatusCode.OK);
+                    }
+                } else {
+                    response.setStatusCode(HttpStatusCode.NOT_FOUND);
+                }
             } else {
                 response.setStatusCode(HttpStatusCode.BAD_REQUEST);
             }
