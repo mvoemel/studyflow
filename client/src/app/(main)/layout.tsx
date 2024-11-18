@@ -1,19 +1,12 @@
 import {
-    Sidebar,
     SidebarProvider,
     SidebarTrigger,
-    SidebarContent,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarGroupLabel,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem, SidebarInset,
+    SidebarInset,
 } from "@/components/sidebar/sidebar"
 import { ReactNode } from "react";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
-import {Navbar} from "@/components/navbar/navbar";
 import { DegreeProvider } from "@/context/DegreeContext";
+import { ModuleProvider } from "@/context/ModuleContext";
 
 
 type MainLayoutProps = {
@@ -23,6 +16,7 @@ type MainLayoutProps = {
 const MainLayout = ({ children }: MainLayoutProps) => {
   return (
       <DegreeProvider>
+          <ModuleProvider>
       <SidebarProvider>
               <AppSidebar />
                   <SidebarInset>
@@ -32,6 +26,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                       </div>
                   </SidebarInset>
       </SidebarProvider>
+          </ModuleProvider>
       </DegreeProvider>
   );
 };
