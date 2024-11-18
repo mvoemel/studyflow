@@ -15,7 +15,7 @@ import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 
 import java.util.Optional;
 
-@Route(path = "/api/degrees")
+@Route(path = "/api/curriculum/degrees")
 public class DegreeController {
     private final AuthenticationHandler authenticationHandler;
     private final DegreeManager degreeManager;
@@ -39,10 +39,9 @@ public class DegreeController {
                         .map(degree -> {
                             degree.setOwnerId(userId.get());
                             degreeManager.createDegree(degree);
-                            return request.createResponse()
-                                    .setStatusCode(HttpStatusCode.CREATED);
+                            return degree;
                         }).ifPresentOrElse(
-                                value -> response.setResponseBody(JsonContent.writableOf(value)),
+                                value -> response.setResponseBody(JsonContent.writableOf(value)).setStatusCode(HttpStatusCode.CREATED),
                                 () -> response.setStatusCode(HttpStatusCode.BAD_REQUEST)
                         );
             } else {
@@ -70,7 +69,7 @@ public class DegreeController {
         });
     }
 
-    @Route(path = "/{degreeId}")
+    @Route(path = "{degreeId}")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getDegree(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
@@ -90,7 +89,7 @@ public class DegreeController {
         });
     }
 
-    @Route(path = "/{degreeId}")
+    @Route(path = "{degreeId}")
     @Endpoint(method = HttpMethod.PUT)
     public HttpResponse updateDegree(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
@@ -121,7 +120,7 @@ public class DegreeController {
         });
     }
 
-    @Route(path = "/{degreeId}")
+    @Route(path = "{degreeId}")
     @Endpoint(method = HttpMethod.DELETE)
     public HttpResponse deleteDegree(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
