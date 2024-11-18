@@ -6,6 +6,7 @@ import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.services.persistance.SettingsDao;
 import ch.zhaw.studyflow.services.persistance.StudentDao;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -24,18 +25,19 @@ public class StudentManagerImpl implements StudentManager {
 
     @Override
     public Optional<Student> login(String email, String password) {
-        Optional<Student> student = studentDao.readStudentByEmail(email);
-        if (student.isPresent()
-        && student.get().checkPassword(password)) {
-            return student;
-        } else {
-            return Optional.empty();
+        Student student = studentDao.readStudentByEmail(email);
+
+        Optional<Student> result = Optional.empty();
+        if (student != null
+                && student.checkPassword(password)) {
+            result = Optional.of(student);
         }
+        return result;
     }
 
     @Override
     public Optional<Student> getStudent(long studentId) {
-        return studentDao.readStudentById(studentId);
+        return Optional.ofNullable(studentDao.readStudentById(studentId));
     }
 
     @Override
@@ -53,7 +55,7 @@ public class StudentManagerImpl implements StudentManager {
     @Override
     public Optional<Student> register(Student student) {
         Optional<Student> result;
-        if (studentDao.readStudentByEmail(student.getEmail()).isPresent()) {
+        if (studentDao.readStudentByEmail(student.getEmail()) != null) {
             result = Optional.empty();
         } else {
             studentDao.create(student);

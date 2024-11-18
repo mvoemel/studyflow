@@ -37,14 +37,15 @@ public class InMemoryStudentDao implements StudentDao {
     }
 
     @Override
-    public Optional<Student> readStudentById(long studentId) {
-        return Optional.ofNullable(studentsById.get(studentId));
+    public Student readStudentById(long studentId) {
+        return studentsById.get(studentId);
     }
 
     @Override
-    public Optional<Student> readStudentByEmail(String email) {
+    public Student readStudentByEmail(String email) {
         return studentsById.values().stream()
                 .filter(student -> student.getEmail().equals(email))
-                .findFirst();
+                .findFirst()
+                .orElse(null);
     }
 }
