@@ -10,11 +10,12 @@ import java.util.Map;
  * This class provides methods to perform CRUD operations on Calendar objects
  * stored in memory.
  */
-public class MemoryCalendarDao implements CalendarDao {
+public class InMemoryCalendarDao implements CalendarDao {
     private final Map<Long, Map<Long, Calendar>> userCalendars = new HashMap<>();
 
     @Override
     public void create(Calendar calendar) {
+
         if (calendar == null) {
             throw new IllegalArgumentException("Calendar cannot be null");
         }
@@ -50,11 +51,7 @@ public class MemoryCalendarDao implements CalendarDao {
 
 
     @Override
-    public List<Calendar> getAll() {
-        List<Calendar> allCalendars = new ArrayList<>();
-        for (Map<Long, Calendar> calendars : userCalendars.values()) {
-            allCalendars.addAll(calendars.values());
-        }
-        return allCalendars;
+    public List<Calendar> getAllByUserId(long userId) {
+        return new ArrayList<>(userCalendars.getOrDefault(userId, new HashMap<>()).values());
     }
 }

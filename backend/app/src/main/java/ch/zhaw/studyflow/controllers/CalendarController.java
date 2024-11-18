@@ -12,32 +12,46 @@ import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
+import ch.zhaw.studyflow.webserver.http.query.QueryParameters;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.Principal;
-import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+/**
+ * Controller for handling calendar-related HTTP requests.
+ * Provides endpoints for creating, reading, updating, and deleting calendars and appointments.
+ */
 @Route(path = "api/calendar")
 public class CalendarController {
     private static final Logger logger = Logger.getLogger(CalendarController.class.getName());
     private final CalendarManager calendarManager;
     private final AppointmentManager appointmentManager;
     private final AuthenticationHandler authenticator;
-    private final PrincipalProvider principalProvider;
 
-    public CalendarController(CalendarManager calendarManager, AppointmentManager appointmentManager, AuthenticationHandler authenticator, PrincipalProvider principalProvider) {
+    /**
+     * Constructs a CalendarController with the specified managers and authenticator.
+     *
+     * @param calendarManager the manager for calendar operations
+     * @param appointmentManager the manager for appointment operations
+     * @param authenticator the handler for authentication
+     */
+    public CalendarController(CalendarManager calendarManager, AppointmentManager appointmentManager, AuthenticationHandler authenticator) {
         this.calendarManager = calendarManager;
         this.appointmentManager = appointmentManager;
         this.authenticator = authenticator;
-        this.principalProvider = principalProvider;
     }
 
-    @Route(path = "createCalendar")
+    /**
+     * Endpoint for creating a new calendar.
+     *
+     * @param context the request context
+     * @return the HTTP response
+     */
     @Endpoint(method = HttpMethod.POST)
     public HttpResponse createCalendar(RequestContext context) {
         final HttpRequest request = context.getRequest();
@@ -62,7 +76,13 @@ public class CalendarController {
         });
     }
 
-    @Route(path = "createAppointment")
+    /**
+     * Endpoint for creating a new appointment in a specific calendar.
+     *
+     * @param context the request context
+     * @return the HTTP response
+     */
+    @Route(path = "{calendarId}/appointments")
     @Endpoint(method = HttpMethod.POST)
     public HttpResponse createAppointment(RequestContext context) {
         final HttpRequest request = context.getRequest();
@@ -87,7 +107,13 @@ public class CalendarController {
         });
     }
 
-    @Route(path = "getCalendar")
+    /**
+     * Endpoint for retrieving a specific calendar.
+     *
+     * @param context the request context
+     * @return the HTTP response
+     */
+    @Route(path = ":id")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getCalendar(RequestContext context) {
         final HttpRequest request = context.getRequest();
@@ -117,7 +143,12 @@ public class CalendarController {
         });
     }
 
-    @Route(path = "getCalendars")
+    /**
+     * Endpoint for retrieving all calendars for the authenticated user.
+     *
+     * @param context the request context
+     * @return the HTTP response
+     */
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getCalendars(RequestContext context) {
         final HttpRequest request = context.getRequest();
@@ -125,7 +156,7 @@ public class CalendarController {
         return authenticator.handleIfAuthenticated(request, principal -> {
             Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
             if (userId.isPresent()) {
-                List<Calendar> calendars = calendarManager.getCalendars();
+                List<Calendar> calendars = calendarManager.getCalendarsByUserId(userId.get());
                 response.setResponseBody(JsonContent.writableOf(calendars))
                         .setStatusCode(HttpStatusCode.OK);
             } else {
@@ -135,7 +166,13 @@ public class CalendarController {
         });
     }
 
-    @Route(path = "getAppointments")
+    /**
+     * Endpoint for retrieving all appointments in a specific calendar within a date range.
+     *
+     * @param context the request context
+     * @return the HTTP response
+     */
+    @Route(path = "{calendarId}/appointments")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getAppointments(RequestContext context) {
         final HttpRequest request = context.getRequest();
@@ -143,24 +180,13 @@ public class CalendarController {
         return authenticator.handleIfAuthenticated(request, principal -> {
             Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
             if (userId.isPresent()) {
-                List<Appointment> appointments = appointmentManager.readAllBy(userId.get(), null, null);
-                response.setResponseBody(JsonContent.writableOf(appointments))
-                        .setStatusCode(HttpStatusCode.OK);
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
-            }
-            return response;
-        });
-    }
-
-    @Route(path = "getAppointmentsByDate")
-    @Endpoint(method = HttpMethod.GET)
-    public HttpResponse getAppointmentsByDate(RequestContext context, Date from, Date to) {
-        final HttpRequest request = context.getRequest();
-        HttpResponse response = context.getRequest().createResponse();
-        return authenticator.handleIfAuthenticated(request, principal -> {
-            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
-            if (userId.isPresent()) {
+                QueryParameters queryParameters = request.getQueryParameters();
+                Date from = queryParameters.getSingleValue("from")
+                        .map(Date::new)
+                        .orElse(new Date(0));
+                Date to = queryParameters.getSingleValue("to")
+                        .map(Date::new)
+                        .orElse(new Date());
                 List<Appointment> appointments = appointmentManager.readAllBy(userId.get(), from, to);
                 response.setResponseBody(JsonContent.writableOf(appointments))
                         .setStatusCode(HttpStatusCode.OK);
@@ -171,29 +197,38 @@ public class CalendarController {
         });
     }
 
-    @Route(path = "getAppointment")
+    /**
+     * Endpoint for retrieving a specific appointment by date.
+     *
+     * @param context the request context
+     * @return the HTTP response
+     */
+    @Route(path = "{calendarId}/appointments/{appointmentId}")
     @Endpoint(method = HttpMethod.GET)
-    public HttpResponse getAppointment(RequestContext context) {
+    public HttpResponse getAppointmentsByDate(RequestContext context) {
         final HttpRequest request = context.getRequest();
-        HttpResponse response = context.getRequest().createResponse();
+        HttpResponse response = request.createResponse(); // Simplified method call
+
         return authenticator.handleIfAuthenticated(request, principal -> {
             Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
             if (userId.isPresent()) {
-                request.getRequestBody()
-                        .flatMap(body -> body.tryRead(Appointment.class))
-                        .flatMap(appointment -> {
-                            Appointment foundAppointment = appointmentManager.read(appointment.getCalendarId(), appointment.getId());
-                            return Optional.of(foundAppointment);
-                        })
-                        .ifPresentOrElse(
-                                appointment -> {
-                                    response.setResponseBody(JsonContent.writableOf(appointment))
-                                            .setStatusCode(HttpStatusCode.OK);
-                                },
-                                () -> {
-                                    response.setStatusCode(HttpStatusCode.BAD_REQUEST);
-                                }
-                        );
+                QueryParameters queryParameters = request.getQueryParameters();
+
+                Date from = queryParameters.getSingleValue("from")
+                        .map(Date::new)
+                        .orElseGet(() -> {
+                            java.util.Calendar calendar = java.util.Calendar.getInstance();
+                            calendar.add(java.util.Calendar.MONTH, -1);
+                            return calendar.getTime();
+                        });
+
+                Date to = queryParameters.getSingleValue("to")
+                        .map(Date::new)
+                        .orElseGet(Date::new);
+
+                List<Appointment> appointments = appointmentManager.readAllBy(userId.get(), from, to);
+                response.setResponseBody(JsonContent.writableOf(appointments))
+                        .setStatusCode(HttpStatusCode.OK);
             } else {
                 response.setStatusCode(HttpStatusCode.BAD_REQUEST);
             }
@@ -201,8 +236,44 @@ public class CalendarController {
         });
     }
 
+    /**
+     * Endpoint for retrieving a specific appointment.
+     *
+     * @param context the request context
+     * @return the HTTP response
+     */
+    @Route(path = "{calendarId}/appointments/{appointmentId}")
+    @Endpoint(method = HttpMethod.GET)
+    public HttpResponse getAppointment(RequestContext context) {
+        final HttpRequest request = context.getRequest();
+        HttpResponse response = context.getRequest().createResponse();
+        return authenticator.handleIfAuthenticated(request, principal -> {
+            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            if (userId.isPresent()) {
+                QueryParameters queryParameters = request.getQueryParameters();
+                Optional<Long> calendarId = queryParameters.getSingleValue("calendarId").map(Long::valueOf);
+                Optional<Long> appointmentId = queryParameters.getSingleValue("appointmentId").map(Long::valueOf);
+                if (calendarId.isPresent() && appointmentId.isPresent()) {
+                    Appointment foundAppointment = appointmentManager.read(calendarId.get(), appointmentId.get());
+                    response.setResponseBody(JsonContent.writableOf(foundAppointment))
+                            .setStatusCode(HttpStatusCode.OK);
+                } else {
+                    response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+                }
+            } else {
+                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+            }
+            return response;
+        });
+    }
 
-    @Route(path = "deleteAppointment")
+    /**
+     * Endpoint for deleting a specific appointment.
+     *
+     * @param context the request context
+     * @return the HTTP response
+     */
+    @Route(path = "{calendarId}/appointments/{appointmentId}")
     @Endpoint(method = HttpMethod.DELETE)
     public HttpResponse deleteAppointment(RequestContext context) {
         final HttpRequest request = context.getRequest();
@@ -223,8 +294,13 @@ public class CalendarController {
         });
     }
 
-
-    @Route(path = "deleteCalendar")
+    /**
+     * Endpoint for deleting a specific calendar.
+     *
+     * @param context the request context
+     * @return the HTTP response
+     */
+    @Route(path = ":id")
     @Endpoint(method = HttpMethod.DELETE)
     public HttpResponse deleteCalendar(RequestContext context) {
         final HttpRequest request = context.getRequest();

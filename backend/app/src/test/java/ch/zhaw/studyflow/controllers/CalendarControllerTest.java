@@ -10,6 +10,7 @@ import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
+import ch.zhaw.studyflow.webserver.http.query.QueryParameters;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.Principal;
@@ -38,6 +39,7 @@ class CalendarControllerTest {
     private HttpRequest request;
     private HttpResponse response;
     private AppointmentManager appointmentManager;
+    private QueryParameters queryParameters;
 
     @BeforeEach
     void setUp() {
@@ -48,18 +50,18 @@ class CalendarControllerTest {
         context = mock(RequestContext.class);
         request = mock(HttpRequest.class);
         response = mock(HttpResponse.class);
+        queryParameters = mock(QueryParameters.class);
 
         when(context.getRequest()).thenReturn(request);
         when(request.createResponse()).thenReturn(response);
         when(response.getResponseBody()).thenReturn(JsonContent.writableOf(""));
         when(response.setResponseBody(any())).thenReturn(response);
+        when(request.getQueryParameters()).thenReturn(queryParameters);
 
-        calendarController = new CalendarController(calendarManager, appointmentManager, authenticator, principalProvider);
+        calendarController = new CalendarController(calendarManager, appointmentManager, authenticator);
     }
 
-    private Answer<HttpResponse> authenticatedActionAnswer() {
-        return authenticatedActionAnswer(mock(Principal.class));
-    }
+
 
     private Answer<HttpResponse> authenticatedActionAnswer(Principal principal) {
         return invocation -> {
@@ -93,7 +95,7 @@ class CalendarControllerTest {
         Principal principal = createAuthenticatedPrincipal();
         when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer(principal));
         when(principalProvider.getPrincipal(any())).thenReturn(mock(Principal.class));
-        when(calendarManager.getCalendars()).thenReturn(calendars);
+        when(calendarManager.getCalendarsByUserId(1L)).thenReturn(calendars);
 
         ArgumentCaptor<HttpStatusCode> statusCodeCaptor = ArgumentCaptor.forClass(HttpStatusCode.class);
 
@@ -136,7 +138,7 @@ class CalendarControllerTest {
 
         ArgumentCaptor<HttpStatusCode> statusCodeCaptor = ArgumentCaptor.forClass(HttpStatusCode.class);
 
-        HttpResponse actualResponse = calendarController.getAppointmentsByDate(context, new Date(), new Date());
+        HttpResponse actualResponse = calendarController.getAppointmentsByDate(context);
         verify(response, times(1)).setStatusCode(statusCodeCaptor.capture());
         assertEquals(HttpStatusCode.OK, statusCodeCaptor.getValue());
     }
@@ -144,14 +146,15 @@ class CalendarControllerTest {
     @Test
     void testGetAppointment() {
         Appointment appointment = new Appointment();
-        ReadableBodyContent bodyContent = mock(ReadableBodyContent.class);
-
-        when(bodyContent.tryRead(Appointment.class)).thenReturn(Optional.of(appointment));
         Principal principal = createAuthenticatedPrincipal();
         when(authenticator.handleIfAuthenticated(any(), any(Function.class))).thenAnswer(authenticatedActionAnswer(principal));
-        when(request.getRequestBody()).thenReturn(Optional.of(bodyContent));
-        when(principalProvider.getPrincipal(any())).thenReturn(mock(Principal.class));
+        when(principalProvider.getPrincipal(any())).thenReturn(principal);
         when(appointmentManager.read(anyLong(), anyLong())).thenReturn(appointment);
+
+        QueryParameters queryParameters = mock(QueryParameters.class);
+        when(queryParameters.getSingleValue("calendarId")).thenReturn(Optional.of("1"));
+        when(queryParameters.getSingleValue("appointmentId")).thenReturn(Optional.of("1"));
+        when(request.getQueryParameters()).thenReturn(queryParameters);
 
         ArgumentCaptor<HttpStatusCode> statusCodeCaptor = ArgumentCaptor.forClass(HttpStatusCode.class);
 

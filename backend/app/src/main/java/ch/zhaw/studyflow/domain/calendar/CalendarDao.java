@@ -39,12 +39,13 @@ public interface CalendarDao {
      */
     Calendar update(Calendar calendar);
 
-
     /**
-     * Retrieves all calendars.
+     * Gets all calendars for a specific user.
      *
-     * @return a list of all calendars
+     * @param userId the ID of the user
+     * @return a list of calendars for the user
      */
-    List<Calendar> getAll();
+    List<Calendar> getAllByUserId(long userId);
+
 
 }

@@ -85,17 +85,19 @@ public class SQLCalendarDao implements CalendarDao {
 
 
     @Override
-    public List<Calendar> getAll() {
+    public List<Calendar> getAllByUserId(long userId) {
         List<Calendar> calendars = new ArrayList<>();
-        String sql = "SELECT * FROM calendars";
-        try (PreparedStatement stmt = connection.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                calendars.add(new Calendar(
-                        rs.getLong("id"),
-                        rs.getString("name"),
-                        rs.getLong("owner_id")
-                ));
+        String sql = "SELECT * FROM calendars WHERE owner_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    calendars.add(new Calendar(
+                            rs.getLong("id"),
+                            rs.getString("name"),
+                            rs.getLong("owner_id")
+                    ));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
