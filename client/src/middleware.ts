@@ -10,7 +10,11 @@ export const middleware = async (request: NextRequest) => {
 
   const token = request.cookies.get("token");
 
-  if (!token && nextUrl.pathname.startsWith("/login")) {
+  if (
+    !token &&
+    (nextUrl.pathname.startsWith("/login") ||
+      nextUrl.pathname.startsWith("/register"))
+  ) {
     return NextResponse.next();
   }
 
