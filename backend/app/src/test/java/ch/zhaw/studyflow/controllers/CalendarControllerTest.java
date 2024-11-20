@@ -4,6 +4,7 @@ import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.Calendar;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
+import ch.zhaw.studyflow.webserver.http.CaptureContainer;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
@@ -51,12 +52,15 @@ class CalendarControllerTest {
         request = mock(HttpRequest.class);
         response = mock(HttpResponse.class);
         queryParameters = mock(QueryParameters.class);
+        CaptureContainer captureContainer = mock(CaptureContainer.class);
 
         when(context.getRequest()).thenReturn(request);
         when(request.createResponse()).thenReturn(response);
         when(response.getResponseBody()).thenReturn(JsonContent.writableOf(""));
         when(response.setResponseBody(any())).thenReturn(response);
         when(request.getQueryParameters()).thenReturn(queryParameters);
+        when(context.getUrlCaptures()).thenReturn(captureContainer);
+        when(captureContainer.get("id")).thenReturn(Optional.of("1"));
 
         calendarController = new CalendarController(calendarManager, appointmentManager, authenticator);
     }

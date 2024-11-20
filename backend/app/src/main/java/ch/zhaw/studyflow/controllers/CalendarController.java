@@ -17,6 +17,8 @@ import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.Principal;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -113,32 +115,32 @@ public class CalendarController {
      * @param context the request context
      * @return the HTTP response
      */
-    @Route(path = ":id")
+    @Route(path = "{id}")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getCalendar(RequestContext context) {
         final HttpRequest request = context.getRequest();
         HttpResponse response = context.getRequest().createResponse();
         return authenticator.handleIfAuthenticated(request, principal -> {
-            request.getRequestBody()
-                    .flatMap(body -> body.tryRead(Calendar.class))
-                    .flatMap(calendar -> {
-                        Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
-                        if (userId.isPresent()) {
-                            Calendar foundCalendar = calendarManager.read(calendar.getId(), userId.get());
-                            return Optional.of(foundCalendar);
-                        } else {
-                            return Optional.empty();
-                        }
-                    })
-                    .ifPresentOrElse(
-                            calendar -> {
-                                response.setResponseBody(JsonContent.writableOf(calendar));
-                                response.setStatusCode(HttpStatusCode.OK);
-                            },
-                            () -> {
-                                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
-                            }
-                    );
+            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).flatMap(id -> {
+                try {
+                    return Optional.of(Long.valueOf(id));
+                } catch (NumberFormatException e) {
+                    return Optional.empty();
+                }
+            });
+
+            if (userId.isPresent()) {
+                try {
+                    long calendarId = Long.parseLong(context.getUrlCaptures().get("id").orElseThrow(() -> new IllegalArgumentException("ID is missing")));
+                    Calendar foundCalendar = calendarManager.read(calendarId, userId.get());
+                    response.setResponseBody(JsonContent.writableOf(foundCalendar));
+                    response.setStatusCode(HttpStatusCode.OK);
+                } catch (NumberFormatException e) {
+                    response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+                }
+            } else {
+                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+            }
             return response;
         });
     }
@@ -183,7 +185,11 @@ public class CalendarController {
                 QueryParameters queryParameters = request.getQueryParameters();
                 Date from = queryParameters.getSingleValue("from")
                         .map(Date::new)
-                        .orElse(new Date(0));
+                        .orElseGet(() -> {
+                            java.util.Calendar calendar = java.util.Calendar.getInstance();
+                            calendar.add(java.util.Calendar.MONTH, -1);
+                            return calendar.getTime();
+                        });
                 Date to = queryParameters.getSingleValue("to")
                         .map(Date::new)
                         .orElse(new Date());
@@ -207,26 +213,24 @@ public class CalendarController {
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getAppointmentsByDate(RequestContext context) {
         final HttpRequest request = context.getRequest();
-        HttpResponse response = request.createResponse(); // Simplified method call
+        HttpResponse response = request.createResponse();
 
         return authenticator.handleIfAuthenticated(request, principal -> {
             Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
             if (userId.isPresent()) {
                 QueryParameters queryParameters = request.getQueryParameters();
 
-                Date from = queryParameters.getSingleValue("from")
-                        .map(Date::new)
-                        .orElseGet(() -> {
-                            java.util.Calendar calendar = java.util.Calendar.getInstance();
-                            calendar.add(java.util.Calendar.MONTH, -1);
-                            return calendar.getTime();
-                        });
+                LocalDate from = queryParameters.getSingleValue("from")
+                        .map(LocalDate::parse)
+                        .orElse(LocalDate.now().minusMonths(1));
 
-                Date to = queryParameters.getSingleValue("to")
-                        .map(Date::new)
-                        .orElseGet(Date::new);
+                LocalDate to = queryParameters.getSingleValue("to")
+                        .map(LocalDate::parse)
+                        .orElse(LocalDate.now());
 
-                List<Appointment> appointments = appointmentManager.readAllBy(userId.get(), from, to);
+                List<Appointment> appointments = appointmentManager.readAllBy(userId.get(),
+                        Date.from(from.atStartOfDay(ZoneId.systemDefault()).toInstant()),
+                        Date.from(to.atStartOfDay(ZoneId.systemDefault()).toInstant()));
                 response.setResponseBody(JsonContent.writableOf(appointments))
                         .setStatusCode(HttpStatusCode.OK);
             } else {
