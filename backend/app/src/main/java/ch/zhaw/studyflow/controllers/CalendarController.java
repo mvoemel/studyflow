@@ -15,14 +15,12 @@ import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.http.query.QueryParameters;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
-import ch.zhaw.studyflow.webserver.security.principal.Principal;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 /**
  * Controller for handling calendar-related HTTP requests.
@@ -30,7 +28,6 @@ import java.util.logging.Logger;
  */
 @Route(path = "api/calendar")
 public class CalendarController {
-    private static final Logger logger = Logger.getLogger(CalendarController.class.getName());
     private final CalendarManager calendarManager;
     private final AppointmentManager appointmentManager;
     private final AuthenticationHandler authenticator;
