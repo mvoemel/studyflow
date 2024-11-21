@@ -15,7 +15,7 @@ import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 
 import java.util.Optional;
 
-@Route(path = "/api/curriculum/degrees")
+@Route(path = "/api/degrees")
 public class DegreeController {
     private final AuthenticationHandler authenticationHandler;
     private final DegreeManager degreeManager;
@@ -81,12 +81,8 @@ public class DegreeController {
             if (userId.isPresent() && degreeId.isPresent()) {
                 final Degree requestedDegree = degreeManager.getDegree(degreeId.get());
                 if (requestedDegree != null) {
-                    if (requestedDegree.getOwnerId() != userId.get()) {
-                        response.setStatusCode(HttpStatusCode.FORBIDDEN);
-                    } else {
-                        response.setResponseBody(JsonContent.writableOf(requestedDegree))
-                                .setStatusCode(HttpStatusCode.OK);
-                    }
+                    response.setResponseBody(JsonContent.writableOf(requestedDegree))
+                            .setStatusCode(HttpStatusCode.OK);
                 } else {
                     response.setStatusCode(HttpStatusCode.NOT_FOUND);
                 }
@@ -140,12 +136,8 @@ public class DegreeController {
             if (userId.isPresent() && degreeId.isPresent()) {
                 try {
                     Degree degree = degreeManager.getDegree(degreeId.get());
-                    if (degree.getOwnerId() == userId.get()) {
-                        degreeManager.deleteDegree(degreeId.get());
-                        response.setStatusCode(HttpStatusCode.OK);
-                    } else {
-                        response.setStatusCode(HttpStatusCode.FORBIDDEN);
-                    }
+                    degreeManager.deleteDegree(degreeId.get());
+                    response.setStatusCode(HttpStatusCode.OK);
                 } catch (IllegalArgumentException e) {
                     response.setStatusCode(HttpStatusCode.BAD_REQUEST);
                 }
