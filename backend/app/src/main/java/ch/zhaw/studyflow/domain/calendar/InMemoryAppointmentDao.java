@@ -1,5 +1,6 @@
 package ch.zhaw.studyflow.domain.calendar;
 
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,12 +35,14 @@ public class InMemoryAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public List<Appointment> readAllBy(long calendarId, Date from, Date to) {
+    public List<Appointment> readAllBy(long calendarId, LocalDate from, LocalDate to) {
+        // We use !isBefore(from) since this includes the from and isBefore(to) since it
+        // excludes the to date.
         return appointments.stream()
-                .filter(a -> a.getCalendarId() == calendarId &&
-                        !a.getStartTime().isBefore(from.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) &&
-                        !a.getEndTime().isAfter(to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()))
-                .collect(Collectors.toList());
+                .filter(appointment -> appointment.getCalendarId() == calendarId &&
+                        !appointment.getStartTime().isBefore(to.atStartOfDay()) &&
+                        appointment.getEndTime().isBefore(from.atStartOfDay()))
+                .toList();
     }
 
     @Override

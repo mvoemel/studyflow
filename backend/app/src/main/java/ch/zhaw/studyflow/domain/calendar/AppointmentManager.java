@@ -1,5 +1,6 @@
 package ch.zhaw.studyflow.domain.calendar;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class AppointmentManager implements AppointmentDao {
     }
 
     @Override
-    public List<Appointment> readAllBy(long calendarId, Date from, Date to) {
+    public List<Appointment> readAllBy(long calendarId, LocalDate from, LocalDate to) {
         return appointmentDao.readAllBy(calendarId, from, to);
     }
 

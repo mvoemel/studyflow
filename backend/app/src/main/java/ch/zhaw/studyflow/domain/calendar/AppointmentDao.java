@@ -1,5 +1,6 @@
 package ch.zhaw.studyflow.domain.calendar;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public interface AppointmentDao {
      * @param to the end date
      * @return a list of appointments
      */
-    List<Appointment> readAllBy(long calendarId, Date from, Date to);
+    List<Appointment> readAllBy(long calendarId, LocalDate from, LocalDate to);
 
     /**
      * Deletes a specific appointment by appointment ID.
