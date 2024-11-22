@@ -54,23 +54,4 @@ class CalendarManagerTest {
         verify(calendarDao).update(calendar);
     }
 
-    @Test
-    void testGetCalendarId() {
-        Calendar calendar = new Calendar(1, "Test Calendar", 1L);
-        when(calendarDao.getCalendarId(calendar)).thenReturn(1L);
-
-        long calendarId = calendarManager.getCalendarId(calendar);
-        assertEquals(1L, calendarId);
-        verify(calendarDao).getCalendarId(calendar);
-    }
-
-    @Test
-    void testSetCalendarId() {
-        Calendar calendar = new Calendar(1, "Test Calendar", 1L);
-        doNothing().when(calendarDao).setCalendarId(calendar, 2L);
-
-        calendarManager.setCalendarId(calendar, 2L);
-        assertEquals(2L, calendar.getId());
-        verify(calendarDao).setCalendarId(calendar, 2L);
-    }
 }

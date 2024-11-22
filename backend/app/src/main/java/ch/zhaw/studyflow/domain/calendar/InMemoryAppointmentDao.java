@@ -4,20 +4,23 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
+ *
  * In-memory implementation of the AppointmentDao interface.
  */
-public class MemoryAppointmentDao implements AppointmentDao {
+public class InMemoryAppointmentDao implements AppointmentDao {
     private final List<Appointment> appointments = new ArrayList<>();
+    private final AtomicLong idGenerator = new AtomicLong(1);
 
     @Override
     public void create(Appointment appointment) {
         if (appointment == null) {
             throw new IllegalArgumentException("Appointment cannot be null");
         }
-        long newId = appointments.size() + 1;
+        long newId = idGenerator.getAndIncrement();
         appointment.setId(newId);
         appointments.add(appointment);
     }
