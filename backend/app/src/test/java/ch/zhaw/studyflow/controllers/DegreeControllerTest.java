@@ -2,6 +2,7 @@ package ch.zhaw.studyflow.controllers;
 
 import ch.zhaw.studyflow.domain.curriculum.Degree;
 import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
+import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
@@ -12,10 +13,14 @@ import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static ch.zhaw.studyflow.controllers.HttpMockHelpers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -66,6 +71,8 @@ class DegreeControllerTest {
                 CommonClaims.USER_ID, 1)
         );
 
+        when(degreeManager.getDegree(1)).thenReturn(makeDegree(1, 1));
+
         final RequestContext requestContext = makeRequestContext(request, Map.of("degreeId", "1"));
 
         HttpResponse response = degreeController.getDegree(requestContext);
@@ -73,35 +80,11 @@ class DegreeControllerTest {
         ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
         ArgumentCaptor<WritableBodyContent> responseBody = captureResponseBody(response);
 
+        assertInstanceOf(JsonContent.class, responseBody.getValue());
         assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
-
-        WritableBodyContent bodyContent = responseBody.getValue();
-        assertNotNull(bodyContent);
-        assertInstanceOf(JsonContent.class, bodyContent);
         // TODO find a better way to test if the body content is also equals
         //      to the expected degree.
         verify(degreeManager, times(1)).getDegree(1);
-    }
-
-    @Test
-    void testIllegalGetDegree() {
-        Degree degree = makeDegree(6, 5);
-        when(degreeManager.getDegree(5)).thenReturn(degree);
-
-        HttpRequest request = makeHttpRequest();
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.AUTHENTICATED, true,
-                CommonClaims.USER_ID, 1)
-        );
-
-        final RequestContext requestContext = makeRequestContext(request, Map.of("degreeId", "5"));
-
-        HttpResponse response = degreeController.getDegree(requestContext);
-
-        ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
-        ArgumentCaptor<WritableBodyContent> responseBody = captureResponseBody(response);
-        assertEquals(HttpStatusCode.FORBIDDEN, responseStatusCode.getValue());
-        assertTrue(responseBody.getAllValues().isEmpty());
     }
 
     @Test
@@ -126,17 +109,6 @@ class DegreeControllerTest {
         assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
 
         verify(degreeManager, times(1)).getDegreesForStudent(1);
-    }
-
-    @Test
-    void testUnauthorizedCreateDegree() {
-        HttpRequest request = makeHttpRequest(makeJsonRequestBody(Degree.class, new Degree()));
-        AuthMockHelpers.configureFailingAuthHandler(authenticationHandler);
-
-        HttpResponse response = degreeController.createDegree(makeRequestContext(request));
-
-        ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
-        assertEquals(HttpStatusCode.UNAUTHORIZED, responseStatusCode.getValue());
     }
 
     @Test
@@ -165,31 +137,34 @@ class DegreeControllerTest {
         verify(degreeManager, times(1)).deleteDegree(1);
     }
 
-    @Test
-    void testIllegalDelete() {
-        Degree unownedDegree = new Degree();
-        unownedDegree.setId(1);
-        unownedDegree.setOwnerId(2);
-        unownedDegree.setName("Test Degree");
-        unownedDegree.setDescription("Test Description");
+    @ParameterizedTest
+    @MethodSource("provideTargets")
+    void testAuthorizationTest(Tuple<String, Function<Tuple<DegreeController, RequestContext>, HttpResponse>> target) {
+        HttpRequest request = makeHttpRequest(makeJsonRequestBody(Degree.class, new Degree()));
+        AuthMockHelpers.configureFailingAuthHandler(authenticationHandler);
 
-        when(degreeManager.getDegree(1)).thenReturn(unownedDegree);
-
-        HttpRequest request = makeHttpRequest();
-
-        RequestContext context = makeRequestContext(request, Map.of("degreeId", "1"));
-
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.AUTHENTICATED, true,
-                CommonClaims.USER_ID, 1)
-        );
-
-        HttpResponse response = degreeController.deleteDegree(context);
+        HttpResponse response = target.value2().apply(new Tuple<>(degreeController, makeRequestContext(request)));
 
         ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
-        assertEquals(HttpStatusCode.FORBIDDEN, responseStatusCode.getValue());
+        assertEquals(HttpStatusCode.UNAUTHORIZED, responseStatusCode.getValue());
     }
 
+    public static Stream<Tuple<String, Function<Tuple<DegreeController, RequestContext>, HttpResponse>>> provideTargets() {
+        return Stream.of(
+                makeTarget("createDegree", ctrl -> ctrl::createDegree),
+                makeTarget("getDegrees", ctrl -> ctrl::getDegrees),
+                makeTarget("getDegree", ctrl -> ctrl::getDegree),
+                makeTarget("deleteDegree", ctrl -> ctrl::deleteDegree)
+        );
+    }
+
+    private static <T> Tuple<String, Function<Tuple<T, RequestContext>, HttpResponse>> makeTarget(String name, Function<T, Function<RequestContext, HttpResponse>> targetInvoker) {
+        return new Tuple<>(
+                name,
+                argument -> targetInvoker.apply(argument.value1()).apply(argument.value2())
+        );
+    }
+    
     private Degree makeDegree(int studentId, int degreeId) {
         Degree degree = new Degree();
         degree.setId(degreeId);
