@@ -1,12 +1,12 @@
-package ch.zhaw.studyflow.domain.calendar;
+package ch.zhaw.studyflow.services.persistence.memory;
+
+import ch.zhaw.studyflow.domain.calendar.Appointment;
+import ch.zhaw.studyflow.services.persistence.AppointmentDao;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 /**
  *
