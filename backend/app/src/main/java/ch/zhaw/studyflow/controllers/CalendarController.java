@@ -289,7 +289,7 @@ public class CalendarController {
      * @param context the request context
      * @return the HTTP response
      */
-    @Route(path = ":id")
+    @Route(path = "{id}")
     @Endpoint(method = HttpMethod.DELETE)
     public HttpResponse deleteCalendar(RequestContext context) {
         final HttpRequest request = context.getRequest();
@@ -298,17 +298,14 @@ public class CalendarController {
             final HttpResponse response = request.createResponse()
                             .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            request.getRequestBody()
-                    .flatMap(body -> body.tryRead(Calendar.class))
-                    .ifPresent(
-                            calendar -> {
-                                Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
-                                if (userId.isPresent()) {
-                                    calendarManager.delete(calendar.getId(), userId.get());
-                                    response.setStatusCode(HttpStatusCode.NO_CONTENT);
-                                }
-                            }
-                    );
+            Optional<Long> id = context.getUrlCaptures().get("id").flatMap(LongUtils::tryParseLong);
+            if (id.isPresent()) {
+                Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+                if (userId.isPresent()) {
+                    calendarManager.delete(userId.get(), id.get());
+                    response.setStatusCode(HttpStatusCode.NO_CONTENT);
+                }
+            }
             return response;
         });
     }
