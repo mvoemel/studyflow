@@ -4,6 +4,7 @@ import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.Calendar;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
+import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.http.CaptureContainer;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
@@ -19,6 +20,8 @@ import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 
@@ -28,7 +31,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
+import static ch.zhaw.studyflow.controllers.HttpMockHelpers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,8 +73,8 @@ class CalendarControllerTest {
                 CommonClaims.AUTHENTICATED, true
         ));
 
-        final HttpRequest request = HttpMockHelpers.makeHttpRequest();
-        final RequestContext context = HttpMockHelpers.makeRequestContext(request, Map.of("id", "1"));
+        final HttpRequest request = makeHttpRequest();
+        final RequestContext context = makeRequestContext(request, Map.of("id", "1"));
 
         final HttpResponse actualResponse = calendarController.getCalendar(context);
 
@@ -91,8 +96,8 @@ class CalendarControllerTest {
 
         when(calendarManager.getCalendarsByUserId(1L)).thenReturn(calendars);
 
-        final HttpRequest request = HttpMockHelpers.makeHttpRequest();
-        final RequestContext context = HttpMockHelpers.makeRequestContext(request, Map.of());
+        final HttpRequest request = makeHttpRequest();
+        final RequestContext context = makeRequestContext(request, Map.of());
 
         final HttpResponse actualResponse = calendarController.getCalendars(context);
         final ArgumentCaptor<WritableBodyContent> responseBodyCaptor = HttpMockHelpers.captureResponseBody(actualResponse);
@@ -118,8 +123,8 @@ class CalendarControllerTest {
                 CommonClaims.AUTHENTICATED, true
         ));
 
-        final HttpRequest request = HttpMockHelpers.makeHttpRequest();
-        final RequestContext context = HttpMockHelpers.makeRequestContext(request, Map.of("calendarId", "1"));
+        final HttpRequest request = makeHttpRequest();
+        final RequestContext context = makeRequestContext(request, Map.of("calendarId", "1"));
         HttpMockHelpers.addQueryParameters(request, Map.of("from", List.of("2021-01-01"), "to", List.of("2021-01-02")));
 
         when(appointmentManager.readAllBy(anyLong(), any(), any())).thenReturn(appointments);
@@ -146,8 +151,8 @@ class CalendarControllerTest {
                 CommonClaims.AUTHENTICATED, true
         ));
 
-        HttpRequest request = HttpMockHelpers.makeHttpRequest();
-        RequestContext context = HttpMockHelpers.makeRequestContext(request, Map.of("calendarId", "1"));
+        HttpRequest request = makeHttpRequest();
+        RequestContext context = makeRequestContext(request, Map.of("calendarId", "1"));
         HttpMockHelpers.addQueryParameters(request, Map.of("from", List.of(from), "to", List.of(to)));
 
         final HttpResponse actualResponse = calendarController.getAppointmentsByDate(context);
@@ -174,8 +179,8 @@ class CalendarControllerTest {
         ));
         when(appointmentManager.read(anyLong(), anyLong())).thenReturn(appointment);
 
-        final HttpRequest request = HttpMockHelpers.makeHttpRequest();
-        final RequestContext context = HttpMockHelpers.makeRequestContext(
+        final HttpRequest request = makeHttpRequest();
+        final RequestContext context = makeRequestContext(
                 request,
                 Map.of(
                         "calendarId", "1",
@@ -200,8 +205,8 @@ class CalendarControllerTest {
                 CommonClaims.AUTHENTICATED, true
         ));
 
-        final HttpRequest request     = HttpMockHelpers.makeHttpRequest();
-        final RequestContext context  = HttpMockHelpers.makeRequestContext(request, Map.of(
+        final HttpRequest request     = makeHttpRequest();
+        final RequestContext context  = makeRequestContext(request, Map.of(
                 "calendarId", "1",
                 "appointmentId", "1")
         );
@@ -223,9 +228,9 @@ class CalendarControllerTest {
                 CommonClaims.AUTHENTICATED, true
         ));
 
-        final ReadableBodyContent bodyContent = HttpMockHelpers.makeJsonRequestBody(Calendar.class, calendar);
-        final HttpRequest request = HttpMockHelpers.makeHttpRequest(bodyContent);
-        final RequestContext context = HttpMockHelpers.makeRequestContext(request, Map.of("id", "1"));
+        final ReadableBodyContent bodyContent = makeJsonRequestBody(Calendar.class, calendar);
+        final HttpRequest request = makeHttpRequest(bodyContent);
+        final RequestContext context = makeRequestContext(request, Map.of("id", "1"));
 
         final HttpResponse actualResponse = calendarController.deleteCalendar(context);
 
@@ -233,5 +238,39 @@ class CalendarControllerTest {
 
         verify(calendarManager, times(1)).delete(calendar.getId(), 1L);
         assertEquals(HttpStatusCode.NO_CONTENT, statusCodeCaptor.getValue());
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("provideTargets")
+    void testAuthorizationTest(Tuple<String, Function<Tuple<CalendarController, RequestContext>, HttpResponse>> target) {
+        HttpRequest request = makeHttpRequest();
+        AuthMockHelpers.configureFailingAuthHandler(authenticator);
+
+        HttpResponse response = target.value2().apply(new Tuple<>(calendarController, makeRequestContext(request)));
+
+        ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
+        assertEquals(HttpStatusCode.UNAUTHORIZED, responseStatusCode.getValue());
+    }
+
+    public static Stream<Tuple<String, Function<Tuple<CalendarController, RequestContext>, HttpResponse>>> provideTargets() {
+        return Stream.of(
+                makeTarget("createCalendar", ctrl -> ctrl::createCalendar),
+                makeTarget("getCalendar", ctrl -> ctrl::getCalendar),
+                makeTarget("getCalendars", ctrl -> ctrl::getCalendars),
+                makeTarget("deleteCalendar", ctrl -> ctrl::deleteCalendar),
+                makeTarget("getAppointment", ctrl -> ctrl::getAppointment),
+                makeTarget("getAppointments", ctrl -> ctrl::getAppointments),
+                makeTarget("getAppointmentsByDate", ctrl -> ctrl::getAppointmentsByDate),
+                makeTarget("deleteAppointment", ctrl -> ctrl::deleteAppointment),
+                makeTarget("createAppointment", ctrl -> ctrl::createAppointment)
+        );
+    }
+
+    private static <T> Tuple<String, Function<Tuple<T, RequestContext>, HttpResponse>> makeTarget(String name, Function<T, Function<RequestContext, HttpResponse>> targetInvoker) {
+        return new Tuple<>(
+                name,
+                argument -> targetInvoker.apply(argument.value1()).apply(argument.value2())
+        );
     }
 }
