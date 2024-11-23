@@ -3,9 +3,7 @@ package ch.zhaw.studyflow.controllers;
 import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
-import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import ch.zhaw.studyflow.domain.calendar.Calendar;
-import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
 import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
@@ -16,18 +14,15 @@ import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
-import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
-import org.mockito.stubbing.Answer;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 

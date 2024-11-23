@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * In-memory implementation of the CalendarDao interface.
@@ -14,6 +15,7 @@ import java.util.Map;
  * stored in memory.
  */
 public class InMemoryCalendarDao implements CalendarDao {
+    private final AtomicInteger idCounter = new AtomicInteger(0);
     private final Map<Long, Map<Long, Calendar>> userCalendars = new HashMap<>();
 
     @Override
@@ -22,11 +24,7 @@ public class InMemoryCalendarDao implements CalendarDao {
         if (calendar == null) {
             throw new IllegalArgumentException("Calendar cannot be null");
         }
-        long newId = userCalendars.values().stream()
-                .flatMap(map -> map.keySet().stream())
-                .max(Long::compare)
-                .orElse(0L) + 1;
-        calendar.setId(newId);
+        calendar.setId(idCounter.getAndIncrement());
         userCalendars.computeIfAbsent(calendar.getOwnerId(), k -> new HashMap<>()).put(calendar.getId(), calendar);
     }
 

@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * In-memory implementation of the AppointmentDao interface.
  */
 public class InMemoryAppointmentDao implements AppointmentDao {
-    private final List<Appointment> appointments = new ArrayList<>();
     private final AtomicLong idGenerator = new AtomicLong(1);
+    private final List<Appointment> appointments = new ArrayList<>();
 
     @Override
     public void create(Appointment appointment) {
