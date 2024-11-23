@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,22 +11,24 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { LoadingSpinner } from "@/components/global/loading-spinner";
 
-// TODO: add form validation and form submission logic
 const RegisterPage = () => {
   const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // TODO: find the right type
-  const handleRegister = async (e: { preventDefault: () => void }) => {
+  const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    setIsLoading(true);
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: {
@@ -39,9 +40,10 @@ const RegisterPage = () => {
     if (res.ok) {
       router.push("/dashboard");
     } else {
-      alert("Login failed");
+      alert("Registration failed");
     }
 
+    setIsLoading(false);
     setFirstname("");
     setLastname("");
     setUsername("");
@@ -53,7 +55,7 @@ const RegisterPage = () => {
       <CardHeader>
         <CardTitle className="text-xl">Register</CardTitle>
         <CardDescription>
-          Enter your information to create an account
+          Enter your information to create an account.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -104,8 +106,15 @@ const RegisterPage = () => {
                 required
               />
             </div>
-            <Button type="submit" className="w-full">
-              Create an account
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <LoadingSpinner />
+                  <p>Loading ...</p>
+                </>
+              ) : (
+                "Create an account"
+              )}
             </Button>
           </div>
         </form>

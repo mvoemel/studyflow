@@ -5,7 +5,7 @@ import { DailyCalendarBox } from "@/components/dashboard/daily-calendar-box";
 import { EctsBox } from "@/components/dashboard/ects-box";
 import { GradeBox } from "@/components/dashboard/grade-box";
 import { ShortCutBox } from "@/components/dashboard/shortcut-box";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks/use-user";
 
 // TODO: fetch data from API and then render the dashboard components with fetched data
 const DashboardPage = () => {
