@@ -49,7 +49,14 @@ public enum HttpStatusCode {
     /**
      * Indicates that the server encountered an unexpected condition which prevented it from fulfilling the request.
      */
-    INTERNAL_SERVER_ERROR(500);
+    INTERNAL_SERVER_ERROR(500),
+
+    /**
+     * Indicates that the server successfully processed the request and is not returning any content.
+     */
+    NO_CONTENT(204);
+
+
 
     private final int code;
 

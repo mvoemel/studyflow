@@ -3,12 +3,9 @@ package ch.zhaw.studyflow.services.persistence.sql;
 import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.services.persistence.AppointmentDao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -62,13 +59,13 @@ public class SQLAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public List<Appointment> readAllBy(long calendarId, Date from, Date to) {
-        String sql = "SELECT * FROM appointments WHERE calendar_id = ? AND start_time >= ? AND end_time <= ?";
+    public List<Appointment> readAllBy(long calendarId, LocalDate from, LocalDate to) {
+        String sql = "SELECT * FROM appointments WHERE calendar_id = ? AND start_time >= ? AND end_time < ?";
         List<Appointment> appointments = new ArrayList<>();
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, calendarId);
-            stmt.setTimestamp(2, new java.sql.Timestamp(from.getTime()));
-            stmt.setTimestamp(3, new java.sql.Timestamp(to.getTime()));
+            stmt.setTimestamp(2, Timestamp.valueOf(from.atStartOfDay()));
+            stmt.setTimestamp(3, Timestamp.valueOf(to.plusDays(1).atStartOfDay()));
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     appointments.add(new Appointment(

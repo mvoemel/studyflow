@@ -1,5 +1,12 @@
 package ch.zhaw.studyflow;
 
+import ch.zhaw.studyflow.controllers.CalendarController;
+import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
+import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
+import ch.zhaw.studyflow.domain.calendar.CalendarManager;
+import ch.zhaw.studyflow.services.persistence.AppointmentDao;
+import ch.zhaw.studyflow.services.persistence.CalendarDao;
+import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
 import ch.zhaw.studyflow.controllers.StudentController;
 import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.domain.student.impls.StudentManagerImpl;
@@ -35,6 +42,13 @@ public class Main {
         WebServerBuilder webServerBuilder = SunHttpServerWebServerBuilder.create(new InetSocketAddress(8080));
         webServerBuilder.configureControllers(controllerRegistry -> {
             controllerRegistry.register(
+                    CalendarController.class,
+                    serviceCollection -> new CalendarController(
+                            serviceCollection.getRequiredService(AuthenticationHandler.class),
+                            serviceCollection.getRequiredService(CalendarManagerImpl.class),
+                            serviceCollection.getRequiredService(AppointmentManagerImpl.class)
+                    ));
+            controllerRegistry.register(
                     StudentController.class,
                     serviceCollection -> new StudentController(
                             serviceCollection.getRequiredService(AuthenticationHandler.class),
@@ -43,6 +57,15 @@ public class Main {
                     ));
         });
         webServerBuilder.configureServices(builder -> {
+            // REGISTER DAO'S
+            builder.register(CalendarManager.class, serviceCollection -> new CalendarManagerImpl(
+                    serviceCollection.getRequiredService(CalendarDao.class)
+            ));
+            builder.register(AppointmentManager.class, serviceCollection -> new AppointmentManagerImpl(
+                    serviceCollection.getRequiredService(AppointmentDao.class)
+            ));
+
+            // REGISTER AUTHENTICATION SERVICES
             builder.registerSingelton(PrincipalProvider.class, serviceCollection -> new JwtPrincipalProvider(
                     new JwtPrincipalProviderOptions("secret", JwtHashAlgorithm.HS256, "superdupersecret", Duration.ofDays(1)),
                     List.of(CommonClaims.AUTHENTICATED, CommonClaims.USER_ID)
@@ -62,6 +85,7 @@ public class Main {
                     )
             );
 
+            // REGISTER BODY CONTENT FACTORY
             builder.registerSingelton(
                     ReadableBodyContentFactory.class,
                     serviceCollection -> new MapReadableBodyContentFactory(serviceCollection, contentTypes)
