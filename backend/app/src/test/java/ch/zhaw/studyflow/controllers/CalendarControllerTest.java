@@ -58,7 +58,7 @@ class CalendarControllerTest {
         when(calendarManager.read(anyLong(), anyLong())).thenReturn(calendar);
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1,
+                CommonClaims.USER_ID, 1L,
                 CommonClaims.AUTHENTICATED, true
         ));
 
@@ -79,7 +79,7 @@ class CalendarControllerTest {
         List<Calendar> calendars = List.of(new Calendar());
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1,
+                CommonClaims.USER_ID, 1L,
                 CommonClaims.AUTHENTICATED, true
         ));
 
@@ -101,7 +101,7 @@ class CalendarControllerTest {
         List<Appointment> appointments = List.of(new Appointment());
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1,
+                CommonClaims.USER_ID, 1L,
                 CommonClaims.AUTHENTICATED, true
         ));
 
@@ -129,7 +129,7 @@ class CalendarControllerTest {
                 .thenReturn(appointments);
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1,
+                CommonClaims.USER_ID, 1L,
                 CommonClaims.AUTHENTICATED, true
         ));
 
@@ -156,7 +156,7 @@ class CalendarControllerTest {
         Appointment appointment = new Appointment();
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1,
+                CommonClaims.USER_ID, 1L,
                 CommonClaims.AUTHENTICATED, true
         ));
         when(appointmentManager.read(anyLong(), anyLong())).thenReturn(appointment);
@@ -183,7 +183,7 @@ class CalendarControllerTest {
         appointment.setId(1L);
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1,
+                CommonClaims.USER_ID, 1L,
                 CommonClaims.AUTHENTICATED, true
         ));
 
@@ -206,7 +206,7 @@ class CalendarControllerTest {
         calendar.setId(1L);
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1,
+                CommonClaims.USER_ID, 1L,
                 CommonClaims.AUTHENTICATED, true
         ));
 
