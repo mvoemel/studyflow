@@ -1,6 +1,9 @@
 package ch.zhaw.studyflow;
 
-import ch.zhaw.studyflow.domain.user.UserController;
+import ch.zhaw.studyflow.controllers.CalendarController;
+import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
+import ch.zhaw.studyflow.domain.calendar.CalendarDao;
+import ch.zhaw.studyflow.domain.calendar.CalendarManager;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
 import ch.zhaw.studyflow.webserver.http.contents.*;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
@@ -29,13 +32,23 @@ public class Main {
         WebServerBuilder webServerBuilder = SunHttpServerWebServerBuilder.create(new InetSocketAddress(8080));
         webServerBuilder.configureControllers(controllerRegistry -> {
             controllerRegistry.register(
-                    UserController.class,
-                    serviceCollection -> new UserController(
+                    CalendarController.class,
+                    serviceCollection -> new CalendarController(
                             serviceCollection.getRequiredService(AuthenticationHandler.class),
-                            serviceCollection.getRequiredService(PrincipalProvider.class)
+                            serviceCollection.getRequiredService(CalendarManager.class),
+                            serviceCollection.getRequiredService(AppointmentManager.class)
                     ));
         });
         webServerBuilder.configureServices(builder -> {
+            // REGISTER DAO'S
+            builder.register(CalendarManager.class, serviceCollection -> new CalendarManager(
+                    serviceCollection.getRequiredService(CalendarDao.class)
+            ));
+            builder.register(AppointmentManager.class, serviceCollection -> new AppointmentManager(
+                    serviceCollection.getRequiredService(AppointmentManager.class)
+            ));
+
+            // REGISTER AUTHENTICATION SERVICES
             builder.registerSingelton(PrincipalProvider.class, serviceCollection -> new JwtPrincipalProvider(
                     new JwtPrincipalProviderOptions("secret", JwtHashAlgorithm.HS256, "jwt", Duration.ofDays(1)),
                     List.of(CommonClaims.AUTHENTICATED, CommonClaims.USER_ID)
@@ -48,6 +61,7 @@ public class Main {
                     )
             );
 
+            // REGISTER BODY CONTENT FACTORY
             builder.registerSingelton(
                     ReadableBodyContentFactory.class,
                     serviceCollection -> new MapReadableBodyContentFactory(serviceCollection, contentTypes)

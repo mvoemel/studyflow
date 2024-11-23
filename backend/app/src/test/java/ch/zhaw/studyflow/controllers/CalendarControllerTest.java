@@ -46,7 +46,7 @@ class CalendarControllerTest {
         calendarManager     = mock(CalendarManager.class);
         authenticator       = mock(AuthenticationHandler.class);
 
-        calendarController = new CalendarController(calendarManager, appointmentManager, authenticator);
+        calendarController = new CalendarController(authenticator, calendarManager, appointmentManager);
     }
 
 

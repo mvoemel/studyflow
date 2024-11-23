@@ -40,7 +40,7 @@ public class CalendarController {
      * @param appointmentManager the manager for appointment operations
      * @param authenticator      the handler for authentication
      */
-    public CalendarController(CalendarManager calendarManager, AppointmentManager appointmentManager, AuthenticationHandler authenticator) {
+    public CalendarController(AuthenticationHandler authenticator, CalendarManager calendarManager, AppointmentManager appointmentManager) {
         this.calendarManager = calendarManager;
         this.appointmentManager = appointmentManager;
         this.authenticator = authenticator;
