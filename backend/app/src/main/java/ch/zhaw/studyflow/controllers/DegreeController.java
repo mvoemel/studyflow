@@ -26,13 +26,16 @@ public class DegreeController {
         this.degreeManager = degreeManager;
     }
 
+
     @Endpoint(method = HttpMethod.POST)
     public HttpResponse createDegree(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
-        return authenticationHandler.handleIfAuthenticated(request, principal -> {
-            Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
 
-            HttpResponse response = request.createResponse();
+        return authenticationHandler.handleIfAuthenticated(request, principal -> {
+            final HttpResponse response = request.createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
+            final Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
                 request.getRequestBody()
                         .flatMap(body -> body.tryRead(Degree.class))
@@ -40,12 +43,10 @@ public class DegreeController {
                             degree.setOwnerId(userId.get());
                             degreeManager.createDegree(degree);
                             return degree;
-                        }).ifPresentOrElse(
-                                value -> response.setResponseBody(JsonContent.writableOf(value)).setStatusCode(HttpStatusCode.CREATED),
-                                () -> response.setStatusCode(HttpStatusCode.BAD_REQUEST)
+                        }).ifPresent(
+                                value -> response.setResponseBody(JsonContent.writableOf(value))
+                                        .setStatusCode(HttpStatusCode.CREATED)
                         );
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
             }
             return response;
         });
@@ -54,16 +55,15 @@ public class DegreeController {
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getDegrees(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
-        return authenticationHandler.handleIfAuthenticated(request, principal -> {
-            Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
 
-            HttpResponse response = request.createResponse();
+        return authenticationHandler.handleIfAuthenticated(request, principal -> {
+            final HttpResponse response = request.createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
+            final Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
-                request.createResponse()
-                        .setResponseBody(JsonContent.writableOf(degreeManager.getDegreesForStudent(userId.get())))
+                response.setResponseBody(JsonContent.writableOf(degreeManager.getDegreesForStudent(userId.get())))
                         .setStatusCode(HttpStatusCode.OK);
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
             }
             return response;
         });
@@ -73,11 +73,13 @@ public class DegreeController {
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getDegree(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
-        return authenticationHandler.handleIfAuthenticated(request, principal -> {
-            Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
 
-            Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").map(Long::parseLong);
-            HttpResponse response = request.createResponse();
+        return authenticationHandler.handleIfAuthenticated(request, principal -> {
+            final HttpResponse response = request.createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
+            final Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
+            final Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").map(Long::parseLong);
             if (userId.isPresent() && degreeId.isPresent()) {
                 final Degree requestedDegree = degreeManager.getDegree(degreeId.get());
                 if (requestedDegree != null) {
@@ -86,8 +88,6 @@ public class DegreeController {
                 } else {
                     response.setStatusCode(HttpStatusCode.NOT_FOUND);
                 }
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
             }
             return response;
         });
@@ -98,27 +98,21 @@ public class DegreeController {
     public HttpResponse updateDegree(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
         return authenticationHandler.handleIfAuthenticated(request, principal -> {
-            Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
+            final HttpResponse response = request.createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").map(Long::parseLong);
-            HttpResponse response = request.createResponse();
+            final Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
+            final Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").map(Long::parseLong);
             if (userId.isPresent() && degreeId.isPresent()) {
                 request.getRequestBody()
                         .flatMap(body -> body.tryRead(Degree.class))
-                        .ifPresentOrElse(
+                        .ifPresent(
                                 degree -> {
-                                    try {
-                                        degreeManager.updateDegree(degree);
-                                        response.setResponseBody(JsonContent.writableOf(degree));
-                                        response.setStatusCode(HttpStatusCode.OK);
-                                    } catch (IllegalArgumentException e) {
-                                        response.setStatusCode(HttpStatusCode.BAD_REQUEST);
-                                    }
-                                },
-                                () -> response.setStatusCode(HttpStatusCode.BAD_REQUEST)
+                                    degreeManager.updateDegree(degree);
+                                    response.setResponseBody(JsonContent.writableOf(degree));
+                                    response.setStatusCode(HttpStatusCode.OK);
+                                }
                         );
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
             }
             return response;
         });
@@ -129,20 +123,18 @@ public class DegreeController {
     public HttpResponse deleteDegree(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
         return authenticationHandler.handleIfAuthenticated(request, principal -> {
-            Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
+            final HttpResponse response = request.createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").map(Long::parseLong);
-            HttpResponse response = request.createResponse();
+            final Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
+            final Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").map(Long::parseLong);
             if (userId.isPresent() && degreeId.isPresent()) {
-                try {
-                    Degree degree = degreeManager.getDegree(degreeId.get());
+                final Degree degree = degreeManager.getDegree(degreeId.get());
+
+                if (degree != null) {
                     degreeManager.deleteDegree(degreeId.get());
-                    response.setStatusCode(HttpStatusCode.OK);
-                } catch (IllegalArgumentException e) {
-                    response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+                    response.setStatusCode(HttpStatusCode.NO_CONTENT);
                 }
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
             }
             return response;
         });
