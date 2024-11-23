@@ -1,5 +1,7 @@
 package ch.zhaw.studyflow.domain.calendar;
 
+import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
+import ch.zhaw.studyflow.services.persistence.CalendarDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -8,13 +10,13 @@ import static org.mockito.Mockito.*;
 
 class CalendarManagerTest {
 
-    private CalendarManager calendarManager;
+    private CalendarManagerImpl calendarManager;
     private CalendarDao calendarDao;
 
     @BeforeEach
     void setUp() {
         calendarDao = mock(CalendarDao.class);
-        calendarManager = new CalendarManager(calendarDao);
+        calendarManager = new CalendarManagerImpl(calendarDao);
     }
 
     @Test

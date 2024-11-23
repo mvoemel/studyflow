@@ -1,9 +1,11 @@
 package ch.zhaw.studyflow.controllers;
 
 import ch.zhaw.studyflow.domain.calendar.Appointment;
+import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.Calendar;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
-import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
+import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
+import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import ch.zhaw.studyflow.utils.LongUtils;
 import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;

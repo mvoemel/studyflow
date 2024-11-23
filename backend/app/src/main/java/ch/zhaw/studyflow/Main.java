@@ -2,8 +2,11 @@ package ch.zhaw.studyflow;
 
 import ch.zhaw.studyflow.controllers.CalendarController;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
-import ch.zhaw.studyflow.domain.calendar.CalendarDao;
+import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
+import ch.zhaw.studyflow.services.persistence.AppointmentDao;
+import ch.zhaw.studyflow.services.persistence.CalendarDao;
+import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
 import ch.zhaw.studyflow.webserver.http.contents.*;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
@@ -35,17 +38,17 @@ public class Main {
                     CalendarController.class,
                     serviceCollection -> new CalendarController(
                             serviceCollection.getRequiredService(AuthenticationHandler.class),
-                            serviceCollection.getRequiredService(CalendarManager.class),
-                            serviceCollection.getRequiredService(AppointmentManager.class)
+                            serviceCollection.getRequiredService(CalendarManagerImpl.class),
+                            serviceCollection.getRequiredService(AppointmentManagerImpl.class)
                     ));
         });
         webServerBuilder.configureServices(builder -> {
             // REGISTER DAO'S
-            builder.register(CalendarManager.class, serviceCollection -> new CalendarManager(
+            builder.register(CalendarManager.class, serviceCollection -> new CalendarManagerImpl(
                     serviceCollection.getRequiredService(CalendarDao.class)
             ));
-            builder.register(AppointmentManager.class, serviceCollection -> new AppointmentManager(
-                    serviceCollection.getRequiredService(AppointmentManager.class)
+            builder.register(AppointmentManager.class, serviceCollection -> new AppointmentManagerImpl(
+                    serviceCollection.getRequiredService(AppointmentDao.class)
             ));
 
             // REGISTER AUTHENTICATION SERVICES
