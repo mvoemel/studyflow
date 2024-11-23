@@ -3,10 +3,9 @@ package ch.zhaw.studyflow.domain.student.impls;
 import ch.zhaw.studyflow.domain.student.Settings;
 import ch.zhaw.studyflow.domain.student.Student;
 import ch.zhaw.studyflow.domain.student.StudentManager;
-import ch.zhaw.studyflow.services.persistance.SettingsDao;
-import ch.zhaw.studyflow.services.persistance.StudentDao;
+import ch.zhaw.studyflow.services.persistence.SettingsDao;
+import ch.zhaw.studyflow.services.persistence.StudentDao;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 import java.util.logging.Logger;
 

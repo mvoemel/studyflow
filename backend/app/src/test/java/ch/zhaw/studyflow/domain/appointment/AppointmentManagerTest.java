@@ -1,7 +1,7 @@
 package ch.zhaw.studyflow.domain.appointment;
 
 import ch.zhaw.studyflow.domain.calendar.Appointment;
-import ch.zhaw.studyflow.services.persistance.AppointmentDao;
+import ch.zhaw.studyflow.services.persistence.AppointmentDao;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

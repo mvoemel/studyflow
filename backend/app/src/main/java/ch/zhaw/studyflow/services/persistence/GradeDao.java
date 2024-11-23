@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.services.persistance;
+package ch.zhaw.studyflow.services.persistence;
 
 import ch.zhaw.studyflow.domain.curriculum.Degree;
 import ch.zhaw.studyflow.domain.curriculum.Grade;

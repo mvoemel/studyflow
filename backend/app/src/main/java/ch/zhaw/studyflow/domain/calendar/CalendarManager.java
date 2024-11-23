@@ -1,6 +1,6 @@
 package ch.zhaw.studyflow.domain.calendar;
 
-import ch.zhaw.studyflow.services.persistance.CalendarDao;
+import ch.zhaw.studyflow.services.persistence.CalendarDao;
 
 public class CalendarManager {
     private final CalendarDao calendarDao;

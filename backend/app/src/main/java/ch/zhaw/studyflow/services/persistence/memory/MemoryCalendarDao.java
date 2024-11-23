@@ -1,7 +1,7 @@
-package ch.zhaw.studyflow.services.persistance.memory;
+package ch.zhaw.studyflow.services.persistence.memory;
 
 import ch.zhaw.studyflow.domain.calendar.Calendar;
-import ch.zhaw.studyflow.services.persistance.CalendarDao;
+import ch.zhaw.studyflow.services.persistence.CalendarDao;
 
 import java.util.HashMap;
 import java.util.Map;

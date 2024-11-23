@@ -1,7 +1,7 @@
-package ch.zhaw.studyflow.services.persistance.sql;
+package ch.zhaw.studyflow.services.persistence.sql;
 
 import ch.zhaw.studyflow.domain.calendar.Appointment;
-import ch.zhaw.studyflow.services.persistance.AppointmentDao;
+import ch.zhaw.studyflow.services.persistence.AppointmentDao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

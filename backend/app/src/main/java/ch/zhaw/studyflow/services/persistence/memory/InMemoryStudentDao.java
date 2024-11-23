@@ -1,11 +1,10 @@
-package ch.zhaw.studyflow.services.persistance.memory;
+package ch.zhaw.studyflow.services.persistence.memory;
 
 import ch.zhaw.studyflow.domain.student.Student;
-import ch.zhaw.studyflow.services.persistance.StudentDao;
+import ch.zhaw.studyflow.services.persistence.StudentDao;
 
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryStudentDao implements StudentDao {

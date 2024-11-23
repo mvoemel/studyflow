@@ -1,8 +1,6 @@
-package ch.zhaw.studyflow.services.persistance;
+package ch.zhaw.studyflow.services.persistence;
 
 import ch.zhaw.studyflow.domain.student.Student;
-
-import java.util.Optional;
 
 
 public interface StudentDao {

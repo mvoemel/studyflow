@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.services.persistance;
+package ch.zhaw.studyflow.services.persistence;
 
 import java.util.List;
 
