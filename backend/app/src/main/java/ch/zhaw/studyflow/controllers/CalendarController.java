@@ -177,14 +177,19 @@ public class CalendarController {
             final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
             final Optional<Long> calendarId = context.getUrlCaptures().get("calendarId").flatMap(LongUtils::tryParseLong);
             if (userId.isPresent() && calendarId.isPresent()) {
-                final Tuple<LocalDate, LocalDate> dateRange = extractDateRangeQuery(request.getQueryParameters());
-                final List<Appointment> appointments = appointmentManager.readAllBy(
-                        calendarId.get(),
-                        dateRange.value1(),
-                        dateRange.value2()
-                );
-                response.setResponseBody(JsonContent.writableOf(appointments))
-                        .setStatusCode(HttpStatusCode.OK);
+                final Optional<Tuple<LocalDate, LocalDate>> optionalDateRange
+                        = extractDateRangeQuery(request.getQueryParameters());
+                if (optionalDateRange.isPresent()) {
+                    Tuple<LocalDate, LocalDate> dateRange = optionalDateRange.get();
+                    final List<Appointment> appointments = appointmentManager.readAllBy(
+                            calendarId.get(),
+                            dateRange.value1(),
+                            dateRange.value2()
+                    );
+                    response.setResponseBody(JsonContent.writableOf(appointments))
+                            .setStatusCode(HttpStatusCode.OK);
+                }
+
             }
             return response;
         });
@@ -207,13 +212,18 @@ public class CalendarController {
 
             final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
             if (userId.isPresent()) {
-                final Tuple<LocalDate, LocalDate> dateRange = extractDateRangeQuery(request.getQueryParameters());
-                final List<Appointment> appointments = appointmentManager.readAllBy(userId.get(),
-                        dateRange.value1(),
-                        dateRange.value2()
-                );
-                response.setResponseBody(JsonContent.writableOf(appointments))
-                        .setStatusCode(HttpStatusCode.OK);
+                final Optional<Tuple<LocalDate, LocalDate>> optionalDateRange
+                        = extractDateRangeQuery(request.getQueryParameters());
+
+                if (optionalDateRange.isPresent()) {
+                    final Tuple<LocalDate, LocalDate> dateRange = optionalDateRange.get();
+                    final List<Appointment> appointments = appointmentManager.readAllBy(userId.get(),
+                            dateRange.value1(),
+                            dateRange.value2()
+                    );
+                    response.setResponseBody(JsonContent.writableOf(appointments))
+                            .setStatusCode(HttpStatusCode.OK);
+                }
             }
             return response;
         });
@@ -310,17 +320,23 @@ public class CalendarController {
      * If the "from" parameter is not present, the default value is one month before the "to" parameter.
      *
      * @param queryParameters the query parameters
-     * @return a tuple containing the start and end date of the range
+     * @return If successful, a tuple containing the start and end date of the range; otherwise an empty optional
      */
-    private static Tuple<LocalDate, LocalDate> extractDateRangeQuery(QueryParameters queryParameters) {
-        final LocalDate to = queryParameters.getSingleValue("to")
-                .flatMap(CalendarController::tryParseDate)
-                .orElseGet(LocalDate::now);
+    private static Optional<Tuple<LocalDate, LocalDate>> extractDateRangeQuery(QueryParameters queryParameters) {
+        Optional<Tuple<LocalDate, LocalDate>> result;
+        try {
+            final LocalDate to = queryParameters.getSingleValue("to")
+                    .map(CalendarController::tryParseDate)
+                    .orElseGet(LocalDate::now);
 
-        final LocalDate from = queryParameters.getSingleValue("from")
-                .flatMap(CalendarController::tryParseDate)
-                .orElseGet(() -> to.minusMonths(1));
-        return Tuple.of(from, to);
+            final LocalDate from = queryParameters.getSingleValue("from")
+                    .map(CalendarController::tryParseDate)
+                    .orElseGet(() -> to.minusMonths(1));
+            result = Optional.of(new Tuple<>(from, to));
+        } catch (Exception e) {
+            result = Optional.empty();
+        }
+        return result;
     }
 
     /**
@@ -329,11 +345,7 @@ public class CalendarController {
      * @param value the string to parse
      * @return an optional containing the parsed LocalDate or an empty optional
      */
-    private static Optional<LocalDate> tryParseDate(String value) {
-        try {
-            return Optional.of(LocalDate.parse(value, DateTimeFormatter.ISO_DATE));
-        } catch (Exception e) {
-            return Optional.empty();
-        }
+    private static LocalDate tryParseDate(String value) {
+        return LocalDate.parse(value, DateTimeFormatter.ISO_DATE);
     }
 }
