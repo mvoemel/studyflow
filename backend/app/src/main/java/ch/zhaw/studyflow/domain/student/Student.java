@@ -4,7 +4,8 @@ import java.util.Objects;
 
 public class Student {
     private long id;
-    private String name;
+    private String firstname;
+    private String lastname;
     private String email;
     private String password;
 
@@ -17,7 +18,7 @@ public class Student {
         Objects.requireNonNull(name);
 
         this.id = id;
-        this.name = name;
+        this.firstname = name;
     }
 
 
@@ -36,12 +37,20 @@ public class Student {
         this.id = id;
     }
 
-    public String getUsername() {
-        return name;
+    public String getLastname() {
+        return firstname;
     }
 
-    public void setUsername(String name) {
-        this.name = name;
+    public void setLastname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getFirstname() {
+        return lastname;
+    }
+
+    public void setFirstname(String lastname) {
+        this.lastname = lastname;
     }
 
     public String getEmail() {

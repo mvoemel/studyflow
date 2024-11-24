@@ -1,21 +1,32 @@
 package ch.zhaw.studyflow.controllers.deo;
 
+import ch.zhaw.studyflow.domain.student.Student;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class Registration {
+public class StudentDeo {
+    private long id;
     private String firstname;
     private String lastname;
     private String email;
-    private String password;
 
 
-    @JsonGetter("username")
-    public String getFirstname() {
-        return firstname;
+    @JsonGetter("id")
+    public long getId() {
+        return id;
     }
 
-    @JsonSetter("username")
+    @JsonSetter("id")
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    @JsonGetter("firstname")
+    public String getFirstname() {
+        return this.firstname;
+    }
+
+    @JsonSetter("firstname")
     public void setFirstname(String firstname) {
         this.firstname = firstname;
     }
@@ -40,13 +51,11 @@ public class Registration {
         this.email = email;
     }
 
-    @JsonGetter("password")
-    public String getPassword() {
-        return password;
-    }
-
-    @JsonSetter("password")
-    public void setPassword(String password) {
-        this.password = password;
+    public static StudentDeo of(Student student) {
+        StudentDeo studentDeo = new StudentDeo();
+        studentDeo.setFirstname(student.getFirstname());
+        studentDeo.setLastname(student.getLastname());
+        studentDeo.setEmail(student.getEmail());
+        return studentDeo;
     }
 }

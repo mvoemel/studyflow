@@ -1,5 +1,6 @@
 package ch.zhaw.studyflow.controllers;
 
+import ch.zhaw.studyflow.controllers.deo.LoginRequest;
 import ch.zhaw.studyflow.controllers.deo.Registration;
 import ch.zhaw.studyflow.domain.student.Student;
 import ch.zhaw.studyflow.domain.student.StudentManager;
@@ -49,7 +50,7 @@ class StudentControllerTest {
         final Registration registration = new Registration();
         registration.setEmail("test@test.ch");
         registration.setPassword("password");
-        registration.setUsername("test");
+        registration.setFirstname("test");
 
         final HttpRequest request = makeHttpRequest(makeJsonRequestBody(Registration.class, registration));
 
@@ -75,9 +76,64 @@ class StudentControllerTest {
     }
 
     @Test
-    void testLogin() {
+    void testInvalidLogin() {
+        final LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("test@test.test");
+        loginRequest.setPassword("password");
 
+        final Student student = new Student();
+        student.setId(1L);
+        student.setLastname("test");
+        student.setEmail("test@test.test");
+        student.setPassword("password");
+
+        final HttpRequest request = makeHttpRequest(makeJsonRequestBody(LoginRequest.class, loginRequest));
+        final Map<Claim<?>, Object> claims = new HashMap<>();
+        final Principal principal = AuthMockHelpers.makePrincipal(claims);
+
+        when(principalProvider.getPrincipal(request)).thenReturn(principal);
+        when(studentManager.login(loginRequest.getEmail(), loginRequest.getPassword())).thenReturn(Optional.empty());
+
+        HttpResponse response = studentController.login(makeRequestContext(request));
+        ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
+        verify(studentManager, times(1)).login(loginRequest.getEmail(), loginRequest.getPassword());
+        verify(principal, never()).addClaim(CommonClaims.AUTHENTICATED, true);
+        verify(principal, never()).addClaim(CommonClaims.USER_ID, 1L);
+        verify(principalProvider, never()).setPrincipal(response, principal);
+        assertEquals(HttpStatusCode.UNAUTHORIZED, responseStatusCode.getValue());
     }
+
+    @Test
+    void testSuccessfulLogin() {
+        final LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("test@test.test");
+        loginRequest.setPassword("password");
+
+        final Student student = new Student();
+        student.setId(1L);
+        student.setLastname("test");
+        student.setEmail("test@test.test");
+        student.setPassword("password");
+
+        final HttpRequest request = makeHttpRequest(makeJsonRequestBody(LoginRequest.class, loginRequest));
+
+        final Map<Claim<?>, Object> claims = new HashMap<>();
+        final Principal principal = AuthMockHelpers.makePrincipal(claims);
+
+        when(principalProvider.getPrincipal(request)).thenReturn(principal);
+        when(studentManager.login(loginRequest.getEmail(), loginRequest.getPassword())).thenReturn(Optional.of(student));
+
+        HttpResponse response = studentController.login(makeRequestContext(request));
+        ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
+        verify(studentManager, times(1)).login(loginRequest.getEmail(), loginRequest.getPassword());
+
+        verify(principal, times(1)).addClaim(CommonClaims.AUTHENTICATED, true);
+        verify(principal, times(1)).addClaim(CommonClaims.USER_ID, 1L);
+        verify(principalProvider, times(1)).setPrincipal(response, principal);
+        assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
+    }
+
+
 
     @ParameterizedTest
     @MethodSource("provideTargets")

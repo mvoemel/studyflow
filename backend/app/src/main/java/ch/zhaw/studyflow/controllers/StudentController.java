@@ -2,6 +2,7 @@ package ch.zhaw.studyflow.controllers;
 
 import ch.zhaw.studyflow.controllers.deo.LoginRequest;
 import ch.zhaw.studyflow.controllers.deo.Registration;
+import ch.zhaw.studyflow.controllers.deo.StudentDeo;
 import ch.zhaw.studyflow.domain.student.Student;
 import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
@@ -18,9 +19,12 @@ import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Route(path = "api/student")
 public class StudentController {
+    private static Logger LOGGER = Logger.getLogger(StudentController.class.getName());
+
     private final AuthenticationHandler authenticator;
     private final PrincipalProvider principalProvider;
     private final StudentManager studentManager;
@@ -34,11 +38,21 @@ public class StudentController {
         this.studentManager = studentManager;
     }
 
+
     @Route(path = "me")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse me(RequestContext requestContext) {
         return authenticator.handleIfAuthenticated(requestContext.getRequest(), principal -> {
-            HttpResponse response = requestContext.getRequest().createResponse();
+            HttpResponse response = requestContext.getRequest().createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
+            principal.getClaim(CommonClaims.USER_ID)
+                    .map(studentManager::getStudent)
+                    .ifPresentOrElse(
+                            student -> response.setResponseBody(JsonContent.writableOf(StudentDeo.of(student.orElse(null)))),
+                            () -> LOGGER.warning("No user id found in authenticated principal")
+                    );
+
             response.setStatusCode(HttpStatusCode.OK);
             return response;
         });
@@ -71,21 +85,22 @@ public class StudentController {
         final HttpRequest request = requestContext.getRequest();
 
         final Principal principal = principalProvider.getPrincipal(request);
-        HttpResponse response = requestContext.getRequest().createResponse();
+        HttpResponse response = requestContext.getRequest().createResponse()
+                .setStatusCode(HttpStatusCode.BAD_REQUEST);
         if (!principal.getClaim(CommonClaims.AUTHENTICATED).orElse(false)) {
             if (request.getRequestBody().isPresent()) {
                 Optional<Student> newStudent = request.getRequestBody()
                         .flatMap(body -> body.tryRead(Registration.class))
-                        .map(loginRequest -> {
+                        .map(registration -> {
                             Student student = new Student();
-                            student.setEmail(loginRequest.getEmail());
-                            student.setPassword(loginRequest.getPassword());
-                            student.setUsername(loginRequest.getUsername());
+                            student.setEmail(registration.getEmail());
+                            student.setPassword(registration.getPassword());
+                            student.setLastname(registration.getLastname());
+                            student.setFirstname(registration.getFirstname());
                             return student;
                         });
-                if (newStudent.isEmpty()) {
-                    response.setStatusCode(HttpStatusCode.BAD_REQUEST);
-                } else {
+
+                if (newStudent.isPresent()) {
                     newStudent.flatMap(studentManager::register)
                             .ifPresentOrElse(student -> {
                                         principal.addClaim(CommonClaims.AUTHENTICATED, true);
@@ -96,7 +111,6 @@ public class StudentController {
                                     () -> response.setStatusCode(HttpStatusCode.FORBIDDEN)
                             );
                 }
-
             }
         } else {
             response.setStatusCode(HttpStatusCode.OK);
@@ -140,8 +154,7 @@ public class StudentController {
 
             HttpResponse response = requestContext.getRequest().createResponse();
             principalProvider.setPrincipal(response, principal);
-            return response
-                    .setStatusCode(HttpStatusCode.OK);
+            return response.setStatusCode(HttpStatusCode.OK);
         });
     }
 }
