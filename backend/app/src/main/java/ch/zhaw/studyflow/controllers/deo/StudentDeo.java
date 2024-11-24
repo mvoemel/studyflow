@@ -53,6 +53,7 @@ public class StudentDeo {
 
     public static StudentDeo of(Student student) {
         StudentDeo studentDeo = new StudentDeo();
+        studentDeo.setId(student.getId());
         studentDeo.setFirstname(student.getFirstname());
         studentDeo.setLastname(student.getLastname());
         studentDeo.setEmail(student.getEmail());

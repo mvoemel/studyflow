@@ -2,6 +2,7 @@ package ch.zhaw.studyflow.controllers;
 
 import ch.zhaw.studyflow.controllers.deo.LoginRequest;
 import ch.zhaw.studyflow.controllers.deo.Registration;
+import ch.zhaw.studyflow.controllers.deo.StudentDeo;
 import ch.zhaw.studyflow.domain.student.Student;
 import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.utils.Tuple;
@@ -9,6 +10,7 @@ import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
+import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
@@ -22,15 +24,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static ch.zhaw.studyflow.controllers.HttpMockHelpers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class StudentControllerTest {
@@ -52,10 +55,9 @@ class StudentControllerTest {
     void testMe() {
         final Student student = new Student();
         student.setId(1L);
-        student.setLastname("test");
+        student.setFirstname("firstname");
+        student.setLastname("lastname");
         student.setEmail("test@test.test");
-        student.setFirstname("test");
-        student.setLastname("test");
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
                 CommonClaims.AUTHENTICATED, true,
@@ -72,7 +74,16 @@ class StudentControllerTest {
 
         verify(studentManager, times(1)).getStudent(1L);
         assertEquals(HttpStatusCode.OK, statusCodeCaptor.getValue());
-        assertInstanceOf(JsonContent.class, responseBodyCaptor.getValue());
+        assertInstanceOf(WritableBodyContent.class, responseBodyCaptor.getValue());
+
+        assertDoesNotThrow(() -> {
+            JsonContent bodyContent = (JsonContent)responseBodyCaptor.getValue();
+            StudentDeo result = JsonContentHelpers.getContent(bodyContent, StudentDeo.class);
+            assertEquals(1L, result.getId());
+            assertEquals("firstname", result.getFirstname());
+            assertEquals("lastname", result.getLastname());
+            assertEquals("test@test.test", result.getEmail());
+        });
     }
 
     @Test
