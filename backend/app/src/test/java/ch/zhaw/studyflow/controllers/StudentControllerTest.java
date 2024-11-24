@@ -8,6 +8,8 @@ import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
+import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
+import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.principal.Claim;
@@ -28,6 +30,7 @@ import java.util.stream.Stream;
 
 import static ch.zhaw.studyflow.controllers.HttpMockHelpers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.*;
 
 class StudentControllerTest {
@@ -43,6 +46,33 @@ class StudentControllerTest {
         principalProvider       = mock(PrincipalProvider.class);
         studentManager          = mock(StudentManager.class);
         studentController       = new StudentController(authenticationHandler, principalProvider, studentManager);
+    }
+
+    @Test
+    void testMe() {
+        final Student student = new Student();
+        student.setId(1L);
+        student.setLastname("test");
+        student.setEmail("test@test.test");
+        student.setFirstname("test");
+        student.setLastname("test");
+
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
+                CommonClaims.AUTHENTICATED, true,
+                CommonClaims.USER_ID, 1L
+        ));
+
+        when(studentManager.getStudent(1L)).thenReturn(Optional.of(student));
+
+        HttpRequest request = makeHttpRequest();
+        HttpResponse response = studentController.me(makeRequestContext(request));
+
+        ArgumentCaptor<HttpStatusCode> statusCodeCaptor = captureResponseCode(response);
+        ArgumentCaptor<WritableBodyContent> responseBodyCaptor = captureResponseBody(response);
+
+        verify(studentManager, times(1)).getStudent(1L);
+        assertEquals(HttpStatusCode.OK, statusCodeCaptor.getValue());
+        assertInstanceOf(JsonContent.class, responseBodyCaptor.getValue());
     }
 
     @Test
@@ -133,7 +163,22 @@ class StudentControllerTest {
         assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
     }
 
+    @Test
+    void testLogout() {
+        final HttpRequest request = makeHttpRequest();
+        HashMap<Claim<?>, Object> claims = new HashMap<>();
+        claims.put(CommonClaims.AUTHENTICATED, true);
+        claims.put(CommonClaims.USER_ID, 1L);
 
+        Principal principal = AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, claims);
+        HttpResponse response = studentController.logout(makeRequestContext(request));
+
+        ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
+        verify(principal, times(1)).addClaim(CommonClaims.AUTHENTICATED, false);
+        verify(principal, times(1)).addClaim(CommonClaims.USER_ID, -1L);
+        verify(principalProvider, times(1)).setPrincipal(response, principal);
+        assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
+    }
 
     @ParameterizedTest
     @MethodSource("provideTargets")

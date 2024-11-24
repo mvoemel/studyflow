@@ -26,11 +26,13 @@ public class AuthMockHelpers {
         });
     }
 
-    public static void configureSuccessfulAuthHandler(AuthenticationHandler authHandler, Map<Claim<?>, Object> claims) {
+    public static Principal configureSuccessfulAuthHandler(AuthenticationHandler authHandler, Map<Claim<?>, Object> claims) {
+        final Principal principal = makePrincipal(claims);
         when(authHandler.handleIfAuthenticated(any(), any())).then(a -> {
             Function<Principal, HttpResponse> handler = a.getArgument(1);
-            return handler.apply(makePrincipal(claims));
+            return handler.apply(principal);
         });
+        return principal;
     }
 
     @SuppressWarnings("unchecked")
