@@ -1,5 +1,8 @@
 package ch.zhaw.studyflow.domain.grade;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 /**
  * Represents a grade in the system.
  */
@@ -9,20 +12,39 @@ public class Grade {
     private long mark;
 
     /**
+     * Default constructor.
+     */
+    public Grade() {}
+
+    /**
+     * Constructs a grade with the specified ID, module ID, and mark.
+     *
+     * @param id the ID of the grade
+     * @param belongsTo the module ID to which this grade belongs
+     * @param mark the mark of the grade
+     */
+    public Grade(long id, long belongsTo, long mark) {
+        this.id = id;
+        this.belongsTo = belongsTo;
+        this.mark = mark;
+    }
+
+    /**
      * Gets the ID of the grade.
      *
      * @return the ID of the grade.
      */
+    @JsonGetter("id")
     public long getId() {
         return id;
     }
-
 
     /**
      * Sets the ID of the grade.
      *
      * @param id the new ID of the grade.
      */
+    @JsonSetter("id")
     public void setId(long id) {
         this.id = id;
     }
@@ -32,6 +54,7 @@ public class Grade {
      *
      * @return the module ID.
      */
+    @JsonGetter("belongsTo")
     public long getBelongsTo() {
         return belongsTo;
     }
@@ -39,10 +62,11 @@ public class Grade {
     /**
      * Sets the module ID to which this grade belongs.
      *
-     * @param moduleId the new module ID.
+     * @param belongsTo the new module ID.
      */
-    public void setBelongsTo(long moduleId) {
-        this.belongsTo = moduleId;
+    @JsonSetter("belongsTo")
+    public void setBelongsTo(long belongsTo) {
+        this.belongsTo = belongsTo;
     }
 
     /**
@@ -50,6 +74,7 @@ public class Grade {
      *
      * @return the mark.
      */
+    @JsonGetter("mark")
     public long getMark() {
         return mark;
     }
@@ -59,6 +84,7 @@ public class Grade {
      *
      * @param mark the new mark.
      */
+    @JsonSetter("mark")
     public void setMark(long mark) {
         this.mark = mark;
     }

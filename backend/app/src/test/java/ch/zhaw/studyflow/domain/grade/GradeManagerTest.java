@@ -1,5 +1,6 @@
 package ch.zhaw.studyflow.domain.grade;
 
+import ch.zhaw.studyflow.domain.grade.impls.GradeManagerImpl;
 import ch.zhaw.studyflow.services.persistence.GradeDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,13 +12,13 @@ import static org.mockito.Mockito.*;
 
 class GradeManagerTest {
 
-    private GradeManager gradeManager;
+    private GradeManagerImpl gradeManager;
     private GradeDao gradeDao;
 
     @BeforeEach
     void setUp() {
         gradeDao = mock(GradeDao.class);
-        gradeManager = new GradeManager(gradeDao);
+        gradeManager = new GradeManagerImpl(gradeDao);
     }
 
     @Test
