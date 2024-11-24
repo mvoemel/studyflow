@@ -1,8 +1,13 @@
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import {
+    SidebarProvider,
+    SidebarInset,
+} from "@/components/sidebar/sidebar"
 import { ReactNode } from "react";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
-import { DegreeProvider } from "@/context/degree-context";
+import { DegreeProvider } from "@/context/DegreeContext";
+import { ModuleProvider } from "@/context/ModuleContext";
 import AppSidebarHeader from "@/components/sidebar/app-sidebar-header";
+
 
 type MainLayoutProps = {
   children: ReactNode;
@@ -10,7 +15,9 @@ type MainLayoutProps = {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   return (
-    <DegreeProvider>
+
+      <DegreeProvider>
+          <ModuleProvider>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
@@ -18,7 +25,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           <div className="w-full">{children}</div>
         </SidebarInset>
       </SidebarProvider>
-    </DegreeProvider>
+          </ModuleProvider>
+      </DegreeProvider>
   );
 };
 

@@ -1,13 +1,23 @@
-"use client";
-import { useEffect, useState } from "react";
+"use client"
+import {useCallback, useEffect, useState} from 'react';
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import { useDegree } from "@/context/degree-context";
+import interactionPlugin from '@fullcalendar/interaction'
+import { useDegree } from '@/context/DegreeContext';
+import { useModule } from '@/context/ModuleContext';
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { AddAppointmentDialog } from "@/components/dialogs/addAppointment";
+import { CreateScheduleDialog } from "@/components/dialogs/createSchedule";
+
+
 
 const SchedulePage = () => {
-  const { selectedDegree, activeSemester } = useDegree();
-  const [events, setEvents] = useState([]);
+    const { selectedDegree, activeSemester } = useDegree();
+    const { modules } = useModule();
+    const [events, setEvents] = useState([]);
+    const [isAddAppointmentDialogOpen, setIsAddAppointmentDialogOpen] = useState(false);
+    const [isCreateScheduleDialogOpen, setIsCreateScheduleDialogOpen] = useState(false);
 
   // TODO: Adjust for future database implementation
   useEffect(() => {
@@ -20,6 +30,26 @@ const SchedulePage = () => {
         .catch((error) => console.error("Error fetching events:", error));
     }
   }, [selectedDegree, activeSemester]);
+
+    const openAddAppointmentDialog = useCallback(() => {
+        setIsAddAppointmentDialogOpen(true);
+    }, []);
+
+    const closeAddAppointmentDialog = useCallback(() => {
+        setIsAddAppointmentDialogOpen(false);
+    }, []);
+
+    const openCreateScheduleDialog = useCallback(() => {
+        setIsCreateScheduleDialogOpen(true);
+    }, []);
+
+    const closeCreateScheduleDialog = useCallback(() => {
+        setIsCreateScheduleDialogOpen(false);
+    }, []);
+
+    const filteredModules = modules.filter(module =>
+        module.degreeId === selectedDegree?.id && module.semesterId === activeSemester?.id
+    );
 
   return (
     <main className="">
