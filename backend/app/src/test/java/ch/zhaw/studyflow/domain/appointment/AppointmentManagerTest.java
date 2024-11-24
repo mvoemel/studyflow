@@ -1,13 +1,13 @@
 package ch.zhaw.studyflow.domain.appointment;
 
 import ch.zhaw.studyflow.domain.calendar.Appointment;
-import ch.zhaw.studyflow.domain.calendar.AppointmentDao;
-import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
+import ch.zhaw.studyflow.services.persistence.AppointmentDao;
+import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,13 +15,13 @@ import static org.mockito.Mockito.*;
 
 class AppointmentManagerTest {
 
-    private AppointmentManager appointmentManager;
+    private AppointmentManagerImpl appointmentManager;
     private AppointmentDao appointmentDao;
 
     @BeforeEach
     void setUp() {
         appointmentDao = mock(AppointmentDao.class);
-        appointmentManager = new AppointmentManager(appointmentDao);
+        appointmentManager = new AppointmentManagerImpl(appointmentDao);
     }
 
     @Test
@@ -47,8 +47,8 @@ class AppointmentManagerTest {
     void testReadAllBy() {
         Appointment appointment1 = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L);
         Appointment appointment2 = new Appointment(2, LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(3), 1L);
-        Date from = new Date();
-        Date to = new Date();
+        LocalDate from = LocalDate.now();
+        LocalDate to = LocalDate.now();
         when(appointmentDao.readAllBy(1L, from, to)).thenReturn(List.of(appointment1, appointment2));
 
         List<Appointment> appointments = appointmentManager.readAllBy(1L, from, to);

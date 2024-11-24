@@ -1,4 +1,7 @@
-package ch.zhaw.studyflow.domain.calendar;
+package ch.zhaw.studyflow.services.persistence.memory;
+
+import ch.zhaw.studyflow.domain.calendar.Calendar;
+import ch.zhaw.studyflow.services.persistence.CalendarDao;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,11 +13,12 @@ import java.util.Map;
  * This class provides methods to perform CRUD operations on Calendar objects
  * stored in memory.
  */
-public class MemoryCalendarDao implements CalendarDao {
+public class InMemoryCalendarDao implements CalendarDao {
     private final Map<Long, Map<Long, Calendar>> userCalendars = new HashMap<>();
 
     @Override
     public void create(Calendar calendar) {
+
         if (calendar == null) {
             throw new IllegalArgumentException("Calendar cannot be null");
         }
@@ -48,13 +52,9 @@ public class MemoryCalendarDao implements CalendarDao {
         return calendar;
     }
 
-    @Override
-    public long getCalendarId(Calendar calendar) {
-        return calendar.getId();
-    }
 
     @Override
-    public void setCalendarId(Calendar calendar, long calendarId) {
-        calendar.setId(calendarId);
+    public List<Calendar> getAllByUserId(long userId) {
+        return new ArrayList<>(userCalendars.getOrDefault(userId, new HashMap<>()).values());
     }
 }

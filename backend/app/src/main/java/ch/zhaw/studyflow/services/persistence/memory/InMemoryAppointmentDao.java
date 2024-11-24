@@ -1,23 +1,27 @@
-package ch.zhaw.studyflow.domain.calendar;
+package ch.zhaw.studyflow.services.persistence.memory;
 
-import java.time.ZoneId;
+import ch.zhaw.studyflow.domain.calendar.Appointment;
+import ch.zhaw.studyflow.services.persistence.AppointmentDao;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ *
  * In-memory implementation of the AppointmentDao interface.
  */
-public class MemoryAppointmentDao implements AppointmentDao {
+public class InMemoryAppointmentDao implements AppointmentDao {
     private final List<Appointment> appointments = new ArrayList<>();
+    private final AtomicLong idGenerator = new AtomicLong(1);
 
     @Override
     public void create(Appointment appointment) {
         if (appointment == null) {
             throw new IllegalArgumentException("Appointment cannot be null");
         }
-        long newId = appointments.size() + 1;
+        long newId = idGenerator.getAndIncrement();
         appointment.setId(newId);
         appointments.add(appointment);
     }
@@ -31,12 +35,14 @@ public class MemoryAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public List<Appointment> readAllBy(long calendarId, Date from, Date to) {
+    public List<Appointment> readAllBy(long calendarId, LocalDate from, LocalDate to) {
+        // We use !isBefore(from) since this includes the from and isBefore(to) since it
+        // excludes the to date.
         return appointments.stream()
-                .filter(a -> a.getCalendarId() == calendarId &&
-                        !a.getStartTime().isBefore(from.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) &&
-                        !a.getEndTime().isAfter(to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()))
-                .collect(Collectors.toList());
+                .filter(appointment -> appointment.getCalendarId() == calendarId &&
+                        !appointment.getStartTime().isBefore(to.atStartOfDay()) &&
+                        appointment.getEndTime().isBefore(from.atStartOfDay()))
+                .toList();
     }
 
     @Override

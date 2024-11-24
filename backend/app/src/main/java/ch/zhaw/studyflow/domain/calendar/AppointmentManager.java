@@ -1,45 +1,49 @@
 package ch.zhaw.studyflow.domain.calendar;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Manages appointments for users.
+ * Interface for managing appointments in the domain.
  */
-public class AppointmentManager implements AppointmentDao {
-    private final AppointmentDao appointmentDao;
+public interface AppointmentManager {
+    /**
+     * Creates a new appointment.
+     *
+     * @param appointment the appointment to create
+     */
+    void create(Appointment appointment);
 
     /**
-     * Constructs an AppointmentManager with the specified AppointmentDao.
+     * Reads a specific appointment by calendar ID and appointment ID.
      *
-     * @param appointmentDao the AppointmentDao to use
+     * @param calendarId the ID of the calendar
+     * @param id the ID of the appointment
+     * @return the appointment, or null if not found
      */
-    public AppointmentManager(AppointmentDao appointmentDao) {
-        this.appointmentDao = appointmentDao;
-    }
+    Appointment read(long calendarId, long id);
 
-    @Override
-    public void create(Appointment appointment) {
-        appointmentDao.create(appointment);
-    }
+    /**
+     * Reads all appointments for a calendar within a date range.
+     *
+     * @param calendarId the ID of the calendar
+     * @param from the start date
+     * @param to the end date
+     * @return a list of appointments
+     */
+    List<Appointment> readAllBy(long calendarId, LocalDate from, LocalDate to);
 
-    @Override
-    public Appointment read(long calendarId, long id) {
-        return appointmentDao.read(calendarId, id);
-    }
+    /**
+     * Deletes a specific appointment by its ID.
+     *
+     * @param id the ID of the appointment
+     */
+    void delete(long id);
 
-    @Override
-    public List<Appointment> readAllBy(long calendarId, Date from, Date to) {
-        return appointmentDao.readAllBy(calendarId, from, to);
-    }
-
-    @Override
-    public void delete(long id) {
-        appointmentDao.delete(id);
-    }
-
-    @Override
-    public void update(Appointment appointment) {
-        appointmentDao.update(appointment);
-    }
+    /**
+     * Updates an appointment.
+     *
+     * @param appointment the appointment to update
+     */
+    void update(Appointment appointment);
 }

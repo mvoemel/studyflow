@@ -1,3 +1,4 @@
+
 val JUNIT_VERSION               = "5.11.+"
 
 val JACKSON_CORE_VERSION        = "2.18.0"
@@ -8,7 +9,6 @@ val MOCKITO_VERSION             = "5.10.+"
 val MOCKITO_JUNIT_VERSION       = "5.10.+"
 
 plugins {
-    // Apply the application plugin to add support for building a CLI application in Java.
     application
 }
 
@@ -27,7 +27,6 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-annotations:$JACKSON_ANNOTATIONS_VERSION")
     implementation("com.fasterxml.jackson.core:jackson-databind:$JACKSON_DATABIND_VERSION")
 
-    testImplementation("org.mockito:mockito-core:$MOCKITO_VERSION")
 }
 
 application {
@@ -39,6 +38,7 @@ java {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
+
 
 tasks.named<Test>("test") {
     useJUnitPlatform()

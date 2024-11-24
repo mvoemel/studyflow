@@ -1,4 +1,6 @@
-package ch.zhaw.studyflow.domain.calendar;
+package ch.zhaw.studyflow.services.persistence;
+
+import ch.zhaw.studyflow.domain.calendar.Calendar;
 
 import java.util.List;
 
@@ -40,18 +42,12 @@ public interface CalendarDao {
     Calendar update(Calendar calendar);
 
     /**
-     * Gets the calendar ID.
+     * Gets all calendars for a specific user.
      *
-     * @param calendar the calendar
-     * @return the calendar ID
+     * @param userId the ID of the user
+     * @return a list of calendars for the user
      */
-    long getCalendarId(Calendar calendar);
+    List<Calendar> getAllByUserId(long userId);
 
-    /**
-     * Sets the calendar ID.
-     *
-     * @param calendar the calendar
-     * @param calendarId the new calendar ID
-     */
-    void setCalendarId(Calendar calendar, long calendarId);
+
 }
