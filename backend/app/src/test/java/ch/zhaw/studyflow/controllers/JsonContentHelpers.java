@@ -9,22 +9,14 @@ import java.lang.reflect.Field;
  * This is not a good practice and should be avoided. Thus this class should be removed once the content field is made public.
  */
 public class JsonContentHelpers {
-    private static final Field contentField;
 
     private JsonContentHelpers() {
         // This class should not be instantiated.
     }
 
-    static {
-        try {
-            contentField =  JsonContent.class.getDeclaredField("content");
-            contentField.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-    public static <T> T getContent(JsonContent content, Class<T> valueType) throws IllegalAccessException {
+    public static <T> T getContent(JsonContent content, Class<T> valueType) throws IllegalAccessException, NoSuchFieldException {
+        Field contentField =  content.getClass().getDeclaredField("content");
+        contentField.setAccessible(true);
         Object value = contentField.get(content);
         if (!valueType.isInstance(value)) {
             throw new IllegalArgumentException("Cannot read content as " + valueType.getSimpleName());

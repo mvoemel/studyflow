@@ -117,6 +117,55 @@ class StudentControllerTest {
     }
 
     @Test
+    void testRegisterConflict() {
+        final Registration registration = new Registration();
+        registration.setEmail("test@test.test");
+        registration.setPassword("password");
+        registration.setLastname("lasname");
+        registration.setFirstname("firstname");
+
+        final HttpRequest request = makeHttpRequest(makeJsonRequestBody(Registration.class, registration));
+
+        final Map<Claim<?>, Object> claims = new HashMap<>();
+        final Principal principal = AuthMockHelpers.makePrincipal(claims);
+        when(principalProvider.getPrincipal(request)).thenReturn(principal);
+
+        when(studentManager.getStudentByEmail(registration.getEmail())).thenReturn(Optional.of(new Student()));
+
+        HttpResponse response = studentController.register(makeRequestContext(request));
+
+        verify(studentManager, never()).register(any(Student.class));
+        verify(studentManager, atLeast(1)).getStudentByEmail(registration.getEmail());
+        ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
+        assertEquals(HttpStatusCode.CONFLICT, responseStatusCode.getValue());
+    }
+
+    @Test
+    void testRegisterWhenAlreadyAuthenticated() {
+        final Registration registration = new Registration();
+        registration.setEmail("test@test.test");
+        registration.setPassword("password");
+        registration.setLastname("lasname");
+        registration.setFirstname("firstname");
+
+        final HttpRequest request = makeHttpRequest(makeJsonRequestBody(Registration.class, registration));
+
+        final Map<Claim<?>, Object> claims = new HashMap<>();
+        claims.put(CommonClaims.USER_ID, 1L);
+        claims.put(CommonClaims.AUTHENTICATED, true);
+
+        final Principal principal = AuthMockHelpers.makePrincipal(claims);
+        when(principalProvider.getPrincipal(request)).thenReturn(principal);
+
+        HttpResponse response = studentController.register(makeRequestContext(request));
+
+        ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
+        verify(studentManager, never()).register(any(Student.class));
+        verify(studentManager, never()).getStudentByEmail(registration.getEmail());
+        assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
+    }
+
+    @Test
     void testInvalidLogin() {
         final LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail("test@test.test");

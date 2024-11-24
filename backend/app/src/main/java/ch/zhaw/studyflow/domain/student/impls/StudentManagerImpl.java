@@ -40,6 +40,11 @@ public class StudentManagerImpl implements StudentManager {
     }
 
     @Override
+    public Optional<Student> getStudentByEmail(String email) {
+        return Optional.ofNullable(studentDao.readStudentByEmail(email));
+    }
+
+    @Override
     public Optional<Settings> getSettings(long studentId) {
         Optional<Settings> result;
         try {
