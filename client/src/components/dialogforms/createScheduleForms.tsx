@@ -72,7 +72,7 @@ export function CreateScheduleForms({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="flex gap-4">
+        <div className="grid grid-cols-2 gap-2">
           <FormField
             control={form.control}
             name="startDate"
@@ -141,7 +141,7 @@ export function CreateScheduleForms({
           </FormDescription>
           <FormMessage />
         </FormItem>
-        <div className="flex gap-4">
+        <div className="grid grid-cols-2 gap-2">
           <FormField
             control={form.control}
             name="startTime"
