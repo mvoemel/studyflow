@@ -184,6 +184,7 @@ const AppSidebar = () => {
             ))}
           </SidebarMenu>
         </SidebarGroup>
+
         <SidebarGroup>
           <SidebarGroupLabel>Curriculum</SidebarGroupLabel>
           <Collapsible
@@ -212,7 +213,7 @@ const AppSidebar = () => {
                     >
                       <a
                         href="#"
-                        className={`cursor-pointer ${
+                        className={`text-sm cursor-pointer ${
                           selectedSemester?.id === semester.id
                             ? "font-bold"
                             : ""
