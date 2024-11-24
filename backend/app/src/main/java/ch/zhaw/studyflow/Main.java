@@ -1,9 +1,11 @@
 package ch.zhaw.studyflow;
 
 import ch.zhaw.studyflow.controllers.CalendarController;
+import ch.zhaw.studyflow.controllers.ModuleController;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
+import ch.zhaw.studyflow.domain.curriculum.ModuleManager;
 import ch.zhaw.studyflow.services.persistence.AppointmentDao;
 import ch.zhaw.studyflow.services.persistence.CalendarDao;
 import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
@@ -41,6 +43,13 @@ public class Main {
                             serviceCollection.getRequiredService(CalendarManagerImpl.class),
                             serviceCollection.getRequiredService(AppointmentManagerImpl.class)
                     ));
+            controllerRegistry.register(
+                    ModuleController.class,
+                    serviceCollection -> new ModuleController(
+                            serviceCollection.getRequiredService(ModuleManager.class),
+                            serviceCollection.getRequiredService(AuthenticationHandler.class)
+
+            ));
         });
         webServerBuilder.configureServices(builder -> {
             // REGISTER DAO'S
