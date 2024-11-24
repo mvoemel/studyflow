@@ -2,15 +2,18 @@ package ch.zhaw.studyflow.controllers;
 
 import ch.zhaw.studyflow.domain.grade.Grade;
 import ch.zhaw.studyflow.services.persistence.GradeDao;
+import ch.zhaw.studyflow.webserver.http.CaptureContainer;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
-import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
+import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
+import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -19,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class GradeControllerTest {
@@ -63,7 +68,9 @@ public class GradeControllerTest {
     void testCreateGradeSuccessful() {
         configureSuccessfulAuth();
         Grade grade = new Grade();
-        when(request.getRequestBody().tryRead(Grade.class)).thenReturn(Optional.of(grade));
+        ReadableBodyContent bodyContent = mock(ReadableBodyContent.class);
+        when(request.getRequestBody()).thenReturn(Optional.of(bodyContent));
+        when(bodyContent.tryRead(Grade.class)).thenReturn(Optional.of(grade));
         doNothing().when(gradeDao).create(grade);
 
         HttpResponse actualResponse = gradeController.createGrade(mockRequestContext());
@@ -86,10 +93,17 @@ public class GradeControllerTest {
         configureSuccessfulAuth();
         Grade grade = new Grade();
         grade.setId(1);
-        when(request.getRequestBody().tryRead(Grade.class)).thenReturn(Optional.of(grade));
-        doReturn(true).when(gradeDao).update(grade);
+        ReadableBodyContent bodyContent = mock(ReadableBodyContent.class);
+        when(request.getRequestBody()).thenReturn(Optional.of(bodyContent));
+        when(bodyContent.tryRead(Grade.class)).thenReturn(Optional.of(grade));
+        doNothing().when(gradeDao).update(grade);
 
-        HttpResponse actualResponse = gradeController.updateGrade(mockRequestContext());
+        RequestContext context = mockRequestContext();
+        CaptureContainer captureContainer = mock(CaptureContainer.class);
+        when(context.getUrlCaptures()).thenReturn(captureContainer);
+        when(captureContainer.get("gradeId")).thenReturn(Optional.of("1"));
+
+        HttpResponse actualResponse = gradeController.updateGrade(context);
 
         verify(gradeDao).update(grade);
         verify(response).setStatusCode(HttpStatusCode.OK);
@@ -99,8 +113,10 @@ public class GradeControllerTest {
     void testDeleteGradeSuccessful() {
         configureSuccessfulAuth();
         RequestContext context = mockRequestContext();
-        when(context.getUrlCaptures()).thenReturn(Map.of("gradeId", "1"));
-        doReturn(true).when(gradeDao).delete(1);
+        CaptureContainer captureContainer = mock(CaptureContainer.class);
+        when(context.getUrlCaptures()).thenReturn(captureContainer);
+        when(captureContainer.get("gradeId")).thenReturn(Optional.of("1"));
+        doNothing().when(gradeDao).delete(1);
 
         HttpResponse actualResponse = gradeController.deleteGrade(context);
 
@@ -109,10 +125,12 @@ public class GradeControllerTest {
     }
 
     @Test
-    void testGetGradesByModIdSuccessful() {
+    void testGetGradesByModIdSuccessful() throws NoSuchFieldException, IllegalAccessException {
         configureSuccessfulAuth();
         RequestContext context = mockRequestContext();
-        when(context.getUrlCaptures()).thenReturn(Map.of("modId", "1"));
+        CaptureContainer captureContainer = mock(CaptureContainer.class);
+        when(context.getUrlCaptures()).thenReturn(captureContainer);
+        when(captureContainer.get("modId")).thenReturn(Optional.of("1"));
         List<Grade> grades = List.of(new Grade());
         when(gradeDao.readByModule(1)).thenReturn(grades);
 
@@ -120,6 +138,15 @@ public class GradeControllerTest {
 
         verify(gradeDao).readByModule(1);
         verify(response).setStatusCode(HttpStatusCode.OK);
-        verify(response).setResponseBody(JsonContent.writableOf(grades));
+
+        ArgumentCaptor<WritableBodyContent> argumentCaptor = ArgumentCaptor.forClass(WritableBodyContent.class);
+        verify(response).setResponseBody(argumentCaptor.capture());
+        WritableBodyContent capturedContent = argumentCaptor.getValue();
+        assertTrue(capturedContent.getClass().getSimpleName().equals("WritableJsonContent"));
+
+        var contentField = capturedContent.getClass().getDeclaredField("content");
+        contentField.setAccessible(true);
+        Object content = contentField.get(capturedContent);
+        assertEquals(grades, content);
     }
 }
