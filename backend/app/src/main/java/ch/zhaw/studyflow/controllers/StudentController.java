@@ -37,9 +37,9 @@ public class StudentController {
     public StudentController(AuthenticationHandler authenticator,
                              PrincipalProvider principalProvider,
                              StudentManager studentManager) {
-        this.authenticator = authenticator;
-        this.principalProvider = principalProvider;
-        this.studentManager = studentManager;
+        this.authenticator      = authenticator;
+        this.principalProvider  = principalProvider;
+        this.studentManager     = studentManager;
     }
 
 
@@ -54,21 +54,22 @@ public class StudentController {
 
             requestContext.getUrlCaptures().get("id").flatMap(LongUtils::tryParseLong).ifPresent(studentId ->
                     request.getRequestBody().flatMap(body -> body.tryRead(Registration.class))
-                            .ifPresentOrElse(registration ->
-                                            studentManager.getStudent(studentId).ifPresentOrElse(
-                                                    student -> {
-                                                        student.setFirstname(registration.getFirstname());
-                                                        student.setLastname(registration.getLastname());
-                                                        student.setEmail(registration.getEmail());
-                                                        student.setPassword(registration.getPassword());
-                                                        studentManager.updateStudent(student);
-                                                        response.setResponseBody(JsonContent.writableOf(student))
-                                                                .setStatusCode(HttpStatusCode.OK);
-                                                        },
-                                                    () -> response.setStatusCode(HttpStatusCode.NOT_FOUND)
-                            ),
-                            () -> response.setStatusCode(HttpStatusCode.NOT_FOUND)
-                    ));
+                            .ifPresent(registration -> {
+                                if (registration.isValid()) {
+                                    studentManager.getStudent(studentId).ifPresentOrElse(
+                                            student -> {
+                                                student.setFirstname(registration.getFirstname());
+                                                student.setLastname(registration.getLastname());
+                                                student.setEmail(registration.getEmail());
+                                                student.setPassword(registration.getPassword());
+                                                studentManager.updateStudent(student);
+                                                response.setResponseBody(JsonContent.writableOf(student))
+                                                        .setStatusCode(HttpStatusCode.OK);
+                                            },
+                                            () -> response.setStatusCode(HttpStatusCode.NOT_FOUND)
+                                    );
+                                }
+                            }));
             return response;
         });
     }
@@ -159,7 +160,7 @@ public class StudentController {
                 Optional<Registration> optionalRegistration = request.getRequestBody()
                         .flatMap(body -> body.tryRead(Registration.class));
 
-                if (optionalRegistration.isPresent()) {
+                if (optionalRegistration.isPresent() && optionalRegistration.get().isValid()) {
                     if (studentManager.getStudentByEmail(optionalRegistration.get().getEmail()).isPresent()) {
                         response.setStatusCode(HttpStatusCode.CONFLICT);
                     } else {

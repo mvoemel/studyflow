@@ -1,8 +1,9 @@
 package ch.zhaw.studyflow.controllers;
 
 import ch.zhaw.studyflow.controllers.deo.LoginRequest;
+import ch.zhaw.studyflow.controllers.deo.MeResponse;
 import ch.zhaw.studyflow.controllers.deo.Registration;
-import ch.zhaw.studyflow.controllers.deo.StudentDeo;
+import ch.zhaw.studyflow.domain.student.Settings;
 import ch.zhaw.studyflow.domain.student.Student;
 import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.utils.Tuple;
@@ -10,7 +11,6 @@ import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
-import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
@@ -50,12 +50,42 @@ class StudentControllerTest {
     }
 
     @Test
+    void testUpdateStudent() {
+        final Registration registration = new Registration();
+        registration.setFirstname("1");
+        registration.setLastname("2");
+        registration.setEmail("1@2.3");
+        registration.setPassword("1234");
+
+        final Student student = getTestStudent();
+
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
+                CommonClaims.AUTHENTICATED, true,
+                CommonClaims.USER_ID, 1L
+        ));
+        when(studentManager.getStudent(1L)).thenReturn(Optional.of(student));
+
+        HttpRequest request = makeHttpRequest(makeJsonRequestBody(Registration.class, registration));
+
+        studentController.updateStudent(makeRequestContext(request, Map.of("id", "1")));
+
+        verify(studentManager, times(1)).getStudent(1L);
+        verify(studentManager, times(1)).updateStudent(student);
+
+        assertEquals("1", student.getFirstname());
+        assertEquals("2", student.getLastname());
+        assertEquals("1@2.3", student.getEmail());
+        assertTrue(student.checkPassword("1234"));
+    }
+
+    @Test
     void testMe() {
-        final Student student = new Student();
-        student.setId(1L);
-        student.setFirstname("firstname");
-        student.setLastname("lastname");
-        student.setEmail("test@test.test");
+        final Student student = getTestStudent();
+        final Settings settings = new Settings();
+        settings.setId(1L);
+        settings.setGlobalCalendarId(4);
+        settings.setActiveSemester(4);
+        settings.setActiveDegree(5);
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
                 CommonClaims.AUTHENTICATED, true,
@@ -63,6 +93,7 @@ class StudentControllerTest {
         ));
 
         when(studentManager.getStudent(1L)).thenReturn(Optional.of(student));
+        when(studentManager.getSettings(1L)).thenReturn(Optional.of(settings));
 
         HttpRequest request = makeHttpRequest();
         HttpResponse response = studentController.me(makeRequestContext(request));
@@ -71,16 +102,22 @@ class StudentControllerTest {
         ArgumentCaptor<WritableBodyContent> responseBodyCaptor = captureResponseBody(response);
 
         verify(studentManager, times(1)).getStudent(1L);
+        verify(studentManager, times(1)).getSettings(1L);
         assertEquals(HttpStatusCode.OK, statusCodeCaptor.getValue());
         assertInstanceOf(WritableBodyContent.class, responseBodyCaptor.getValue());
 
         assertDoesNotThrow(() -> {
             JsonContent bodyContent = (JsonContent)responseBodyCaptor.getValue();
-            StudentDeo result = JsonContentHelpers.getContent(bodyContent, StudentDeo.class);
-            assertEquals(1L, result.getId());
-            assertEquals("firstname", result.getFirstname());
-            assertEquals("lastname", result.getLastname());
-            assertEquals("test@test.test", result.getEmail());
+            MeResponse result = JsonContentHelpers.getContent(bodyContent, MeResponse.class);
+            assertEquals(1L, result.getStudent().getId());
+            assertEquals("firstname", result.getStudent().getFirstname());
+            assertEquals("lastname", result.getStudent().getLastname());
+            assertEquals("test@test.test", result.getStudent().getEmail());
+
+            assertEquals(1L, result.getSettings().getId());
+            assertEquals(4, result.getSettings().getGlobalCalendarId());
+            assertEquals(4, result.getSettings().getActiveSemester());
+            assertEquals(5, result.getSettings().getActiveDegree());
         });
     }
 
@@ -89,7 +126,8 @@ class StudentControllerTest {
         final Registration registration = new Registration();
         registration.setEmail("test@test.ch");
         registration.setPassword("password");
-        registration.setFirstname("test");
+        registration.setFirstname("firstname");
+        registration.setLastname("lastname");
 
         final HttpRequest request = makeHttpRequest(makeJsonRequestBody(Registration.class, registration));
 
@@ -169,11 +207,7 @@ class StudentControllerTest {
         loginRequest.setEmail("test@test.test");
         loginRequest.setPassword("password");
 
-        final Student student = new Student();
-        student.setId(1L);
-        student.setLastname("test");
-        student.setEmail("test@test.test");
-        student.setPassword("password");
+        final Student student = getTestStudent();
 
         final HttpRequest request = makeHttpRequest(makeJsonRequestBody(LoginRequest.class, loginRequest));
         final Map<Claim<?>, Object> claims = new HashMap<>();
@@ -197,11 +231,7 @@ class StudentControllerTest {
         loginRequest.setEmail("test@test.test");
         loginRequest.setPassword("password");
 
-        final Student student = new Student();
-        student.setId(1L);
-        student.setLastname("test");
-        student.setEmail("test@test.test");
-        student.setPassword("password");
+        final Student student = getTestStudent();
 
         final HttpRequest request = makeHttpRequest(makeJsonRequestBody(LoginRequest.class, loginRequest));
 
@@ -236,6 +266,17 @@ class StudentControllerTest {
         verify(principal, times(1)).addClaim(CommonClaims.USER_ID, -1L);
         verify(principalProvider, times(1)).setPrincipal(response, principal);
         assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
+    }
+
+    private static Student getTestStudent() {
+        final Student student = new Student();
+        student.setId(1L);
+        student.setSettingsId(1L);
+        student.setFirstname("firstname");
+        student.setLastname("lastname");
+        student.setEmail("test@test.test");
+        student.setPassword("password");
+        return student;
     }
 
     @ParameterizedTest

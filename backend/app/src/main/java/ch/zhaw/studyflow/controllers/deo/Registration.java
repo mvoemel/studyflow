@@ -49,4 +49,12 @@ public class Registration {
     public void setPassword(String password) {
         this.password = password;
     }
+
+
+    public boolean isValid() {
+        return firstname != null && !firstname.isEmpty() &&
+                lastname != null && !lastname.isEmpty() &&
+                email != null && !email.isEmpty() &&
+                password != null && !password.isEmpty();
+    }
 }
