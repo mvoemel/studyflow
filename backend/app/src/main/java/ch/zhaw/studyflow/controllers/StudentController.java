@@ -47,12 +47,11 @@ public class StudentController {
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
             principal.getClaim(CommonClaims.USER_ID)
-                    .map(studentManager::getStudent)
+                    .flatMap(studentManager::getStudent)
                     .ifPresentOrElse(
-                            student -> response.setResponseBody(JsonContent.writableOf(StudentDeo.of(student.orElse(null)))),
+                            student -> response.setResponseBody(JsonContent.writableOf(StudentDeo.of(student))),
                             () -> LOGGER.warning("No user id found in authenticated principal")
                     );
-
             response.setStatusCode(HttpStatusCode.OK);
             return response;
         });
