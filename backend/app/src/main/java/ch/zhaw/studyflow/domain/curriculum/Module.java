@@ -12,6 +12,7 @@ public class Module {
     private long understandingValue;
     private long timeValue;
     private long importanceValue;
+    private long semesterId;
 
     /**
      * Default constructor.
@@ -164,4 +165,23 @@ public class Module {
     public void setImportanceValue(long importanceValue) {
         this.importanceValue = importanceValue;
     }
+
+    /**
+     * Gets the semester ID of the module.
+     *
+     * @return the semester ID of the module
+     */
+    public long getSemesterId() {
+        return semesterId;
+    }
+
+    /**
+     * Sets the semester ID of the module.
+     *
+     * @param semesterId the new semester ID of the module
+     */
+    public void setSemesterId(long semesterId) {
+        this.semesterId = semesterId;
+    }
+
 }
