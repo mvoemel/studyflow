@@ -13,7 +13,7 @@ type ActiveModuleBoxProps = {
 // TODO: implement
 const ActiveModuleBox = ({ className }: ActiveModuleBoxProps) => {
   return (
-    <Card className={cn(className)}>
+    <Card className={cn(className, "bg-muted/50")}>
       <CardHeader className="pb-3">
         <CardTitle>Placeholder</CardTitle>
         <CardDescription className="max-w-lg text-balance leading-relaxed">

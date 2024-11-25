@@ -16,7 +16,9 @@ type GradeBoxProps = {
 
 const GradeBox = ({ grade, description, className }: GradeBoxProps) => {
   return (
-    <Card className={cn(className, "flex flex-col justify-between")}>
+    <Card
+      className={cn(className, "flex flex-col justify-between bg-muted/50")}
+    >
       <CardHeader>
         <CardDescription>{description}</CardDescription>
       </CardHeader>

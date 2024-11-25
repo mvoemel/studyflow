@@ -34,4 +34,4 @@ const AppSidebarHeader = () => {
   );
 };
 
-export default AppSidebarHeader;
+export { AppSidebarHeader };

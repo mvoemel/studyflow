@@ -17,7 +17,9 @@ type EctsBoxProps = {
 
 const EctsBox = ({ ectsPoints, maxEctsPoints, className }: EctsBoxProps) => {
   return (
-    <Card className={cn(className)}>
+    <Card
+      className={cn(className, "flex flex-col justify-between bg-muted/50")}
+    >
       <CardHeader className="pb-2">
         <CardDescription>ECTS Points</CardDescription>
         <CardTitle className="text-4xl">{ectsPoints}</CardTitle>

@@ -22,6 +22,7 @@ import {
 import { useParams } from "next/navigation";
 import { useDegree } from "@/context/degree-context";
 import { ModuleDialog } from "@/components/dialogs/moduleDialog";
+import { LoadingSpinner } from "@/components/global/loading-spinner";
 
 type Module = {
   id: number;
@@ -39,7 +40,7 @@ const ModulesSettingsPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { degreeId, semesterId } = useParams();
   const { degrees } = useDegree();
@@ -61,6 +62,7 @@ const ModulesSettingsPage = () => {
   }, [degreeId, semesterId, degrees]);
 
   useEffect(() => {
+    setLoading(true);
     const fetchModules = async () => {
       try {
         const response = await fetch("/api/modules");
@@ -116,52 +118,59 @@ const ModulesSettingsPage = () => {
           <CardDescription>Here you can add or remove modules.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableCaption>List of your current modules.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Module</TableHead>
-                <TableHead>ECTS</TableHead>
-                <TableHead>Understanding</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead>Importance</TableHead>
-                <TableHead>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {modules.map((module) => (
-                <TableRow
-                  key={`${module.id}-${module.degreeId}-${module.semesterId}`}
-                >
-                  <TableCell className="font-medium">{module.name}</TableCell>
-                  <TableCell>{module.ECTS}</TableCell>
-                  <TableCell>{module.Understanding + "/10"}</TableCell>
-                  <TableCell>{module.Time + "/10"}</TableCell>
-                  <TableCell>{module.Importance + "/10"}</TableCell>
-                  <TableCell>
-                    <button onClick={() => openEditDialog(module)}>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="lucide lucide-ellipsis"
-                      >
-                        <circle cx="12" cy="12" r="1" />
-                        <circle cx="19" cy="12" r="1" />
-                        <circle cx="5" cy="12" r="1" />
-                      </svg>
-                    </button>
-                  </TableCell>
+          {loading && (
+            <div className="w-full flex justify-center">
+              <LoadingSpinner />
+            </div>
+          )}
+          {!loading && (
+            <Table>
+              <TableCaption>List of your current modules.</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Module</TableHead>
+                  <TableHead>ECTS</TableHead>
+                  <TableHead>Understanding</TableHead>
+                  <TableHead>Time</TableHead>
+                  <TableHead>Importance</TableHead>
+                  <TableHead>Action</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {modules.map((module) => (
+                  <TableRow
+                    key={`${module.id}-${module.degreeId}-${module.semesterId}`}
+                  >
+                    <TableCell className="font-medium">{module.name}</TableCell>
+                    <TableCell>{module.ECTS}</TableCell>
+                    <TableCell>{module.Understanding + "/10"}</TableCell>
+                    <TableCell>{module.Time + "/10"}</TableCell>
+                    <TableCell>{module.Importance + "/10"}</TableCell>
+                    <TableCell>
+                      <button onClick={() => openEditDialog(module)}>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="lucide lucide-ellipsis"
+                        >
+                          <circle cx="12" cy="12" r="1" />
+                          <circle cx="19" cy="12" r="1" />
+                          <circle cx="5" cy="12" r="1" />
+                        </svg>
+                      </button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
         <CardFooter className="border-t px-6 py-4">
           <Button onClick={openAddDialog}>Add Module</Button>
