@@ -8,6 +8,7 @@ public class Student {
     private String lastname;
     private String email;
     private String password;
+    private long settingsId;
 
 
     public Student() {
@@ -67,5 +68,13 @@ public class Student {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public long getSettingsId() {
+        return settingsId;
+    }
+
+    public void setSettingsId(long settingsId) {
+        this.settingsId = settingsId;
     }
 }

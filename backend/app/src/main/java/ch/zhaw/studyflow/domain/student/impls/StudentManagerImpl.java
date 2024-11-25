@@ -49,15 +49,20 @@ public class StudentManagerImpl implements StudentManager {
     }
 
     @Override
-    public Optional<Settings> getSettings(long studentId) {
+    public Optional<Settings> getSettings(long settingsId) {
         Optional<Settings> result;
         try {
-            result = Optional.of(settingsDao.readByUserId(studentId));
+            result = Optional.of(settingsDao.read(settingsId));
         } catch (Exception e) {
-            LOGGER.warning("Could not load settings for student with id " + studentId);
+            LOGGER.warning("Could not load settings for student with id " + settingsId);
             result = Optional.empty();
         }
         return result;
+    }
+
+    @Override
+    public void updateSettings(Settings settings) {
+        settingsDao.update(settings);
     }
 
     @Override
@@ -79,5 +84,10 @@ public class StudentManagerImpl implements StudentManager {
             result = Optional.of(student);
         }
         return result;
+    }
+
+    @Override
+    public void updateStudent(Student student) {
+        studentDao.update(student);
     }
 }

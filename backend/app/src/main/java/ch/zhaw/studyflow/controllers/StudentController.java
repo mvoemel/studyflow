@@ -1,11 +1,13 @@
 package ch.zhaw.studyflow.controllers;
 
 import ch.zhaw.studyflow.controllers.deo.LoginRequest;
+import ch.zhaw.studyflow.controllers.deo.MeResponse;
 import ch.zhaw.studyflow.controllers.deo.Registration;
 import ch.zhaw.studyflow.controllers.deo.StudentDeo;
 import ch.zhaw.studyflow.domain.student.Settings;
 import ch.zhaw.studyflow.domain.student.Student;
 import ch.zhaw.studyflow.domain.student.StudentManager;
+import ch.zhaw.studyflow.utils.LongUtils;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
 import ch.zhaw.studyflow.webserver.annotations.Route;
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
@@ -19,6 +21,7 @@ import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -34,9 +37,40 @@ public class StudentController {
     public StudentController(AuthenticationHandler authenticator,
                              PrincipalProvider principalProvider,
                              StudentManager studentManager) {
-        this.authenticator      = authenticator;
-        this.principalProvider  = principalProvider;
-        this.studentManager     = studentManager;
+        this.authenticator = authenticator;
+        this.principalProvider = principalProvider;
+        this.studentManager = studentManager;
+    }
+
+
+    @Route(path = "{id}")
+    @Endpoint(method = HttpMethod.PATCH)
+    public HttpResponse updateStudent(RequestContext requestContext) {
+        final HttpRequest request = requestContext.getRequest();
+
+        return authenticator.handleIfAuthenticated(request, principal -> {
+            final HttpResponse response = request.createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
+            requestContext.getUrlCaptures().get("id").flatMap(LongUtils::tryParseLong).ifPresent(studentId ->
+                    request.getRequestBody().flatMap(body -> body.tryRead(Registration.class))
+                            .ifPresentOrElse(registration ->
+                                            studentManager.getStudent(studentId).ifPresentOrElse(
+                                                    student -> {
+                                                        student.setFirstname(registration.getFirstname());
+                                                        student.setLastname(registration.getLastname());
+                                                        student.setEmail(registration.getEmail());
+                                                        student.setPassword(registration.getPassword());
+                                                        studentManager.updateStudent(student);
+                                                        response.setResponseBody(JsonContent.writableOf(student))
+                                                                .setStatusCode(HttpStatusCode.OK);
+                                                        },
+                                                    () -> response.setStatusCode(HttpStatusCode.NOT_FOUND)
+                            ),
+                            () -> response.setStatusCode(HttpStatusCode.NOT_FOUND)
+                    ));
+            return response;
+        });
     }
 
 
@@ -47,13 +81,24 @@ public class StudentController {
             HttpResponse response = requestContext.getRequest().createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            principal.getClaim(CommonClaims.USER_ID)
-                    .flatMap(studentManager::getStudent)
-                    .ifPresentOrElse(
-                            student -> response.setResponseBody(JsonContent.writableOf(StudentDeo.of(student))),
-                            () -> LOGGER.warning("No user id found in authenticated principal")
-                    );
-            response.setStatusCode(HttpStatusCode.OK);
+            Optional<Student> optionalStudent = principal.getClaim(CommonClaims.USER_ID)
+                    .flatMap(studentManager::getStudent);
+
+            if (optionalStudent.isPresent()) {
+                optionalStudent.flatMap(student -> {
+                            Optional<Settings> settings = studentManager.getSettings(student.getId());
+                            return settings.map(s -> new MeResponse(StudentDeo.of(student), s));
+                        })
+                        .map(JsonContent::writableOf)
+                        .map(response::setResponseBody)
+                        .ifPresentOrElse(
+                                r -> response.setStatusCode(HttpStatusCode.OK),
+                                () -> {
+                                    response.setStatusCode(HttpStatusCode.NOT_FOUND);
+                                    LOGGER.warning("Failed to build 'me' for an authenticated user.");
+                                }
+                        );
+            }
             return response;
         });
     }
@@ -79,22 +124,22 @@ public class StudentController {
         });
     }
 
-    @Route(path = "settings")
+    @Route(path = "settings/{settingsId}")
     @Endpoint(method = HttpMethod.PATCH)
     public HttpResponse updateSettings(RequestContext requestContext) {
         return authenticator.handleIfAuthenticated(requestContext.getRequest(), principal -> {
             final HttpResponse response = requestContext.getRequest().createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
-            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
-            userId.ifPresent(aLong -> requestContext.getRequest().getRequestBody()
+            Optional<Long> optionalSettingsId = requestContext.getUrlCaptures().get("settingsId").flatMap(LongUtils::tryParseLong);
+
+            optionalSettingsId.ifPresent(settingsId -> requestContext.getRequest().getRequestBody()
                     .flatMap(body -> body.tryRead(Settings.class))
-                    .ifPresentOrElse(
-                            updatedSettings -> {
-                                studentManager.updateSettings(aLong, updatedSettings);
-                                response.setResponseBody(JsonContent.writableOf(updatedSettings))
-                                        .setStatusCode(HttpStatusCode.OK);
+                    .ifPresentOrElse(settings -> {
+                                settings.setId(settingsId);
+                                studentManager.updateSettings(settings);
+                                response.setStatusCode(HttpStatusCode.OK);
                             },
-                            () -> response.setStatusCode(HttpStatusCode.NOT_FOUND)
+                            () -> response.setStatusCode(HttpStatusCode.BAD_REQUEST)
                     ));
             return response;
         });

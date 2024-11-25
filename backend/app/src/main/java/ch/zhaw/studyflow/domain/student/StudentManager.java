@@ -33,17 +33,16 @@ public interface StudentManager {
 
     /**
      * Get the settings of the student with the given student id
-     * @param studentId The id of the student
+     * @param settingsId The id of the student
      * @return The settings if they exist
      */
-    Optional<Settings> getSettings(long studentId);
+    Optional<Settings> getSettings(long settingsId);
 
     /**
      * Update the settings of the student with the given student id
-     * @param studentId The id of the student
      * @param settings The new settings
      */
-    void updateSettings(long studentId, Settings settings);
+    void updateSettings(Settings settings);
 
     /**
      * Register a student with the given student
@@ -51,4 +50,10 @@ public interface StudentManager {
      * @return The registered student if the registration was successful
      */
     Optional<Student> register(Student student);
+
+    /**
+     * Update the student with the given student id
+     * @param student The new student
+     */
+    void updateStudent(Student student);
 }
