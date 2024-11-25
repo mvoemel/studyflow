@@ -31,19 +31,16 @@ import {
 } from "@/components/ui/sidebar";
 import { useTheme } from "next-themes";
 import { MouseEvent } from "react";
+import { User } from "@/types";
 
 type UserDropdownProps = {
-  username: string;
-  firstname: string;
-  lastname: string;
+  user: User | undefined;
   handleProfileClick: () => void;
   handleLogout: (e: MouseEvent<HTMLDivElement>) => Promise<void>;
 };
 
 const UserDropdown = ({
-  username,
-  firstname,
-  lastname,
+  user,
   handleProfileClick,
   handleLogout,
 }: UserDropdownProps) => {
@@ -63,13 +60,13 @@ const UserDropdown = ({
                 {/* TODO: either implement or discard */}
                 {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
                 <AvatarFallback className="rounded-lg">
-                  {firstname.charAt(0)}
-                  {lastname.charAt(0)}
+                  {user?.firstname.charAt(0)}
+                  {user?.lastname.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{`${firstname} ${lastname}`}</span>
-                <span className="truncate text-xs">{username}</span>
+                <span className="truncate font-semibold">{`${user?.firstname} ${user?.lastname}`}</span>
+                <span className="truncate text-xs">{user?.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -86,13 +83,13 @@ const UserDropdown = ({
                   {/* TODO: either implement or discard */}
                   {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
                   <AvatarFallback className="rounded-lg">
-                    {firstname.charAt(0)}
-                    {lastname.charAt(0)}
+                    {user?.firstname.charAt(0)}
+                    {user?.lastname.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{`${firstname} ${lastname}`}</span>
-                  <span className="truncate text-xs">{username}</span>
+                  <span className="truncate font-semibold">{`${user?.firstname} ${user?.lastname}`}</span>
+                  <span className="truncate text-xs">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>

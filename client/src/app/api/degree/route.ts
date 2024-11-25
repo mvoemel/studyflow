@@ -1,33 +1,83 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 //TODO: implement database connection and replace mock data
 const degrees = [
-    {
-        name: 'Bachelors Computer Science',
-        id: 1,
-        semesters: [
-            { id: 1, name: "1. Semester", isActive: true },
-            { id: 2, name: "2. Semester", isActive: false },
-            { id: 3, name: "3. Semester", isActive: false },
-            { id: 4, name: "4. Semester", isActive: false },
-            { id: 5, name: "5. Semester", isActive: false },
-            { id: 6, name: "6. Semester", isActive: false },
-        ],
-        isActive: true
-    },
-    {
-        name: 'Masters Computer Science',
-        id: 2,
-        semesters: [
-            { id: 1, name: "1. Semester", isActive: false },
-            { id: 2, name: "2. Semester", isActive: false },
-            { id: 3, name: "3. Semester", isActive: false },
-            { id: 4, name: "4. Semester", isActive: true }
-        ],
-        isActive: false
-    },
+  {
+    id: "1234",
+    name: "Bachelors Computer Science",
+    description: "First Bachelor",
+    semesters: [
+      {
+        id: "1001",
+        name: "1. Semester",
+        description: "Cool Semester",
+        modules: [],
+      },
+      {
+        id: "1002",
+        name: "2. Semester",
+        description: "Stupid Semester",
+        modules: [],
+      },
+      {
+        id: "1003",
+        name: "3. Semester",
+        description: "Stupid Semester",
+        modules: [],
+      },
+      {
+        id: "1004",
+        name: "4. Semester",
+        description: "Stupid Semester",
+        modules: [],
+      },
+      {
+        id: "1005",
+        name: "5. Semester",
+        description: "Cool Semester",
+        modules: [],
+      },
+      {
+        id: "1006",
+        name: "6. Semester",
+        description: "Cool Semester",
+        modules: [],
+      },
+    ],
+  },
+  {
+    id: "5678",
+    name: "Masters Computer Science",
+    description: "First Master",
+    semesters: [
+      {
+        id: "2001",
+        name: "1. Semester",
+        description: "Cool Semester",
+        modules: [],
+      },
+      {
+        id: "2002",
+        name: "2. Semester",
+        description: "Boring Semester",
+        modules: [],
+      },
+      {
+        id: "2003",
+        name: "3. Semester",
+        description: "Boring Semester",
+        modules: [],
+      },
+      {
+        id: "2004",
+        name: "4. Semester",
+        description: "Cool Semester",
+        modules: [],
+      },
+    ],
+  },
 ];
 
 export async function GET() {
-    return NextResponse.json(degrees);
+  return NextResponse.json(degrees);
 }

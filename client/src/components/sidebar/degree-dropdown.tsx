@@ -16,11 +16,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Degree } from "@/context/degree-context";
+import { Degree } from "@/types";
 
 type DegreeDropdownProps = {
-  degrees: Degree[];
-  selectedDegree: Degree | null;
+  degrees: Degree[] | undefined;
+  selectedDegree: Degree | undefined;
   handleSelectDegree: (degree: Degree) => void;
   handleAddDegree: () => void;
 };
@@ -62,7 +62,7 @@ const DegreeDropdown = ({
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               Degrees
             </DropdownMenuLabel>
-            {degrees.map((degree) => (
+            {degrees?.map((degree) => (
               <DropdownMenuItem
                 key={degree.name}
                 onClick={() => handleSelectDegree(degree)}

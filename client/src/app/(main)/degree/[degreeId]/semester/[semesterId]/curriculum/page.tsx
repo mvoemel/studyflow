@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useParams } from "next/navigation";
-import { useDegree } from "@/context/degree-context";
+import { useDegree } from "@/providers/data-provider";
 import { ModuleDialog } from "@/components/dialogs/moduleDialog";
 import { LoadingSpinner } from "@/components/global/loading-spinner";
 

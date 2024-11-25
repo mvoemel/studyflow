@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useDegree } from "@/context/degree-context";
+import { useDegree } from "@/providers/data-provider";
 
 type DailyCalendarBoxProps = {
   className?: string;

@@ -35,31 +35,29 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { useDegree, Degree, Semester } from "@/context/degree-context";
 import { MouseEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AddDegreeDialog } from "@/components/dialogs/addDegree";
 import { AddSemesterDialog } from "@/components/dialogs/addSemester";
 import { DegreeDropdown } from "./degree-dropdown";
 import { UserDropdown } from "./user-dropdown";
-import { useUser } from "@/hooks/use-user";
+import { useData } from "@/providers/data-provider";
+import { Degree } from "@/types";
 import clsx from "clsx";
 
 const AppSidebar = () => {
   const basePath = useBasePath();
   const {
-    selectedDegree,
-    setSelectedDegree,
-    activeSemester,
-    setActiveSemester,
+    user,
+    settings,
     degrees,
-  } = useDegree();
-  const { user } = useUser();
-  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState<boolean>(true);
-  const [selectedSemester, setSelectedSemester] = useState<Semester | null>(
-    null
-  );
+    semesters,
+    modules,
+    setActiveDegree,
+    setActiveSemester,
+  } = useData();
   const router = useRouter();
+  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState<boolean>(true);
   const [isAddDegreeDialogOpen, setIsAddDegreeDialogOpen] = useState(false);
   const [isAddSemesterDialogOpen, setIsAddSemesterDialogOpen] = useState(false);
 
@@ -70,8 +68,11 @@ const AppSidebar = () => {
   const closeAddSemesterDialog = () => setIsAddSemesterDialogOpen(false);
 
   const handleSelectDegree = (degree: Degree) => {
-    setSelectedDegree(degree);
-    const activeSem = degree.semesters.find((sem) => sem.isActive);
+    if (settings?.activeDegreeId === degree.id) return;
+
+    setActiveDegree(degree.id);
+
+    const activeSem = semesters?.find((sem) => sem.degreeId === degree.id); // TODO: check how you would handle activeSemesterId when Degree changes
     if (activeSem) {
       setActiveSemester(activeSem);
       if (window.location.pathname.includes("curriculum")) {
@@ -156,7 +157,9 @@ const AppSidebar = () => {
           <SidebarMenuItem>
             <DegreeDropdown
               degrees={degrees}
-              selectedDegree={selectedDegree}
+              selectedDegree={degrees?.find(
+                (d) => d.id === settings?.activeDegreeId
+              )}
               handleSelectDegree={handleSelectDegree}
               handleAddDegree={handleAddDegree}
             />
@@ -287,9 +290,7 @@ const AppSidebar = () => {
           <SidebarMenuItem>
             {/* TODO: check how to handle type checking here */}
             <UserDropdown
-              username={user?.username ?? ""}
-              firstname={user?.firstname ?? ""}
-              lastname={user?.lastname ?? ""}
+              user={user}
               handleProfileClick={handleProfileClick}
               handleLogout={handleLogout}
             />

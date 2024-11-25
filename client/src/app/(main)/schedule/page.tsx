@@ -1,9 +1,10 @@
 "use client";
+
 import { useCallback, useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useDegree } from "@/context/degree-context";
+import { useDegree } from "@/providers/data-provider";
 import { useModule } from "@/context/ModuleContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
