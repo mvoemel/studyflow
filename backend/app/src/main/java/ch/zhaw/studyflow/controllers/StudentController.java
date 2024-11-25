@@ -3,6 +3,7 @@ package ch.zhaw.studyflow.controllers;
 import ch.zhaw.studyflow.controllers.deo.LoginRequest;
 import ch.zhaw.studyflow.controllers.deo.Registration;
 import ch.zhaw.studyflow.controllers.deo.StudentDeo;
+import ch.zhaw.studyflow.domain.student.Settings;
 import ch.zhaw.studyflow.domain.student.Student;
 import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
@@ -77,6 +78,28 @@ public class StudentController {
             return response;
         });
     }
+
+    @Route(path = "settings")
+    @Endpoint(method = HttpMethod.PATCH)
+    public HttpResponse updateSettings(RequestContext requestContext) {
+        return authenticator.handleIfAuthenticated(requestContext.getRequest(), principal -> {
+            final HttpResponse response = requestContext.getRequest().createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
+            userId.ifPresent(aLong -> requestContext.getRequest().getRequestBody()
+                    .flatMap(body -> body.tryRead(Settings.class))
+                    .ifPresentOrElse(
+                            updatedSettings -> {
+                                studentManager.updateSettings(aLong, updatedSettings);
+                                response.setResponseBody(JsonContent.writableOf(updatedSettings))
+                                        .setStatusCode(HttpStatusCode.OK);
+                            },
+                            () -> response.setStatusCode(HttpStatusCode.NOT_FOUND)
+                    ));
+            return response;
+        });
+    }
+
 
     @Route(path = "register")
     @Endpoint(method = HttpMethod.POST)
