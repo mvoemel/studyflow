@@ -1,5 +1,7 @@
 package ch.zhaw.studyflow.domain.student.impls;
 
+import ch.zhaw.studyflow.domain.calendar.Calendar;
+import ch.zhaw.studyflow.domain.calendar.CalendarManager;
 import ch.zhaw.studyflow.domain.student.Settings;
 import ch.zhaw.studyflow.domain.student.Student;
 import ch.zhaw.studyflow.domain.student.StudentManager;
@@ -12,13 +14,15 @@ import java.util.logging.Logger;
 public class StudentManagerImpl implements StudentManager {
     private static final Logger LOGGER = Logger.getLogger(StudentManagerImpl.class.getName());
 
+    private final CalendarManager calendarManager;
     private final StudentDao studentDao;
     private final SettingsDao settingsDao;
 
 
-    public StudentManagerImpl(StudentDao studentDao, SettingsDao settingsDao) {
-        this.studentDao     = studentDao;
-        this.settingsDao    = settingsDao;
+    public StudentManagerImpl(CalendarManager calendarManager, StudentDao studentDao, SettingsDao settingsDao) {
+        this.calendarManager    = calendarManager;
+        this.studentDao         = studentDao;
+        this.settingsDao        = settingsDao;
     }
 
 
@@ -63,8 +67,14 @@ public class StudentManagerImpl implements StudentManager {
             result = Optional.empty();
         } else {
             studentDao.create(student);
+
+            Calendar calendar = new Calendar();
+            calendar.setName("Global Calendar");
+            calendar.setOwnerId(student.getId());
+            calendarManager.create(calendar);
+
             Settings settings = new Settings();
-            settings.setGlobalCalendarId(-1); // TODO: use a real calendar id
+            settings.setGlobalCalendarId(calendar.getCalendarId());
             settingsDao.create(student.getId(), settings);
             result = Optional.of(student);
         }
