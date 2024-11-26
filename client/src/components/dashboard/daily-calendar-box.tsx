@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useDegree } from "@/providers/data-provider";
+import { useData } from "@/providers/data-provider";
 
 type DailyCalendarBoxProps = {
   className?: string;
@@ -18,19 +18,19 @@ type DailyCalendarBoxProps = {
 
 const DailyCalendarBox = ({ className }: DailyCalendarBoxProps) => {
   const [events, setEvents] = useState([]);
-  const { selectedDegree, activeSemester } = useDegree();
+  const { settings } = useData();
 
   // TODO: Adjust in future for database data
   useEffect(() => {
-    if (selectedDegree && activeSemester) {
+    if (settings?.activeDegreeId && settings?.activeSemesterId) {
       fetch(
-        `/api/events?degreeId=${selectedDegree.id}&semesterId=${activeSemester.id}`
+        `/api/events?degreeId=${settings?.activeDegreeId}&semesterId=${settings?.activeSemesterId}`
       )
         .then((response) => response.json())
         .then((data) => setEvents(data))
         .catch((error) => console.error("Error fetching events:", error));
     }
-  }, [selectedDegree, activeSemester]);
+  }, [settings]);
 
   return (
     <Card className={cn(className, "bg-muted/50")}>

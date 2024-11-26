@@ -4,17 +4,16 @@ import { useCallback, useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useDegree } from "@/providers/data-provider";
-import { useModule } from "@/context/ModuleContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AddAppointmentDialog } from "@/components/dialogs/addAppointment";
 import { CreateScheduleDialog } from "@/components/dialogs/createSchedule";
+import { useData } from "@/providers/data-provider";
 
 const SchedulePage = () => {
-  const { selectedDegree, activeSemester } = useDegree();
-  const { modules } = useModule();
-  const [events, setEvents] = useState([]);
+  const { settings, modules } = useData();
+
+  const [events, setEvents] = useState([]); // TODO: export into a context
   const [isAddAppointmentDialogOpen, setIsAddAppointmentDialogOpen] =
     useState(false);
   const [isCreateScheduleDialogOpen, setIsCreateScheduleDialogOpen] =
@@ -22,15 +21,15 @@ const SchedulePage = () => {
 
   // TODO: Adjust for future database implementation
   useEffect(() => {
-    if (selectedDegree && activeSemester) {
+    if (settings?.activeDegreeId && settings?.activeSemesterId) {
       fetch(
-        `/api/events?degreeId=${selectedDegree.id}&semesterId=${activeSemester.id}`
+        `/api/events?degreeId=${settings?.activeDegreeId}&semesterId=${settings?.activeSemesterId}`
       )
         .then((response) => response.json())
         .then((data) => setEvents(data))
-        .catch((error) => console.error("Error fetching events:", error));
+        .catch((error) => alert("Error fetching events:" + error));
     }
-  }, [selectedDegree, activeSemester]);
+  }, [settings]);
 
   const openAddAppointmentDialog = useCallback(() => {
     setIsAddAppointmentDialogOpen(true);
@@ -48,11 +47,12 @@ const SchedulePage = () => {
     setIsCreateScheduleDialogOpen(false);
   }, []);
 
-  const filteredModules = modules.filter(
-    (module) =>
-      module.degreeId === selectedDegree?.id &&
-      module.semesterId === activeSemester?.id
-  );
+  const filteredModules =
+    modules?.filter(
+      (module) =>
+        module.degreeId === settings?.activeDegreeId &&
+        module.semesterId === settings?.activeSemesterId
+    ) || [];
 
   return (
     <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">

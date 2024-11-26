@@ -42,21 +42,23 @@ import { AddSemesterDialog } from "@/components/dialogs/addSemester";
 import { DegreeDropdown } from "./degree-dropdown";
 import { UserDropdown } from "./user-dropdown";
 import { useData } from "@/providers/data-provider";
-import { Degree } from "@/types";
+import { Degree, Semester } from "@/types";
 import clsx from "clsx";
 
 const AppSidebar = () => {
+  const router = useRouter();
   const basePath = useBasePath();
+
   const {
     user,
     settings,
     degrees,
     semesters,
-    modules,
+    // modules,
     setActiveDegree,
     setActiveSemester,
   } = useData();
-  const router = useRouter();
+
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState<boolean>(true);
   const [isAddDegreeDialogOpen, setIsAddDegreeDialogOpen] = useState(false);
   const [isAddSemesterDialogOpen, setIsAddSemesterDialogOpen] = useState(false);
@@ -68,63 +70,75 @@ const AppSidebar = () => {
   const closeAddSemesterDialog = () => setIsAddSemesterDialogOpen(false);
 
   const handleSelectDegree = (degree: Degree) => {
+    console.log(degree); // TODO: remove
     if (settings?.activeDegreeId === degree.id) return;
 
     setActiveDegree(degree.id);
 
+    console.log(settings); // TODO: remove
+
     const activeSem = semesters?.find((sem) => sem.degreeId === degree.id); // TODO: check how you would handle activeSemesterId when Degree changes
     if (activeSem) {
-      setActiveSemester(activeSem);
-      if (window.location.pathname.includes("curriculum")) {
-        router.push(`/degree/${degree.id}/semester/${activeSem.id}/curriculum`);
-      }
-    } else {
-      const firstSemester = degree.semesters[0];
-      setActiveSemester(firstSemester); // Set to the first semester if no active semester is found
-      if (window.location.pathname.includes("curriculum")) {
-        router.push(
-          `/degree/${degree.id}/semester/${firstSemester.id}/curriculum`
-        );
-      }
+      setActiveSemester(activeSem.id);
     }
-    fetch("/api/degree", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ degreeId: degree.id }),
-    })
-      .then((response) => response.json())
-      .catch((error) => console.error("Error setting degree:", error));
+
+    // if (activeSem) {
+    //   setActiveSemester(activeSem);
+    //   if (window.location.pathname.includes("curriculum")) {
+    //     router.push(`/degree/${degree.id}/semester/${activeSem.id}/curriculum`);
+    //   }
+    // } else {
+    //   const firstSemester = degree.semesters[0];
+    //   setActiveSemester(firstSemester); // Set to the first semester if no active semester is found
+    //   if (window.location.pathname.includes("curriculum")) {
+    //     router.push(
+    //       `/degree/${degree.id}/semester/${firstSemester.id}/curriculum`
+    //     );
+    //   }
+    // }
+    // fetch("/api/degree", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({ degreeId: degree.id }),
+    // })
+    //   .then((response) => response.json())
+    //   .catch((error) => console.error("Error setting degree:", error));
   };
 
   const handleSelectSemester = (semester: Semester) => {
-    setSelectedSemester(semester); // Set the clicked semester as the selected one
-    if (selectedDegree) {
+    // setActiveSemester(semester.id); // Set the clicked semester as the selected one
+
+    if (settings?.activeDegreeId) {
       router.push(
-        `/degree/${selectedDegree.id}/semester/${semester.id}/curriculum`
+        `/degree/${settings?.activeDegreeId}/semester/${semester.id}/curriculum`
       );
     }
   };
 
   const handleAddDegree = () => {
     openAddDegreeDialog();
+    // TODO: check if request was successfull and then refetch
   };
 
   const handleAddSemester = () => {
     openAddSemesterDialog();
+    // TODO: check if request was successfull and then refetch
   };
 
   const handleEditSemester = (semester: Semester) => {
     console.log("Edit Semester", semester);
+    // TODO: check if request was successfull and then refetch
   };
 
   const handleDeleteSemester = (semester: Semester) => {
     console.log("Delete Semester", semester);
+    // TODO: check if request was successfull and then refetch
   };
 
   const handleSetActiveSemester = (semester: Semester) => {
-    setActiveSemester(semester);
+    setActiveSemester(semester.id);
     console.log("Set Active Semester", semester);
   };
 
@@ -157,6 +171,7 @@ const AppSidebar = () => {
           <SidebarMenuItem>
             <DegreeDropdown
               degrees={degrees}
+              // TODO: refactor so that selectedDegree only takes degree.id not entire object
               selectedDegree={degrees?.find(
                 (d) => d.id === settings?.activeDegreeId
               )}
@@ -209,62 +224,66 @@ const AppSidebar = () => {
             <CollapsibleContent>
               <SidebarMenuSub>
                 <SidebarMenu>
-                  {selectedDegree?.semesters.map((semester) => (
-                    <SidebarMenuItem
-                      key={semester.id}
-                      className="flex items-center justify-between space-x-2 pl-4"
-                    >
-                      <a
-                        href="#"
-                        className={`text-sm cursor-pointer ${
-                          selectedSemester?.id === semester.id
-                            ? "font-bold"
-                            : ""
-                        }`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleSelectSemester(semester);
-                        }}
+                  {semesters
+                    ?.filter((sem) => sem.degreeId === settings?.activeDegreeId)
+                    .map((semester) => (
+                      <SidebarMenuItem
+                        key={semester.id}
+                        className="flex items-center justify-between space-x-2 pl-4"
                       >
-                        {semester.name}
-                      </a>
-                      <div className="flex items-center space-x-2">
-                        {activeSemester?.id === semester.id && (
-                          <CheckCircle
-                            aria-label="Active"
-                            className="text-blue-600 h-4 w-4"
-                          />
-                        )}
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem
-                              onClick={() => handleEditSemester(semester)}
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDeleteSemester(semester)}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleSetActiveSemester(semester)}
-                            >
-                              <CheckCircle className="mr-2 h-4 w-4" />
-                              Set as Active
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </SidebarMenuItem>
-                  ))}
+                        <a
+                          href="#"
+                          className={`text-sm cursor-pointer ${
+                            settings?.activeSemesterId === semester.id
+                              ? "font-bold"
+                              : ""
+                          }`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleSelectSemester(semester);
+                          }}
+                        >
+                          {semester.name}
+                        </a>
+                        <div className="flex items-center space-x-2">
+                          {settings?.activeSemesterId === semester.id && (
+                            <CheckCircle
+                              aria-label="Active"
+                              className="text-blue-600 h-4 w-4"
+                            />
+                          )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-3 w-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem
+                                onClick={() => handleEditSemester(semester)}
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleDeleteSemester(semester)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleSetActiveSemester(semester)
+                                }
+                              >
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                                Set as Active
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </SidebarMenuItem>
+                    ))}
                   <SidebarMenuItem>
                     <Button
                       variant="ghost"
@@ -288,7 +307,6 @@ const AppSidebar = () => {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            {/* TODO: check how to handle type checking here */}
             <UserDropdown
               user={user}
               handleProfileClick={handleProfileClick}

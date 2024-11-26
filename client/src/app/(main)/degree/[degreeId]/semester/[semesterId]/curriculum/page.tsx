@@ -20,73 +20,62 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useParams } from "next/navigation";
-import { useDegree } from "@/providers/data-provider";
 import { ModuleDialog } from "@/components/dialogs/moduleDialog";
-import { LoadingSpinner } from "@/components/global/loading-spinner";
-
-type Module = {
-  id: number;
-  degreeId: number;
-  semesterId: number;
-  name: string;
-  ECTS: string;
-  Understanding: string;
-  Time: string;
-  Importance: string;
-};
+// import { LoadingSpinner } from "@/components/global/loading-spinner";
+import { useData } from "@/providers/data-provider";
+import { Module } from "@/types";
 
 const ModulesSettingsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [selectedModule, setSelectedModule] = useState<Module | null>(null);
-  const [modules, setModules] = useState<Module[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedModule, setSelectedModule] = useState<Module | undefined>();
+  // const [modules, setModules] = useState<Module[]>([]);
+  // const [loading, setLoading] = useState(false);
+  // const [error, setError] = useState<string | null>(null);
   const { degreeId, semesterId } = useParams();
-  const { degrees } = useDegree();
   const [title, setTitle] = useState<string>("");
+  const { settings, degrees, semesters, modules } = useData();
 
   useEffect(() => {
-    const degree = degrees.find(
+    const degree = degrees?.find(
       (degree) =>
-        degree.id === parseInt(Array.isArray(degreeId) ? degreeId[0] : degreeId)
+        degree.id === (Array.isArray(degreeId) ? degreeId[0] : degreeId)
     );
-    const semester = degree?.semesters.find(
+    const semester = semesters?.find(
       (semester) =>
-        semester.id ===
-        parseInt(Array.isArray(semesterId) ? semesterId[0] : semesterId)
+        semester.id === (Array.isArray(semesterId) ? semesterId[0] : semesterId)
     );
     if (degree && semester) {
       setTitle(`Modules for ${semester.name} of ${degree.name}`);
     }
-  }, [degreeId, semesterId, degrees]);
+  }, [degreeId, semesterId, degrees, semesters]);
 
-  useEffect(() => {
-    setLoading(true);
-    const fetchModules = async () => {
-      try {
-        const response = await fetch("/api/modules");
-        if (!response.ok) {
-          throw new Error("Failed to fetch modules");
-        }
-        const data = await response.json();
-        const filteredModules = data.filter(
-          (module: Module) =>
-            module.degreeId ===
-              parseInt(Array.isArray(degreeId) ? degreeId[0] : degreeId) &&
-            module.semesterId ===
-              parseInt(Array.isArray(semesterId) ? semesterId[0] : semesterId)
-        );
-        setModules(filteredModules);
-      } catch (error) {
-        setError((error as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   setLoading(true);
+  //   const fetchModules = async () => {
+  //     try {
+  //       const response = await fetch("/api/modules");
+  //       if (!response.ok) {
+  //         throw new Error("Failed to fetch modules");
+  //       }
+  //       const data = await response.json();
+  //       const filteredModules = data.filter(
+  //         (module: Module) =>
+  //           module.degreeId ===
+  //             parseInt(Array.isArray(degreeId) ? degreeId[0] : degreeId) &&
+  //           module.semesterId ===
+  //             parseInt(Array.isArray(semesterId) ? semesterId[0] : semesterId)
+  //       );
+  //       setModules(filteredModules);
+  //     } catch (error) {
+  //       setError((error as Error).message);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchModules();
-  }, [degreeId, semesterId]);
+  //   fetchModules();
+  // }, [degreeId, semesterId]);
 
   const openEditDialog = useCallback((module: Module) => {
     setSelectedModule(module);
@@ -105,9 +94,9 @@ const ModulesSettingsPage = () => {
     setIsAddDialogOpen(false);
   }, []);
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  // if (error) {
+  //   return <div>Error: {error}</div>;
+  // }
 
   return (
     <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
@@ -118,34 +107,40 @@ const ModulesSettingsPage = () => {
           <CardDescription>Here you can add or remove modules.</CardDescription>
         </CardHeader>
         <CardContent>
-          {loading && (
+          {/* {loading && (
             <div className="w-full flex justify-center">
               <LoadingSpinner />
             </div>
-          )}
-          {!loading && (
-            <Table>
-              <TableCaption>List of your current modules.</TableCaption>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Module</TableHead>
-                  <TableHead>ECTS</TableHead>
-                  <TableHead>Understanding</TableHead>
-                  <TableHead>Time</TableHead>
-                  <TableHead>Importance</TableHead>
-                  <TableHead>Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {modules.map((module) => (
+          )} */}
+          {/* {!loading && ( */}
+          <Table>
+            <TableCaption>List of your current modules.</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Module</TableHead>
+                <TableHead>ECTS</TableHead>
+                <TableHead>Complexity</TableHead>
+                <TableHead>Time</TableHead>
+                <TableHead>Understanding</TableHead>
+                <TableHead>Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {modules
+                ?.filter(
+                  (m) =>
+                    m.degreeId === settings?.activeDegreeId &&
+                    m.semesterId === settings?.activeSemesterId
+                )
+                .map((module) => (
                   <TableRow
                     key={`${module.id}-${module.degreeId}-${module.semesterId}`}
                   >
                     <TableCell className="font-medium">{module.name}</TableCell>
-                    <TableCell>{module.ECTS}</TableCell>
-                    <TableCell>{module.Understanding + "/10"}</TableCell>
-                    <TableCell>{module.Time + "/10"}</TableCell>
-                    <TableCell>{module.Importance + "/10"}</TableCell>
+                    <TableCell>{module.ects}</TableCell>
+                    <TableCell>{module.complexity + "/10"}</TableCell>
+                    <TableCell>{module.time + "/10"}</TableCell>
+                    <TableCell>{module.understanding + "/10"}</TableCell>
                     <TableCell>
                       <button onClick={() => openEditDialog(module)}>
                         <svg
@@ -168,9 +163,9 @@ const ModulesSettingsPage = () => {
                     </TableCell>
                   </TableRow>
                 ))}
-              </TableBody>
-            </Table>
-          )}
+            </TableBody>
+          </Table>
+          {/* )} */}
         </CardContent>
         <CardFooter className="border-t px-6 py-4">
           <Button onClick={openAddDialog}>Add Module</Button>

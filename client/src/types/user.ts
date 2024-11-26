@@ -5,5 +5,8 @@ export type User = {
   firstname: string;
   lastname: string;
   email: string;
+  password: string;
   settingsId: Settings["id"];
 };
+
+export type UserWithoutPassword = Omit<UserActivation, "password">;

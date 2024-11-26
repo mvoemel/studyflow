@@ -32,9 +32,21 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [semesters, setSemesters] = useState<Semester[]>();
   const [modules, setModules] = useState<Module[]>();
 
+  useEffect(() => {
+    console.log("Settings updated:", settings);
+  }, [settings]);
+
+  // BUG: if both setActiveDegree and setActiveSemesters are called simultaneously we have wrong behaviour
+
   const setActiveDegree = (degreeId: Degree["id"]) => {
-    setSettings({ ...settings, activeDegreeId: degreeId } as Settings); // TODO: properly check for type safety
+    const newSettings = { ...settings };
+    newSettings.activeDegreeId = degreeId;
+    console.log("newSettings: " + JSON.stringify(newSettings));
+    setSettings(newSettings); // TODO: properly check for type safety
     // TODO: POST /settings with new activeDegreeId
+    console.log("Inside DataProvider"); // TODO: remove
+    console.log("Given", degreeId);
+    console.log(settings);
   };
   const setActiveSemester = (semesterId: Semester["id"]) => {
     setSettings({ ...settings, activeSemesterId: semesterId } as Settings); // TODO: properly check for type safety
@@ -51,7 +63,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       .catch((error) => alert("Error fetching user and settings: " + error));
   };
   const fetchDegrees = async () => {
-    fetch("/api/degree")
+    fetch("/api/degrees")
       .then((response) => response.json())
       .then((data) => setDegrees(data))
       .catch((error) => alert("Error fetching degrees: " + error));

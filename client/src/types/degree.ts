@@ -1,13 +1,10 @@
-// import { SemesterWithModules } from "./semester";
+import { Semester } from "./semester";
 import { User } from "./user";
 
 export type Degree = {
   id: string;
   name: string;
-  description: string;
+  activeSemesterId: Semester["id"];
   userId: User["id"];
+  description?: string;
 };
-
-// export type DegreeWithSemester = Omit<Degree, "userId"> & {
-//   semesters: SemesterWithModules[];
-// };
