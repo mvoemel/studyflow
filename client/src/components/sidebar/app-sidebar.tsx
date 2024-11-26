@@ -35,7 +35,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MouseEvent, useState } from "react";
+import { MouseEvent, useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AddDegreeDialog } from "@/components/dialogs/addDegree";
 import { AddSemesterDialog } from "@/components/dialogs/addSemester";
@@ -58,6 +58,16 @@ const AppSidebar = () => {
     setActiveDegree,
     setActiveSemester,
   } = useData();
+
+  const activeSemesterId = useMemo(() => {
+    const currDegree = degrees?.find((d) => d.id === settings?.activeDegreeId);
+
+    if (currDegree && currDegree.activeSemesterId) {
+      return currDegree.activeSemesterId;
+    }
+
+    return undefined;
+  }, [settings, degrees]);
 
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState<boolean>(true);
   const [isAddDegreeDialogOpen, setIsAddDegreeDialogOpen] = useState(false);
@@ -234,9 +244,7 @@ const AppSidebar = () => {
                         <a
                           href="#"
                           className={`text-sm cursor-pointer ${
-                            settings?.activeSemesterId === semester.id
-                              ? "font-bold"
-                              : ""
+                            activeSemesterId === semester.id ? "font-bold" : ""
                           }`}
                           onClick={(e) => {
                             e.preventDefault();
@@ -246,7 +254,7 @@ const AppSidebar = () => {
                           {semester.name}
                         </a>
                         <div className="flex items-center space-x-2">
-                          {settings?.activeSemesterId === semester.id && (
+                          {activeSemesterId === semester.id && (
                             <CheckCircle
                               aria-label="Active"
                               className="text-blue-600 h-4 w-4"

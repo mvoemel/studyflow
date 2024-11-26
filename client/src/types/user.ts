@@ -9,4 +9,4 @@ export type User = {
   settingsId: Settings["id"];
 };
 
-export type UserWithoutPassword = Omit<UserActivation, "password">;
+export type UserWithoutPassword = Omit<User, "password">;

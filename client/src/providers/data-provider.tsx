@@ -17,10 +17,10 @@ type DataContextType = {
   modules: Module[] | undefined;
   setActiveDegree: (degreeId: Degree["id"]) => void;
   setActiveSemester: (semesterId: Semester["id"]) => void;
-  fetchUserAndSettings: () => Promise<void>;
-  fetchDegrees: () => Promise<void>;
-  fetchSemesters: () => Promise<void>;
-  fetchModules: () => Promise<void>;
+  fetchUserAndSettings: () => void;
+  fetchDegrees: () => void;
+  fetchSemesters: () => void;
+  fetchModules: () => void;
 };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -32,28 +32,23 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [semesters, setSemesters] = useState<Semester[]>();
   const [modules, setModules] = useState<Module[]>();
 
-  useEffect(() => {
-    console.log("Settings updated:", settings);
-  }, [settings]);
-
-  // BUG: if both setActiveDegree and setActiveSemesters are called simultaneously we have wrong behaviour
-
   const setActiveDegree = (degreeId: Degree["id"]) => {
-    const newSettings = { ...settings };
-    newSettings.activeDegreeId = degreeId;
-    console.log("newSettings: " + JSON.stringify(newSettings));
-    setSettings(newSettings); // TODO: properly check for type safety
+    setSettings({ ...settings, activeDegreeId: degreeId } as Settings); // TODO: properly check for type safety
     // TODO: POST /settings with new activeDegreeId
-    console.log("Inside DataProvider"); // TODO: remove
-    console.log("Given", degreeId);
-    console.log(settings);
   };
   const setActiveSemester = (semesterId: Semester["id"]) => {
-    setSettings({ ...settings, activeSemesterId: semesterId } as Settings); // TODO: properly check for type safety
+    const activeDegreeId = settings?.activeDegreeId;
+    const newDegreeList = degrees?.map((degree) =>
+      degree.id === activeDegreeId
+        ? { ...degree, activeSemester: semesterId }
+        : degree
+    );
+    if (!newDegreeList) return;
+    setDegrees(newDegreeList);
     // TODO: POST /settings with new activeSemesterId
   };
 
-  const fetchUserAndSettings = async () => {
+  const fetchUserAndSettings = () => {
     fetch("/api/auth/me")
       .then((response) => response.json())
       .then((data) => {
@@ -62,19 +57,19 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       })
       .catch((error) => alert("Error fetching user and settings: " + error));
   };
-  const fetchDegrees = async () => {
+  const fetchDegrees = () => {
     fetch("/api/degrees")
       .then((response) => response.json())
       .then((data) => setDegrees(data))
       .catch((error) => alert("Error fetching degrees: " + error));
   };
-  const fetchSemesters = async () => {
+  const fetchSemesters = () => {
     fetch("/api/semesters")
       .then((response) => response.json())
       .then((data) => setSemesters(data))
       .catch((error) => alert("Error fetching semesters: " + error));
   };
-  const fetchModules = async () => {
+  const fetchModules = () => {
     fetch("/api/modules")
       .then((response) => response.json())
       .then((data) => setModules(data))
