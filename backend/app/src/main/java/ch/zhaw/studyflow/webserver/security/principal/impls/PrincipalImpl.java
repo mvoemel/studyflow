@@ -24,4 +24,14 @@ public class PrincipalImpl implements Principal {
     public <T> void addClaim(Claim<T> claim, T value) {
         claims.put(claim, value);
     }
+
+    @Override
+    public <T> void removeClaim(Claim<T> claim) {
+        claims.remove(claim);
+    }
+
+    @Override
+    public void clearClaims() {
+        claims.clear();
+    }
 }

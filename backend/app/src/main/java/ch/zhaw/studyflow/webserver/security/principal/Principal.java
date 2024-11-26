@@ -29,4 +29,8 @@ public interface Principal {
      * @param <T> the type of the claim
      */
     <T> void addClaim(Claim<T> claim, T value);
+
+    <T> void removeClaim(Claim<T> claim);
+
+    void clearClaims();
 }

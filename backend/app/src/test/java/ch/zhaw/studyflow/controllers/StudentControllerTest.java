@@ -24,6 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -59,10 +60,7 @@ class StudentControllerTest {
 
         final Student student = getTestStudent();
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.AUTHENTICATED, true,
-                CommonClaims.USER_ID, 1L
-        ));
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
         when(studentManager.getStudent(1L)).thenReturn(Optional.of(student));
 
         HttpRequest request = makeHttpRequest(makeJsonRequestBody(Registration.class, registration));
@@ -87,10 +85,7 @@ class StudentControllerTest {
         settings.setActiveSemester(4);
         settings.setActiveDegree(5);
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.AUTHENTICATED, true,
-                CommonClaims.USER_ID, 1L
-        ));
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
 
         when(studentManager.getStudent(1L)).thenReturn(Optional.of(student));
         when(studentManager.getSettings(1L)).thenReturn(Optional.of(settings));
@@ -131,8 +126,10 @@ class StudentControllerTest {
 
         final HttpRequest request = makeHttpRequest(makeJsonRequestBody(Registration.class, registration));
 
-        final Map<Claim<?>, Object> claims = new HashMap<>();
-        final Principal principal = AuthMockHelpers.makePrincipal(claims);
+        final Principal principal = AuthMockHelpers.configureSuccessfulAuthHandler(
+                authenticationHandler,
+                AuthMockHelpers.getDefaultClaims()
+        );
 
         when(principalProvider.getPrincipal(request)).thenReturn(principal);
 
@@ -145,10 +142,8 @@ class StudentControllerTest {
         HttpResponse response = studentController.register(makeRequestContext(request));
         ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
         verify(studentManager, times(1)).register(any(Student.class));
-        verify(principal, times(1)).addClaim(CommonClaims.USER_ID, 1L);
-        verify(principal, times(1)).addClaim(CommonClaims.AUTHENTICATED, true);
+        verify(principal, times(1)).addClaim(eq(CommonClaims.USER_ID), eq(1L));
 
-        verify(principalProvider, times(1)).setPrincipal(response, principal);
         assertEquals(HttpStatusCode.CREATED, responseStatusCode.getValue());
     }
 
@@ -163,8 +158,7 @@ class StudentControllerTest {
         final HttpRequest request = makeHttpRequest(makeJsonRequestBody(Registration.class, registration));
 
         final Map<Claim<?>, Object> claims = new HashMap<>();
-        final Principal principal = AuthMockHelpers.makePrincipal(claims);
-        when(principalProvider.getPrincipal(request)).thenReturn(principal);
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, claims);
 
         when(studentManager.getStudentByEmail(registration.getEmail())).thenReturn(Optional.of(new Student()));
 
@@ -186,19 +180,14 @@ class StudentControllerTest {
 
         final HttpRequest request = makeHttpRequest(makeJsonRequestBody(Registration.class, registration));
 
-        final Map<Claim<?>, Object> claims = new HashMap<>();
-        claims.put(CommonClaims.USER_ID, 1L);
-        claims.put(CommonClaims.AUTHENTICATED, true);
-
-        final Principal principal = AuthMockHelpers.makePrincipal(claims);
-        when(principalProvider.getPrincipal(request)).thenReturn(principal);
+        AuthMockHelpers.configureFailingAuthHandler(authenticationHandler);
 
         HttpResponse response = studentController.register(makeRequestContext(request));
 
         ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
         verify(studentManager, never()).register(any(Student.class));
         verify(studentManager, never()).getStudentByEmail(registration.getEmail());
-        assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
+        assertEquals(HttpStatusCode.UNAUTHORIZED, responseStatusCode.getValue());
     }
 
     @Test
@@ -207,11 +196,10 @@ class StudentControllerTest {
         loginRequest.setEmail("test@test.test");
         loginRequest.setPassword("password");
 
-        final Student student = getTestStudent();
-
         final HttpRequest request = makeHttpRequest(makeJsonRequestBody(LoginRequest.class, loginRequest));
+
         final Map<Claim<?>, Object> claims = new HashMap<>();
-        final Principal principal = AuthMockHelpers.makePrincipal(claims);
+        Principal principal = AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, claims);
 
         when(principalProvider.getPrincipal(request)).thenReturn(principal);
         when(studentManager.login(loginRequest.getEmail(), loginRequest.getPassword())).thenReturn(Optional.empty());
@@ -219,8 +207,7 @@ class StudentControllerTest {
         HttpResponse response = studentController.login(makeRequestContext(request));
         ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
         verify(studentManager, times(1)).login(loginRequest.getEmail(), loginRequest.getPassword());
-        verify(principal, never()).addClaim(CommonClaims.AUTHENTICATED, true);
-        verify(principal, never()).addClaim(CommonClaims.USER_ID, 1L);
+        verify(principal, never()).addClaim(eq(CommonClaims.USER_ID), eq(1L));
         verify(principalProvider, never()).setPrincipal(response, principal);
         assertEquals(HttpStatusCode.UNAUTHORIZED, responseStatusCode.getValue());
     }
@@ -236,7 +223,7 @@ class StudentControllerTest {
         final HttpRequest request = makeHttpRequest(makeJsonRequestBody(LoginRequest.class, loginRequest));
 
         final Map<Claim<?>, Object> claims = new HashMap<>();
-        final Principal principal = AuthMockHelpers.makePrincipal(claims);
+        final Principal principal = AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, claims);
 
         when(principalProvider.getPrincipal(request)).thenReturn(principal);
         when(studentManager.login(loginRequest.getEmail(), loginRequest.getPassword())).thenReturn(Optional.of(student));
@@ -245,26 +232,20 @@ class StudentControllerTest {
         ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
         verify(studentManager, times(1)).login(loginRequest.getEmail(), loginRequest.getPassword());
 
-        verify(principal, times(1)).addClaim(CommonClaims.AUTHENTICATED, true);
-        verify(principal, times(1)).addClaim(CommonClaims.USER_ID, 1L);
-        verify(principalProvider, times(1)).setPrincipal(response, principal);
+        verify(principal, times(1)).addClaim(eq(CommonClaims.USER_ID), eq(1L));
         assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
     }
 
     @Test
     void testLogout() {
         final HttpRequest request = makeHttpRequest();
-        HashMap<Claim<?>, Object> claims = new HashMap<>();
-        claims.put(CommonClaims.AUTHENTICATED, true);
-        claims.put(CommonClaims.USER_ID, 1L);
 
-        Principal principal = AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, claims);
+        Principal principal = AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
         HttpResponse response = studentController.logout(makeRequestContext(request));
 
         ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
-        verify(principal, times(1)).addClaim(CommonClaims.AUTHENTICATED, false);
-        verify(principal, times(1)).addClaim(CommonClaims.USER_ID, -1L);
-        verify(principalProvider, times(1)).setPrincipal(response, principal);
+        verify((principalProvider), times(1)).clearPrincipal(response);
+        assertEquals(0, principal.getClaims().size());
         assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
     }
 

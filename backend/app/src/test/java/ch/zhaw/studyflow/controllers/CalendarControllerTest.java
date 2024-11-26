@@ -21,6 +21,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -54,7 +57,7 @@ class CalendarControllerTest {
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
                 CommonClaims.USER_ID, 1L,
-                CommonClaims.AUTHENTICATED, true
+                CommonClaims.EXPIRES, LocalDateTime.now(ZoneOffset.UTC).plusHours(2)
         ));
 
         final HttpRequest request = makeHttpRequest();
@@ -73,10 +76,7 @@ class CalendarControllerTest {
     void testGetCalendars() {
         List<Calendar> calendars = List.of(new Calendar());
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1L,
-                CommonClaims.AUTHENTICATED, true
-        ));
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, AuthMockHelpers.getDefaultClaims());
 
         when(calendarManager.getCalendarsByUserId(1L)).thenReturn(calendars);
 
@@ -95,10 +95,7 @@ class CalendarControllerTest {
     void testGetAppointments() {
         List<Appointment> appointments = List.of(new Appointment());
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1L,
-                CommonClaims.AUTHENTICATED, true
-        ));
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, AuthMockHelpers.getDefaultClaims());
 
         final HttpRequest request = makeHttpRequest();
         final RequestContext context = makeRequestContext(request, Map.of("calendarId", "1"));
@@ -123,10 +120,7 @@ class CalendarControllerTest {
                 assertArg(e -> validateDate(LocalDate.parse(to), e))))
                 .thenReturn(appointments);
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1L,
-                CommonClaims.AUTHENTICATED, true
-        ));
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, AuthMockHelpers.getDefaultClaims());
 
         HttpRequest request = makeHttpRequest();
         RequestContext context = makeRequestContext(request, Map.of("calendarId", "1"));
@@ -150,10 +144,7 @@ class CalendarControllerTest {
     void testGetAppointment() {
         Appointment appointment = new Appointment();
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1L,
-                CommonClaims.AUTHENTICATED, true
-        ));
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, AuthMockHelpers.getDefaultClaims());
         when(appointmentManager.read(anyLong(), anyLong())).thenReturn(appointment);
 
         final HttpRequest request = makeHttpRequest();
@@ -177,10 +168,7 @@ class CalendarControllerTest {
         Appointment appointment = new Appointment();
         appointment.setId(1L);
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1L,
-                CommonClaims.AUTHENTICATED, true
-        ));
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, AuthMockHelpers.getDefaultClaims());
 
         final HttpRequest request     = makeHttpRequest();
         final RequestContext context  = makeRequestContext(request, Map.of(
@@ -200,10 +188,7 @@ class CalendarControllerTest {
         Calendar calendar = new Calendar();
         calendar.setId(1L);
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1L,
-                CommonClaims.AUTHENTICATED, true
-        ));
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, AuthMockHelpers.getDefaultClaims());
 
         final ReadableBodyContent bodyContent = makeJsonRequestBody(Calendar.class, calendar);
         final HttpRequest request = makeHttpRequest(bodyContent);
