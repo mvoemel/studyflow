@@ -4,8 +4,6 @@ import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.Calendar;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
-import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
-import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import ch.zhaw.studyflow.utils.LongUtils;
 import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
@@ -124,7 +122,7 @@ public class CalendarController {
             final HttpResponse response = context.getRequest().createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             final Optional<Long> calendarId = context.getUrlCaptures().get("id").flatMap(LongUtils::tryParseLong);
             if (userId.isPresent() && calendarId.isPresent()) {
                 Calendar foundCalendar = calendarManager.read(calendarId.get(), userId.get());
@@ -151,7 +149,7 @@ public class CalendarController {
             final HttpResponse response = context.getRequest().createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
                 List<Calendar> calendars = calendarManager.getCalendarsByUserId(userId.get());
                 response.setResponseBody(JsonContent.writableOf(calendars))
@@ -176,7 +174,7 @@ public class CalendarController {
             HttpResponse response = request.createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             final Optional<Long> calendarId = context.getUrlCaptures().get("calendarId").flatMap(LongUtils::tryParseLong);
             if (userId.isPresent() && calendarId.isPresent()) {
                 final Optional<Tuple<LocalDate, LocalDate>> optionalDateRange
@@ -212,7 +210,7 @@ public class CalendarController {
             final HttpResponse response = request.createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
                 final Optional<Tuple<LocalDate, LocalDate>> optionalDateRange
                         = extractDateRangeQuery(request.getQueryParameters());
@@ -246,7 +244,7 @@ public class CalendarController {
             final HttpResponse response = context.getRequest().createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
                 final Optional<Long> calendarId = context.getUrlCaptures().get("calendarId").flatMap(LongUtils::tryParseLong);
                 final Optional<Long> appointmentId = context.getUrlCaptures().get("appointmentId").flatMap(LongUtils::tryParseLong);
@@ -302,7 +300,7 @@ public class CalendarController {
 
             Optional<Long> id = context.getUrlCaptures().get("id").flatMap(LongUtils::tryParseLong);
             if (id.isPresent()) {
-                Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+                Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
                 if (userId.isPresent()) {
                     calendarManager.delete(userId.get(), id.get());
                     response.setStatusCode(HttpStatusCode.NO_CONTENT);
