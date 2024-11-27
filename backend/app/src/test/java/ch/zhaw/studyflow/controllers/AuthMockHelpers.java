@@ -1,6 +1,5 @@
 package ch.zhaw.studyflow.controllers;
 
-import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
@@ -8,9 +7,8 @@ import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler
 import ch.zhaw.studyflow.webserver.security.principal.Claim;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.Principal;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
@@ -67,7 +65,7 @@ public class AuthMockHelpers {
     public static HashMap<Claim<?>, Object> getDefaultClaims() {
         HashMap<Claim<?>, Object> claims = new HashMap<>();
         claims.put(CommonClaims.USER_ID, 1L);
-        claims.put(CommonClaims.EXPIRES, LocalDateTime.now(ZoneOffset.UTC).plusHours(2));
+        claims.put(CommonClaims.EXPIRES, Instant.now().getEpochSecond() + 3600);
         return claims;
     }
 

@@ -8,8 +8,10 @@ import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import java.util.Optional;
@@ -21,12 +23,12 @@ import java.util.function.Function;
  */
 public class JwtBasedAuthenticationHandler implements AuthenticationHandler {
     private final PrincipalProvider principalProvider;
-    private final TemporalAmount tokenLifetime;
+    private final long tokenLifetime;
 
 
     public JwtBasedAuthenticationHandler(PrincipalProvider principalProvider, TemporalAmount tokenLifetime) {
         this.principalProvider = principalProvider;
-        this.tokenLifetime = tokenLifetime;
+        this.tokenLifetime      = tokenLifetime.get(ChronoUnit.SECONDS);
     }
 
 
@@ -42,6 +44,11 @@ public class JwtBasedAuthenticationHandler implements AuthenticationHandler {
                     .setStatusCode(HttpStatusCode.UNAUTHORIZED);
             principalProvider.clearPrincipal(response);
         }
+        final Optional<Long> expires = principal.getClaim(CommonClaims.EXPIRES);
+        if (expires.isPresent()) {
+            principal.addClaim(CommonClaims.EXPIRES, Instant.now().getEpochSecond() + tokenLifetime);
+        }
+        principalProvider.setPrincipal(response, principal);
         return response;
     }
 
@@ -61,9 +68,9 @@ public class JwtBasedAuthenticationHandler implements AuthenticationHandler {
                 ? handler.apply(principal)
                 : unauthenticatedHandler.apply(principal);
 
-        final Optional<LocalDateTime> expires = principal.getClaim(CommonClaims.EXPIRES);
+        final Optional<Long> expires = principal.getClaim(CommonClaims.EXPIRES);
         if (expires.isPresent()) {
-            principal.addClaim(CommonClaims.EXPIRES, LocalDateTime.now(ZoneOffset.UTC).plus(tokenLifetime));
+            principal.addClaim(CommonClaims.EXPIRES, Instant.now().getEpochSecond() + tokenLifetime);
         }
         principalProvider.setPrincipal(response, principal);
         return response;
@@ -71,7 +78,7 @@ public class JwtBasedAuthenticationHandler implements AuthenticationHandler {
 
     private boolean isAuthenticated(Principal principal) {
         return principal.getClaim(CommonClaims.EXPIRES)
-                .map(expires -> expires.isAfter(LocalDateTime.now(ZoneOffset.UTC)))
+                .map(expires -> Instant.now().getEpochSecond() < expires)
                 .orElse(false);
     }
 }

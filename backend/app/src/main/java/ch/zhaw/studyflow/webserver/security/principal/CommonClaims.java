@@ -18,5 +18,5 @@ public final class CommonClaims {
     /**
      * The user name claim is used to store the user name of a user.
      */
-    public static final Claim<LocalDateTime> EXPIRES = new Claim<>("exp", LocalDateTime.class);
+    public static final Claim<Long> EXPIRES = new Claim<>("exp", Long.class);
 }
