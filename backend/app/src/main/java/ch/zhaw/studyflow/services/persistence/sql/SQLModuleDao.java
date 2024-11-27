@@ -44,15 +44,15 @@ public class SQLModuleDao {
             stmt.setLong(1, moduleId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return new Module(
-                            rs.getLong("id"),
-                            rs.getString("name"),
-                            rs.getString("description"),
-                            rs.getLong("ECTS"),
-                            rs.getLong("understandingValue"),
-                            rs.getLong("timeValue"),
-                            rs.getLong("importanceValue")
-                    );
+                    Module module = new Module();
+                    module.setId(rs.getLong("id"));
+                    module.setName(rs.getString("name"));
+                    module.setDescription(rs.getString("description"));
+                    module.setECTS(rs.getLong("ECTS"));
+                    module.setUnderstandingValue(rs.getLong("understandingValue"));
+                    module.setTimeValue(rs.getLong("timeValue"));
+                    module.setImportanceValue(rs.getLong("importanceValue"));
+                    return module;
                 }
             }
         } catch (SQLException e) {
@@ -94,15 +94,15 @@ public class SQLModuleDao {
             stmt.setLong(1, moduleId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return new Module(
-                            rs.getLong("id"),
-                            rs.getString("name"),
-                            rs.getString("description"),
-                            rs.getLong("ECTS"),
-                            rs.getLong("understandingValue"),
-                            rs.getLong("timeValue"),
-                            rs.getLong("importanceValue")
-                    );
+                    Module module = new Module();
+                    module.setId(rs.getLong("id"));
+                    module.setName(rs.getString("name"));
+                    module.setDescription(rs.getString("description"));
+                    module.setECTS(rs.getLong("ECTS"));
+                    module.setUnderstandingValue(rs.getLong("understandingValue"));
+                    module.setTimeValue(rs.getLong("timeValue"));
+                    module.setImportanceValue(rs.getLong("importanceValue"));
+                    return module;
                 }
             }
         } catch (SQLException e) {
@@ -118,15 +118,15 @@ public class SQLModuleDao {
             stmt.setLong(1, semesterId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    modules.add(new Module(
-                            rs.getLong("id"),
-                            rs.getString("name"),
-                            rs.getString("description"),
-                            rs.getLong("ECTS"),
-                            rs.getLong("understandingValue"),
-                            rs.getLong("timeValue"),
-                            rs.getLong("importanceValue")
-                    ));
+                    Module module = new Module();
+                    module.setId(rs.getLong("id"));
+                    module.setName(rs.getString("name"));
+                    module.setDescription(rs.getString("description"));
+                    module.setECTS(rs.getLong("ECTS"));
+                    module.setUnderstandingValue(rs.getLong("understandingValue"));
+                    module.setTimeValue(rs.getLong("timeValue"));
+                    module.setImportanceValue(rs.getLong("importanceValue"));
+                    modules.add(module);
                 }
             }
         } catch (SQLException e) {

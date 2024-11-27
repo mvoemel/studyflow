@@ -17,27 +17,19 @@ public class Module {
     /**
      * Default constructor.
      */
-    public Module() {}
+    public Module() {
+        this.id = -1;
+    }
 
     /**
      * Constructs a module with the specified details.
      *
      * @param id the ID of the module
      * @param name the name of the module
-     * @param description the description of the module
-     * @param ECTS the European Credit Transfer System value of the module
-     * @param understandingValue the understanding value of the module, ranging from 1 to 10
-     * @param timeValue the time value of the module, ranging from 1 to 10
-     * @param importanceValue the importance value of the module, ranging from 1 to 10
      */
-    public Module(long id, String name, String description, long ECTS, long understandingValue, long timeValue, long importanceValue) {
+    public Module(long id, String name) {
         this.id = id;
         this.name = name;
-        this.description = description;
-        this.ECTS = ECTS;
-        this.understandingValue = understandingValue;
-        this.timeValue = timeValue;
-        this.importanceValue = importanceValue;
     }
 
     /**
@@ -55,6 +47,12 @@ public class Module {
      * @param id the new ID of the module
      */
     public void setId(long id) {
+        if(this.id >= 0) {
+            throw new IllegalStateException("ID is already set");
+        }
+        if(id < 0) {
+            throw new IllegalArgumentException("ID must be positive");
+        }
         this.id = id;
     }
 

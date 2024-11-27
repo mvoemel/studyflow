@@ -51,7 +51,8 @@ public class Main {
                     ModuleController.class,
                     serviceCollection -> new ModuleController(
                             serviceCollection.getRequiredService(ModuleManagerImpl.class),
-                            serviceCollection.getRequiredService(AuthenticationHandler.class)
+                            serviceCollection.getRequiredService(AuthenticationHandler.class),
+                            serviceCollection.getRequiredService(PrincipalProvider.class)
 
                     ));
         });

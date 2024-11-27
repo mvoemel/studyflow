@@ -37,6 +37,11 @@ public enum HttpStatusCode {
     NOT_FOUND(404),
 
     /**
+     * Indicates that the request could not be completed due to a conflict with the current state of the resource.
+     */
+    CONFLICT(409),
+
+    /**
      * Indicates that the server cannot or will not process the request due to something that is perceived to be a client error.
      */
     UNSUPPORTED_MEDIA_TYPE(415),

@@ -5,6 +5,7 @@ import ch.zhaw.studyflow.domain.curriculum.ModuleManager;
 import ch.zhaw.studyflow.services.persistence.ModuleDao;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Manages modules in the curriculum.
@@ -27,8 +28,8 @@ public class ModuleManagerImpl implements ModuleManager {
      *
      * @param module the module to create
      */
-    public void create(Module module,long semesterId) {
-        moduleDao.create(module,semesterId);
+    public void create(Module module,long semesterId, long degreeId, long userId) {
+        moduleDao.create(module,semesterId,degreeId,userId);
     }
 
     /**
@@ -37,7 +38,7 @@ public class ModuleManagerImpl implements ModuleManager {
      * @param moduleId the ID of the module
      * @return the module
      */
-    public ch.zhaw.studyflow.domain.curriculum.Module read(long moduleId) {
+    public Module read(long moduleId) {
         return moduleDao.read(moduleId);
     }
 
@@ -54,12 +55,10 @@ public class ModuleManagerImpl implements ModuleManager {
      * Gets a list of modules by user ID, degree ID, and semester ID.
      *
      * @param userId the ID of the user
-     * @param degreeId the ID of the degree
-     * @param semesterId the ID of the semester
      * @return the list of modules
      */
-    public List<Module> getModules(long userId, long degreeId, long semesterId) {
-        return moduleDao.getModules(userId, degreeId, semesterId);
+    public List<Module> getModules(long userId) {
+        return moduleDao.getModules(userId);
     }
 
     /**
@@ -68,8 +67,18 @@ public class ModuleManagerImpl implements ModuleManager {
      * @param moduleId the ID of the module
      * @return the module
      */
-    public Module getModule(long moduleId) {
+    public Optional<Module> getModule(long moduleId) {
         return moduleDao.getModule(moduleId);
+    }
+
+    /**
+     * Gets a module by name.
+     *
+     * @param name the name of the module
+     * @return the module
+     */
+    public Optional<Module> getModuleByName(String name) {
+        return moduleDao.getModuleByName(name);
     }
 
     /**

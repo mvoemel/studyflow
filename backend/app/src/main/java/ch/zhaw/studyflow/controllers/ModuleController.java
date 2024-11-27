@@ -1,7 +1,10 @@
 package ch.zhaw.studyflow.controllers;
 
+import ch.zhaw.studyflow.controllers.deo.ModuleDeo;
 import ch.zhaw.studyflow.domain.curriculum.ModuleManager;
 import ch.zhaw.studyflow.domain.curriculum.impls.ModuleManagerImpl;
+import ch.zhaw.studyflow.services.persistence.ModuleDao;
+import ch.zhaw.studyflow.utils.LongUtils;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
 import ch.zhaw.studyflow.webserver.annotations.Route;
 import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
@@ -13,27 +16,34 @@ import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.domain.curriculum.Module;
+import ch.zhaw.studyflow.webserver.security.principal.Principal;
+import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * Controller for handling module-related HTTP requests.
  */
 @Route(path = "api/modules")
 public class ModuleController {
+    private static Logger LOGGER = Logger.getLogger(ModuleController.class.getName());
 
     private final AuthenticationHandler authenticator;
-    private final ModuleManager moduleManagerImpl;
+    private final ModuleManager moduleManager;
+    private final PrincipalProvider principalProvider;
 
     /**
      * Constructs a ModuleController with the specified dependencies.
      *
-     * @param moduleManagerImpl the module manager
+     * @param moduleManager the module manager
      * @param authenticator the authentication handler
      */
-    public ModuleController(ModuleManager moduleManagerImpl, AuthenticationHandler authenticator) {
+    public ModuleController(ModuleManager moduleManager, AuthenticationHandler authenticator, PrincipalProvider principalProvider) {
         this.authenticator = authenticator;
-        this.moduleManagerImpl = moduleManagerImpl;
+        this.moduleManager = moduleManager;
+        this.principalProvider = principalProvider;
     }
 
     /**
@@ -42,30 +52,47 @@ public class ModuleController {
      * @param context the request context
      * @return the HTTP response
      */
-    @Route(path = "degrees/{degreeId}/semesters/{semesterId}")
+    @Route(path = "")
     @Endpoint(method = HttpMethod.POST)
     public HttpResponse addModule(RequestContext context) {
         final HttpRequest request = context.getRequest();
-        HttpResponse response = context.getRequest().createResponse();
-        return authenticator.handleIfAuthenticated(request, principal -> {
-            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
-            long semesterId = Long.parseLong(context.getUrlCaptures().get("semesterId").orElseThrow(() -> new IllegalArgumentException("Missing semesterId")));
 
-            if(userId.isPresent()) {
-                    request.getRequestBody()
-                            .flatMap(body -> body.tryRead(Module.class))
-                            .flatMap(module -> {
-                                moduleManagerImpl.create(module, semesterId);
-                                return Optional.of(module);
-                            })
-                            .ifPresentOrElse(
-                                    module -> response.setResponseBody(JsonContent.writableOf(module))
-                                            .setStatusCode(HttpStatusCode.CREATED),
-                                    () -> response.setStatusCode(HttpStatusCode.BAD_REQUEST)
-                            );
+        final Principal principal = principalProvider.getPrincipal(request);
+        HttpResponse response = context.getRequest().createResponse()
+                .setStatusCode(HttpStatusCode.BAD_REQUEST);
+        if(!principal.getClaim(CommonClaims.AUTHENTICATED).orElse(false)) {
+            if(request.getRequestBody().isPresent()) {
+                Optional<ModuleDeo> optionalModuleDeo = request.getRequestBody()
+                        .flatMap(body -> body.tryRead(ModuleDeo.class));
+
+                if(optionalModuleDeo.isPresent() && optionalModuleDeo.get().isValid()) {
+                    if(moduleManager.getModuleByName(optionalModuleDeo.get().getName()).isPresent()) {
+                        response.setStatusCode(HttpStatusCode.CONFLICT);
+                    } else {
+                        optionalModuleDeo.map(obj -> {
+                            Module module = new Module();
+                            module.setName(obj.getName());
+                            module.setDescription(obj.getDescription());
+                            module.setECTS(obj.getEcts());
+                            module.setSemesterId(obj.getSemesterId());
+                            module.setImportanceValue(obj.getImportanceValue());
+                            module.setTimeValue(obj.getTimeValue());
+                            module.setUnderstandingValue(obj.getUnderstandingValue());
+                            return module;
+                        }).ifPresentOrElse(module -> {
+                            moduleManager.create(module, optionalModuleDeo.get().getSemesterId(), optionalModuleDeo.get().getDegreeId(), principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf).orElseThrow());
+                            response.setStatusCode(HttpStatusCode.CREATED);
+                        },
+                        () -> {
+                            response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+                        });
+                    }
+                }
             }
-            return response;
-        });
+        } else {
+            response.setStatusCode(HttpStatusCode.UNAUTHORIZED);
+        }
+        return response;
     }
 
     /**
@@ -74,17 +101,14 @@ public class ModuleController {
      * @param context the request context
      * @return the HTTP response
      */
-    @Route(path = "{degreeId}/{semesterId}")
+    @Route(path = "")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getModules(RequestContext context) {
-        final HttpRequest request = context.getRequest();
-        HttpResponse response = context.getRequest().createResponse();
-        return authenticator.handleIfAuthenticated(request, principal -> {
+        return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
+            HttpResponse response = context.getRequest().createResponse();
             Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
             if (userId.isPresent()) {
-                    long degreeId = Long.parseLong(context.getUrlCaptures().get("degreeId").orElseThrow(() -> new IllegalArgumentException("Missing degreeId")));
-                    long semesterId = Long.parseLong(context.getUrlCaptures().get("semesterId").orElseThrow(() -> new IllegalArgumentException("Missing semesterId")));
-                    List<Module> modules = moduleManagerImpl.getModules(userId.get(), degreeId, semesterId);
+                    List<Module> modules = moduleManager.getModules(userId.get());
                     response.setResponseBody(JsonContent.writableOf(modules))
                             .setStatusCode(HttpStatusCode.OK);
             } else {
@@ -108,10 +132,11 @@ public class ModuleController {
         return authenticator.handleIfAuthenticated(request, principal -> {
             Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
             if (userId.isPresent()) {
-                    long moduleId = Long.parseLong(context.getUrlCaptures().get("moduleId").orElseThrow(() -> new IllegalArgumentException("Missing moduleId")));
-                    Module module = moduleManagerImpl.getModule(moduleId);
-                    response.setResponseBody(JsonContent.writableOf(module))
-                            .setStatusCode(HttpStatusCode.OK);
+                    context.getUrlCaptures().get("moduleId").flatMap(LongUtils::tryParseLong).ifPresent(moduleId -> {
+                        Module module = moduleManager.read(moduleId);
+                        response.setResponseBody(JsonContent.writableOf(module))
+                                .setStatusCode(HttpStatusCode.OK);
+                    });
             } else {
                 response.setStatusCode(HttpStatusCode.BAD_REQUEST);
             }
@@ -125,23 +150,35 @@ public class ModuleController {
      * @param context the request context
      * @return the HTTP response
      */
-    @Route(path = "")
-    @Endpoint(method = HttpMethod.PUT)
+    @Route(path = "{id}")
+    @Endpoint(method = HttpMethod.PATCH)
     public HttpResponse updateModule(RequestContext context) {
         final HttpRequest request = context.getRequest();
-        HttpResponse response = context.getRequest().createResponse();
         return authenticator.handleIfAuthenticated(request, principal -> {
-            request.getRequestBody()
-                    .flatMap(body -> body.tryRead(Module.class))
-                    .ifPresentOrElse(
-                            module -> {
-                                moduleManagerImpl.update(module);
-                                response.setStatusCode(HttpStatusCode.OK);
-                            },
-                            () -> response.setStatusCode(HttpStatusCode.BAD_REQUEST)
-                    );
-            return response;
+            HttpResponse response = context.getRequest().createResponse().setStatusCode(HttpStatusCode.BAD_REQUEST);
+            context.getUrlCaptures().get("id").flatMap(LongUtils::tryParseLong).ifPresent(moduleId -> {
+                request.getRequestBody().flatMap(body -> body.tryRead(ModuleDeo.class))
+                        .ifPresent(moduleDeo -> {
+                            if (moduleDeo.isValid()) {
+                                moduleManager.getModule(moduleId).ifPresentOrElse(module -> {
+                                    module.setName(moduleDeo.getName());
+                                    module.setDescription(moduleDeo.getDescription());
+                                    module.setECTS(moduleDeo.getEcts());
+                                    module.setSemesterId(moduleDeo.getSemesterId());
+                                    module.setImportanceValue(moduleDeo.getImportanceValue());
+                                    module.setTimeValue(moduleDeo.getTimeValue());
+                                    module.setUnderstandingValue(moduleDeo.getUnderstandingValue());
+                                    moduleManager.update(module);
+                                    response.setResponseBody(JsonContent.writableOf(module))
+                                            .setStatusCode(HttpStatusCode.OK);
+                                }, () -> response.setStatusCode(HttpStatusCode.NOT_FOUND));
+                            }
+                        });
+            }
+            );
+        return response;
         });
+
     }
 
     /**
@@ -161,7 +198,7 @@ public class ModuleController {
                 Optional<Long> moduleId = context.getUrlCaptures().get("moduleId").map(Long::valueOf);
 
                 if (moduleId.isPresent()) {
-                    moduleManagerImpl.delete(moduleId.get());
+                    moduleManager.delete(moduleId.get());
                     response.setStatusCode(HttpStatusCode.NO_CONTENT);
                 } else {
                     response.setStatusCode(HttpStatusCode.BAD_REQUEST);
