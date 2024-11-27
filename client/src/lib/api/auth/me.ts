@@ -1,8 +1,8 @@
 import { tuam } from "@/lib/tuam";
-import { Settings, User } from "@/types";
+import { Settings, UserWithoutPassword } from "@/types";
 
 type MeRequestResponseData = {
-  user: User;
+  user: UserWithoutPassword;
   settings: Settings;
 };
 

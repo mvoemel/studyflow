@@ -17,21 +17,24 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Degree } from "@/types";
+import { Skeleton } from "../ui/skeleton";
 
 type DegreeDropdownProps = {
   degrees: Degree[] | undefined;
-  selectedDegree: Degree | undefined;
+  selectedDegreeId: Degree["id"] | undefined;
   handleSelectDegree: (degree: Degree) => void;
   handleAddDegree: () => void;
 };
 
 const DegreeDropdown = ({
   degrees,
-  selectedDegree,
+  selectedDegreeId,
   handleSelectDegree,
   handleAddDegree,
 }: DegreeDropdownProps) => {
   const { isMobile } = useSidebar();
+
+  if (!degrees) return <DegreeDropdownSkeleton />;
 
   return (
     <SidebarMenu>
@@ -47,7 +50,7 @@ const DegreeDropdown = ({
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {selectedDegree?.name}
+                  {degrees?.find((d) => d.id === selectedDegreeId)?.name}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto" />
@@ -87,6 +90,15 @@ const DegreeDropdown = ({
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
+  );
+};
+
+const DegreeDropdownSkeleton = () => {
+  return (
+    <div className="flex items-center space-x-4">
+      <Skeleton className="h-12 w-12 rounded-md" />
+      <Skeleton className="h-5 w-[150px]" />
+    </div>
   );
 };
 

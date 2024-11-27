@@ -31,10 +31,11 @@ import {
 } from "@/components/ui/sidebar";
 import { useTheme } from "next-themes";
 import { MouseEvent } from "react";
-import { User } from "@/types";
+import { User, UserWithoutPassword } from "@/types";
+import { Skeleton } from "../ui/skeleton";
 
 type UserDropdownProps = {
-  user: User | undefined;
+  user: UserWithoutPassword | undefined;
   handleProfileClick: () => void;
   handleLogout: (e: MouseEvent<HTMLDivElement>) => Promise<void>;
 };
@@ -46,6 +47,8 @@ const UserDropdown = ({
 }: UserDropdownProps) => {
   const { isMobile } = useSidebar();
   const { theme, setTheme } = useTheme();
+
+  if (!user) return <UserDropdownSkeleton />;
 
   return (
     <SidebarMenu>
@@ -144,6 +147,18 @@ const UserDropdown = ({
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
+  );
+};
+
+const UserDropdownSkeleton = () => {
+  return (
+    <div className="flex items-center space-x-4">
+      <Skeleton className="h-12 w-12 rounded-md" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-[150px]" />
+        <Skeleton className="h-3 w-[100px]" />
+      </div>
+    </div>
   );
 };
 
