@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 
 const GradesView = () => {
   return (
-    <Card className="font-mono text-sm min-w-full max-w-5xl mx-auto p-4 rounded-lg">
+    <Card className="bg-muted/50 text-sm min-w-full max-w-5xl mx-auto p-4 rounded-lg">
       <div className="grid grid-cols-2 mb-2 px-4">
         <span>Name</span>
         <span className="text-right">ECTS & Grade</span>

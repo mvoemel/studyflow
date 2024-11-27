@@ -3,6 +3,7 @@ import { Nunito } from "next/font/google";
 import { ThemeProvider } from "@/providers/theme-provider";
 
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Studyflow",
@@ -27,6 +28,7 @@ const RootLayout = ({ children }: RootLayoutProps) => {
           disableTransitionOnChange
         >
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

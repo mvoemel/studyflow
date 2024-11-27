@@ -22,7 +22,7 @@ const AppSidebarHeader = () => {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbPage>{`${basePath
+                <BreadcrumbPage className="text-xl">{`${basePath
                   ?.charAt(1)
                   .toUpperCase()}${basePath?.slice(2)}`}</BreadcrumbPage>
               </BreadcrumbItem>
