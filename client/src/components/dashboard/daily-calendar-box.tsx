@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useData } from "@/providers/data-provider";
+import { useUserSettings } from "@/hooks/use-user-settings";
 
 type DailyCalendarBoxProps = {
   className?: string;
@@ -18,18 +18,14 @@ type DailyCalendarBoxProps = {
 
 const DailyCalendarBox = ({ className }: DailyCalendarBoxProps) => {
   const [events, setEvents] = useState([]);
-  const { settings } = useData();
+  const { settings } = useUserSettings();
 
   // TODO: Adjust in future for database data
   useEffect(() => {
-    if (settings?.activeDegreeId && settings?.activeSemesterId) {
-      fetch(
-        `/api/events?degreeId=${settings?.activeDegreeId}&semesterId=${settings?.activeSemesterId}`
-      )
-        .then((response) => response.json())
-        .then((data) => setEvents(data))
-        .catch((error) => console.error("Error fetching events:", error));
-    }
+    fetch(`/api/events`)
+      .then((response) => response.json())
+      .then((data) => setEvents(data))
+      .catch((error) => console.error("Error fetching events:", error));
   }, [settings]);
 
   return (

@@ -1,5 +1,12 @@
-const BASE_URL = process.env.SERVER_BASE_URL || "/api";
+const BASE_URL = process.env.SERVER_BASE_URL || "";
 
+/**
+ * This object allows you to make type safe requests
+ * to a specified route with the base url SERVER_BASE_URL,
+ * kinda like the axios package.
+ * It supports GET, POST, PATCH and DELETE methods.
+ * Tuam is from latin and stands for "your request".
+ */
 const tuam = {
   async request<TResponse, TBody = unknown>(
     route: string,

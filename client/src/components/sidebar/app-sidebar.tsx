@@ -13,7 +13,7 @@ import {
   SidebarMenuSub,
 } from "@/components/ui/sidebar";
 import { navOptions } from "@/components/sidebar/options";
-import { useBasePath } from "@/components/sidebar/useBasePath";
+import { useBasePath } from "@/components/sidebar/use-base-path";
 import {
   Collapsible,
   CollapsibleContent,
@@ -35,15 +35,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MouseEvent, useCallback, useMemo, useState } from "react";
+import { MouseEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AddDegreeDialog } from "@/components/dialogs/addDegree";
 import { AddSemesterDialog } from "@/components/dialogs/addSemester";
 import { DegreeDropdown } from "./degree-dropdown";
 import { UserDropdown } from "./user-dropdown";
-import { useData } from "@/providers/data-provider";
 import { Degree, Semester } from "@/types";
 import clsx from "clsx";
+import { useUserSettings } from "@/hooks/use-user-settings";
+import { useDegrees } from "@/hooks/use-degree";
+import { useSemesters } from "@/hooks/use-semester";
+import { logoutRequest } from "@/lib/api";
+import { toast } from "sonner";
 
 const AppSidebar = () => {
   const router = useRouter();
@@ -52,14 +56,15 @@ const AppSidebar = () => {
   const {
     user,
     settings,
-    degrees,
-    semesters,
-    // modules,
-    setActiveDegree,
-    setActiveSemester,
-  } = useData();
+    updateActiveDegree,
+    isLoading: loadingSettings,
+  } = useUserSettings();
+  const { degrees, updateDegree, isLoading: loadingDegrees } = useDegrees();
+  const { semesters, isLoading: loadingSemesters } = useSemesters();
 
   const activeSemesterId = useMemo(() => {
+    if (!degrees || !semesters) return undefined;
+
     const currDegree = degrees?.find((d) => d.id === settings?.activeDegreeId);
 
     if (currDegree && currDegree.activeSemesterId) {
@@ -79,62 +84,34 @@ const AppSidebar = () => {
   const openAddSemesterDialog = () => setIsAddSemesterDialogOpen(true);
   const closeAddSemesterDialog = () => setIsAddSemesterDialogOpen(false);
 
-  const handleSelectDegree = (degree: Degree) => {
-    console.log(degree); // TODO: remove
+  const handleSelectDegree = async (degree: Degree) => {
     if (settings?.activeDegreeId === degree.id) return;
 
-    setActiveDegree(degree.id);
+    try {
+      await updateActiveDegree({ activeDegreeId: degree.id });
 
-    console.log(settings); // TODO: remove
+      toast.success("Successfully updated active degree!");
 
-    const activeSem = semesters?.find((sem) => sem.degreeId === degree.id); // TODO: check how you would handle activeSemesterId when Degree changes
-    if (activeSem) {
-      setActiveSemester(activeSem.id);
+      router.push("/dashboard");
+    } catch (err) {
+      toast.error("Failed to update active degree.");
     }
-
-    // if (activeSem) {
-    //   setActiveSemester(activeSem);
-    //   if (window.location.pathname.includes("curriculum")) {
-    //     router.push(`/degree/${degree.id}/semester/${activeSem.id}/curriculum`);
-    //   }
-    // } else {
-    //   const firstSemester = degree.semesters[0];
-    //   setActiveSemester(firstSemester); // Set to the first semester if no active semester is found
-    //   if (window.location.pathname.includes("curriculum")) {
-    //     router.push(
-    //       `/degree/${degree.id}/semester/${firstSemester.id}/curriculum`
-    //     );
-    //   }
-    // }
-    // fetch("/api/degree", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({ degreeId: degree.id }),
-    // })
-    //   .then((response) => response.json())
-    //   .catch((error) => console.error("Error setting degree:", error));
   };
 
   const handleSelectSemester = (semester: Semester) => {
-    // setActiveSemester(semester.id); // Set the clicked semester as the selected one
+    if (!settings?.activeDegreeId) return;
 
-    if (settings?.activeDegreeId) {
-      router.push(
-        `/degree/${settings?.activeDegreeId}/semester/${semester.id}/curriculum`
-      );
-    }
+    router.push(
+      `/degree/${settings?.activeDegreeId}/semester/${semester.id}/curriculum`
+    );
   };
 
   const handleAddDegree = () => {
     openAddDegreeDialog();
-    // TODO: check if request was successfull and then refetch
   };
 
   const handleAddSemester = () => {
     openAddSemesterDialog();
-    // TODO: check if request was successfull and then refetch
   };
 
   const handleEditSemester = (semester: Semester) => {
@@ -147,9 +124,24 @@ const AppSidebar = () => {
     // TODO: check if request was successfull and then refetch
   };
 
-  const handleSetActiveSemester = (semester: Semester) => {
-    setActiveSemester(semester.id);
-    console.log("Set Active Semester", semester);
+  const handleSetActiveSemester = async (semester: Semester) => {
+    if (!settings?.activeDegreeId) return;
+
+    const currDegree = degrees?.find((d) => d.id === settings.activeDegreeId);
+    if (!currDegree) return;
+
+    try {
+      await updateDegree(
+        { ...currDegree, activeSemesterId: semester.id },
+        settings.activeDegreeId
+      );
+
+      toast.success("Successfully updated active semester!");
+
+      router.push("/dashboard");
+    } catch (err) {
+      toast.error("Failed to update active semester.");
+    }
   };
 
   const handleProfileClick = () => {
@@ -159,18 +151,14 @@ const AppSidebar = () => {
   const handleLogout = async (e: MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
 
-    const res = await fetch("/api/auth/logout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: "",
-    });
+    try {
+      await logoutRequest();
 
-    if (res.ok) {
-      router.push("/login");
-    } else {
-      alert("Logout failed");
+      toast.success("Successfully logged out!");
+
+      router.push("/dashboard");
+    } catch (err) {
+      toast.error("Failed to log out.");
     }
   };
 

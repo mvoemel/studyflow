@@ -28,7 +28,7 @@ const RootLayout = ({ children }: RootLayoutProps) => {
           disableTransitionOnChange
         >
           {children}
-          <Toaster />
+          <Toaster richColors />
         </ThemeProvider>
       </body>
     </html>

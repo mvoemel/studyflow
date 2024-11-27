@@ -21,20 +21,24 @@ import {
 } from "@/components/ui/table";
 import { useParams } from "next/navigation";
 import { ModuleDialog } from "@/components/dialogs/moduleDialog";
-// import { LoadingSpinner } from "@/components/global/loading-spinner";
-import { useData } from "@/providers/data-provider";
 import { Module } from "@/types";
+import { useUserSettings } from "@/hooks/use-user-settings";
+import { useDegrees } from "@/hooks/use-degree";
+import { useSemesters } from "@/hooks/use-semester";
+import { useModules } from "@/hooks/use-modules";
 
 const ModulesSettingsPage = () => {
+  const { degreeId, semesterId } = useParams();
+
+  const { settings, isLoading: loadingSettings } = useUserSettings();
+  const { degrees, isLoading: loadingDegrees } = useDegrees();
+  const { semesters, isLoading: loadingSemesters } = useSemesters();
+  const { modules, isLoading: loadingModules } = useModules();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedModule, setSelectedModule] = useState<Module | undefined>();
-  // const [modules, setModules] = useState<Module[]>([]);
-  // const [loading, setLoading] = useState(false);
-  // const [error, setError] = useState<string | null>(null);
-  const { degreeId, semesterId } = useParams();
   const [title, setTitle] = useState<string>("");
-  const { settings, degrees, semesters, modules } = useData();
 
   useEffect(() => {
     const degree = degrees?.find(
@@ -49,33 +53,6 @@ const ModulesSettingsPage = () => {
       setTitle(`Modules for ${semester.name} of ${degree.name}`);
     }
   }, [degreeId, semesterId, degrees, semesters]);
-
-  // useEffect(() => {
-  //   setLoading(true);
-  //   const fetchModules = async () => {
-  //     try {
-  //       const response = await fetch("/api/modules");
-  //       if (!response.ok) {
-  //         throw new Error("Failed to fetch modules");
-  //       }
-  //       const data = await response.json();
-  //       const filteredModules = data.filter(
-  //         (module: Module) =>
-  //           module.degreeId ===
-  //             parseInt(Array.isArray(degreeId) ? degreeId[0] : degreeId) &&
-  //           module.semesterId ===
-  //             parseInt(Array.isArray(semesterId) ? semesterId[0] : semesterId)
-  //       );
-  //       setModules(filteredModules);
-  //     } catch (error) {
-  //       setError((error as Error).message);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchModules();
-  // }, [degreeId, semesterId]);
 
   const openEditDialog = useCallback((module: Module) => {
     setSelectedModule(module);
@@ -93,10 +70,6 @@ const ModulesSettingsPage = () => {
   const closeAddDialog = useCallback(() => {
     setIsAddDialogOpen(false);
   }, []);
-
-  // if (error) {
-  //   return <div>Error: {error}</div>;
-  // }
 
   return (
     <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">

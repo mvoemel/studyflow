@@ -8,10 +8,12 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AddAppointmentDialog } from "@/components/dialogs/addAppointment";
 import { CreateScheduleDialog } from "@/components/dialogs/createSchedule";
-import { useData } from "@/providers/data-provider";
+import { useUserSettings } from "@/hooks/use-user-settings";
+import { useModules } from "@/hooks/use-modules";
 
 const SchedulePage = () => {
-  const { settings, modules } = useData();
+  const { settings, isLoading: loadingSettings } = useUserSettings();
+  const { modules, isLoading: loadingModules } = useModules();
 
   const [events, setEvents] = useState([]); // TODO: export into a context
   const [isAddAppointmentDialogOpen, setIsAddAppointmentDialogOpen] =

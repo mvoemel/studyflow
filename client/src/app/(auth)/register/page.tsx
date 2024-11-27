@@ -14,6 +14,9 @@ import { Label } from "@/components/ui/label";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoadingSpinner } from "@/components/global/loading-spinner";
+import { registerRequest } from "@/lib/api";
+import { toast } from "sonner";
+import { CheckIcon, XIcon } from "lucide-react";
 
 const RegisterPage = () => {
   const router = useRouter();
@@ -22,32 +25,29 @@ const RegisterPage = () => {
 
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setIsLoading(true);
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ firstname, lastname, username, password }),
-    });
+    setIsLoading(true);
+    try {
+      await registerRequest({ firstname, lastname, email, password });
 
-    if (res.ok) {
-      router.push("/dashboard");
-    } else {
-      alert("Registration failed");
+      toast.success("Successfully registered user!");
+
+      router.push("/login");
+    } catch (err) {
+      toast.error("Failed to register user.");
+    } finally {
+      setIsLoading(false);
+      setFirstname("");
+      setLastname("");
+      setEmail("");
+      setPassword("");
     }
-
-    setIsLoading(false);
-    setFirstname("");
-    setLastname("");
-    setUsername("");
-    setPassword("");
   };
 
   return (
@@ -86,13 +86,13 @@ const RegisterPage = () => {
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="email">Username</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="username"
-                type="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="johndoe"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="john.doe@example.com"
                 required
               />
             </div>

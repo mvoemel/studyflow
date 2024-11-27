@@ -8,11 +8,11 @@ const awaitTimeout = (delay: number) =>
   new Promise((resolve) => setTimeout(resolve, delay));
 
 export async function POST(request: Request) {
-  const { username, password } = await request.json();
+  const { email, password } = await request.json();
 
   await awaitTimeout(1000); // Simulate delay for database operations
 
-  if (username === "john" && password === "pass") {
+  if (email === "john@john.com" && password === "pass") {
     const token = jwt.sign(mockToken, SECRET_KEY, { expiresIn: "1h" });
 
     const response = NextResponse.json({ message: "Login successful" });

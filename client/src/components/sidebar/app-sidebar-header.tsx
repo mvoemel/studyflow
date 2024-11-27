@@ -8,7 +8,7 @@ import {
 } from "../ui/breadcrumb";
 import { Separator } from "../ui/separator";
 import { SidebarTrigger } from "../ui/sidebar";
-import { useBasePath } from "./useBasePath";
+import { useBasePath } from "./use-base-path";
 
 const AppSidebarHeader = () => {
   const basePath = useBasePath();
