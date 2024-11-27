@@ -56,8 +56,8 @@ public class JwtBasedAuthenticationHandler implements AuthenticationHandler {
     public HttpResponse handleIfUnauthenticated(HttpRequest request, Function<Principal, HttpResponse> handler) {
         return handleIfUnauthenticated(
                 request,
-                handler,
-                principal -> request.createResponse().setStatusCode(HttpStatusCode.UNAUTHORIZED)
+                principal -> request.createResponse().setStatusCode(HttpStatusCode.UNAUTHORIZED),
+                handler
         );
     }
 
