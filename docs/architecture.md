@@ -2,15 +2,17 @@
 
 This document provides an overview of the architecture for StudyFlow. The system is divided into three main components: the frontend, backend, and database, each of which serves a distinct role in the overall architecture.
 
+TODO: add alogrithm routes to the backend
+
 ![architecture](/docs/assets/architecture.png)
 
 ---
 
 ## Components
 
-### 1. **Frontend (JS, HTML, CSS)**
+### 1. **Frontend (NextJS)**
 
-The frontend is responsible for rendering the user interface (UI) and interacting with the backend through various API endpoints. The frontend is built using JavaScript, HTML, and CSS. It provides various pages and routes that allow the user to interact with their profile, course schedules, grades, and degree settings.
+The frontend is responsible for rendering the user interface (UI) and interacting with the backend through various API endpoints. The frontend is built using NextJS. It provides various pages and routes that allow the user to interact with their profile, course schedules, grades, and degree settings.
 
 **Frontend Routes:**
 
@@ -19,19 +21,16 @@ The frontend is responsible for rendering the user interface (UI) and interactin
 - `/dashboard`: User dashboard showing general information.
 - `/schedule`: View and manage the users schedule.
 - `/grades`: View grades for different degrees, semesters and modules.
-- `/settings/profile`: Manage user profile settings.
-- `/settings/degree`: Manage degree settings.
-- `/settings/degree/[degreeId]`: View and edit details for a specific degree.
-- `/settings/degree/[degreeId]/semester`: Manage semesters within a degree.
-- `/settings/degree/[degreeId]/semester/[semesterId]`: Manage specific semester details.
-- `/settings/degree/[degreeId]/semester/[semesterId]/module`: Manage modules within a semester.
-- `/settings/degree/[degreeId]/semester/[semesterId]/module/[moduleId]`: Manage details of a specific module.
+- `/profile`: Manage user profile settings.
+- `/degree/[degreeId]/semester/[semesterId]/curriculum`: Manage semester and module settings.
 
 ### 2. **Backend (Java)**
 
-The backend is built in Java and serves as the intermediary between the frontend and the database. It exposes a RESTful API that handles user authentication, profile management, and degree management. The backend interacts with the database to retrieve or update data as requested by the frontend.
+The backend is built in Java and serves as the intermediary between the frontend and the database. It exposes a RESTful API that handles user authentication, profile management, and degree management. The backend interacts with the database to retrieve or update data as requested by the frontend. Also this is where the algorithm is present.
 
 **Backend Endpoints:**
+
+TODO: update endpoints
 
 - **Public Endpoints:**
   - `POST /register`: Register a new user with `{email, username, password}`.
@@ -56,6 +55,8 @@ The backend is built in Java and serves as the intermediary between the frontend
 The database stores all the data related to users, their degrees, semesters, and modules. It uses PostgreSQL as the relational database management system (RDBMS). The following entities and their relationships are represented in the database:
 
 **Database Entities:**
+
+TODO: update according to excalidraw sketch
 
 - **User:**
 
