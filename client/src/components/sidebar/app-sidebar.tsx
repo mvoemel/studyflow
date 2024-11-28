@@ -69,7 +69,7 @@ const AppSidebar = () => {
     }
 
     return undefined;
-  }, [settings, degrees]);
+  }, [degrees, semesters, settings?.activeDegreeId]);
 
   useEffect(() => {
     console.log(activeSemesterId);
