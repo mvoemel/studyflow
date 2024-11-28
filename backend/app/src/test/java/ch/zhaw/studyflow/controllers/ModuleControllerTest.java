@@ -54,10 +54,7 @@ public class ModuleControllerTest {
         Module module = new Module();
         when(moduleManager.read(anyLong())).thenReturn(module);
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.USER_ID, 1L,
-                CommonClaims.AUTHENTICATED, true
-        ));
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
 
         final HttpRequest request = makeHttpRequest();
         final RequestContext context = makeRequestContext(request, Map.of("moduleId", "1"));
@@ -76,10 +73,7 @@ public class ModuleControllerTest {
         Module module = new Module();
         when(moduleManager.getModules(anyLong())).thenReturn(List.of(module));
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.USER_ID, 1L,
-                CommonClaims.AUTHENTICATED, true
-        ));
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
 
         final HttpRequest request = makeHttpRequest();
         final RequestContext context = makeRequestContext(request, Map.of());
@@ -95,10 +89,7 @@ public class ModuleControllerTest {
 
     @Test
     void testDeleteModule() {
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.USER_ID, 1L,
-                CommonClaims.AUTHENTICATED, true
-        ));
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
 
         final HttpRequest request = makeHttpRequest();
         final RequestContext context = makeRequestContext(request, Map.of("moduleId", "1"));
@@ -125,10 +116,7 @@ public class ModuleControllerTest {
 
         final Module module = testModule();
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.USER_ID, 1L,
-                CommonClaims.AUTHENTICATED, true
-        ));
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
 
         when(moduleManager.getModule(1L)).thenReturn(Optional.of(module));
 

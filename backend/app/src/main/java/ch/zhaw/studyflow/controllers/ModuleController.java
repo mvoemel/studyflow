@@ -57,10 +57,10 @@ public class ModuleController {
     public HttpResponse addModule(RequestContext context) {
         final HttpRequest request = context.getRequest();
 
-        final Principal principal = principalProvider.getPrincipal(request);
-        HttpResponse response = context.getRequest().createResponse()
-                .setStatusCode(HttpStatusCode.BAD_REQUEST);
-        if(!principal.getClaim(CommonClaims.AUTHENTICATED).orElse(false)) {
+        return authenticator.handleIfAuthenticated(request, principal -> {
+            final HttpResponse response = context.getRequest().createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
             if(request.getRequestBody().isPresent()) {
                 Optional<ModuleDeo> optionalModuleDeo = request.getRequestBody()
                         .flatMap(body -> body.tryRead(ModuleDeo.class));
@@ -80,19 +80,17 @@ public class ModuleController {
                             module.setUnderstandingValue(obj.getUnderstandingValue());
                             return module;
                         }).ifPresentOrElse(module -> {
-                            moduleManager.create(module, optionalModuleDeo.get().getSemesterId(), optionalModuleDeo.get().getDegreeId(), principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf).orElseThrow());
-                            response.setStatusCode(HttpStatusCode.CREATED);
-                        },
-                        () -> {
-                            response.setStatusCode(HttpStatusCode.BAD_REQUEST);
-                        });
+                                    moduleManager.create(module, optionalModuleDeo.get().getSemesterId(), optionalModuleDeo.get().getDegreeId(), principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf).orElseThrow());
+                                    response.setStatusCode(HttpStatusCode.CREATED);
+                                },
+                                () -> {
+                                    response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+                                });
                     }
                 }
             }
-        } else {
-            response.setStatusCode(HttpStatusCode.UNAUTHORIZED);
-        }
-        return response;
+            return response;
+        });
     }
 
     /**

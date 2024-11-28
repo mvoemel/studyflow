@@ -23,7 +23,7 @@ import ch.zhaw.studyflow.services.persistence.StudentDao;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
 import ch.zhaw.studyflow.webserver.http.contents.*;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
-import ch.zhaw.studyflow.webserver.security.authentication.ClaimBasedAuthenticationHandler;
+import ch.zhaw.studyflow.webserver.security.authentication.JwtBasedAuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 import ch.zhaw.studyflow.webserver.security.principal.jwt.JwtHashAlgorithm;
@@ -32,7 +32,11 @@ import ch.zhaw.studyflow.webserver.security.principal.jwt.JwtPrincipalProviderOp
 import ch.zhaw.studyflow.webserver.sun.SunHttpServerWebServerBuilder;
 
 import java.net.InetSocketAddress;
+import java.sql.Time;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
@@ -95,7 +99,7 @@ public class Main {
             // REGISTER AUTHENTICATION SERVICES
             builder.registerSingelton(PrincipalProvider.class, serviceCollection -> new JwtPrincipalProvider(
                     new JwtPrincipalProviderOptions("secret", JwtHashAlgorithm.HS256, "superdupersecret", Duration.ofDays(1)),
-                    List.of(CommonClaims.AUTHENTICATED, CommonClaims.USER_ID)
+                    List.of(CommonClaims.EXPIRES, CommonClaims.USER_ID)
             ));
 
             builder.registerSingelton(ModuleDao.class, serviceCollection -> new InMemoryModuleDao());
@@ -105,9 +109,9 @@ public class Main {
 
 
             builder.registerSingelton(AuthenticationHandler.class, serviceCollection ->
-                    new ClaimBasedAuthenticationHandler(
+                    new JwtBasedAuthenticationHandler(
                             serviceCollection.getRequiredService(PrincipalProvider.class),
-                            CommonClaims.AUTHENTICATED
+                            Duration.ofHours(2)
                     )
             );
 
