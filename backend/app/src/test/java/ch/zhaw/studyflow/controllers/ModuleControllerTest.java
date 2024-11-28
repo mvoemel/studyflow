@@ -55,7 +55,7 @@ public class ModuleControllerTest {
         when(moduleManager.read(anyLong())).thenReturn(module);
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.USER_ID, 1,
+                CommonClaims.USER_ID, 1L,
                 CommonClaims.AUTHENTICATED, true
         ));
 
@@ -77,7 +77,7 @@ public class ModuleControllerTest {
         when(moduleManager.getModules(anyLong())).thenReturn(List.of(module));
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.USER_ID, 1,
+                CommonClaims.USER_ID, 1L,
                 CommonClaims.AUTHENTICATED, true
         ));
 
@@ -96,7 +96,7 @@ public class ModuleControllerTest {
     @Test
     void testDeleteModule() {
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.USER_ID, 1,
+                CommonClaims.USER_ID, 1L,
                 CommonClaims.AUTHENTICATED, true
         ));
 
@@ -115,8 +115,8 @@ public class ModuleControllerTest {
         final ModuleDeo moduleDeo = new ModuleDeo();
         moduleDeo.setName("Test");
         moduleDeo.setId(1L);
-        moduleDeo.setSemesterId(1);
-        moduleDeo.setDegreeId(1);
+        moduleDeo.setSemesterId(1L);
+        moduleDeo.setDegreeId(1L);
         moduleDeo.setDescription("Test");
         moduleDeo.setEcts(1);
         moduleDeo.setUnderstandingValue(1);
@@ -126,7 +126,7 @@ public class ModuleControllerTest {
         final Module module = testModule();
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.USER_ID, 1,
+                CommonClaims.USER_ID, 1L,
                 CommonClaims.AUTHENTICATED, true
         ));
 

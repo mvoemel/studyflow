@@ -106,7 +106,7 @@ public class ModuleController {
     public HttpResponse getModules(RequestContext context) {
         return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
             HttpResponse response = context.getRequest().createResponse();
-            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
                     List<Module> modules = moduleManager.getModules(userId.get());
                     response.setResponseBody(JsonContent.writableOf(modules))
@@ -130,7 +130,7 @@ public class ModuleController {
         final HttpRequest request = context.getRequest();
         HttpResponse response = context.getRequest().createResponse();
         return authenticator.handleIfAuthenticated(request, principal -> {
-            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
                     context.getUrlCaptures().get("moduleId").flatMap(LongUtils::tryParseLong).ifPresent(moduleId -> {
                         Module module = moduleManager.read(moduleId);
@@ -193,7 +193,7 @@ public class ModuleController {
         final HttpRequest request = context.getRequest();
         HttpResponse response = context.getRequest().createResponse();
         return authenticator.handleIfAuthenticated(request, principal -> {
-            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf);
+            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
                 Optional<Long> moduleId = context.getUrlCaptures().get("moduleId").map(Long::valueOf);
 
