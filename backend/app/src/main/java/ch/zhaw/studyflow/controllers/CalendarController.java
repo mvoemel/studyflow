@@ -196,40 +196,6 @@ public class CalendarController {
     }
 
     /**
-     * Endpoint for retrieving a specific appointment by date.
-     *
-     * @param context the request context
-     * @return the HTTP response
-     */
-    @Route(path = "{calendarId}/appointments/{appointmentId}")
-    @Endpoint(method = HttpMethod.GET)
-    public HttpResponse getAppointmentsByDate(RequestContext context) {
-        final HttpRequest request = context.getRequest();
-
-        return authenticator.handleIfAuthenticated(request, principal -> {
-            final HttpResponse response = request.createResponse()
-                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
-
-            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
-            if (userId.isPresent()) {
-                final Optional<Tuple<LocalDate, LocalDate>> optionalDateRange
-                        = extractDateRangeQuery(request.getQueryParameters());
-
-                if (optionalDateRange.isPresent()) {
-                    final Tuple<LocalDate, LocalDate> dateRange = optionalDateRange.get();
-                    final List<Appointment> appointments = appointmentManager.readAllBy(userId.get(),
-                            dateRange.value1(),
-                            dateRange.value2()
-                    );
-                    response.setResponseBody(JsonContent.writableOf(appointments))
-                            .setStatusCode(HttpStatusCode.OK);
-                }
-            }
-            return response;
-        });
-    }
-
-    /**
      * Endpoint for retrieving a specific appointment.
      *
      * @param context the request context
