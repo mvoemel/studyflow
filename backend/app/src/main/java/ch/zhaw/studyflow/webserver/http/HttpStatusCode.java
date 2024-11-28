@@ -17,6 +17,11 @@ public enum HttpStatusCode {
     CREATED(201),
 
     /**
+     * Indicates that the server successfully processed the request and is not returning any content.
+     */
+    NO_CONTENT(204),
+
+    /**
      * Indicates that the request could not be understood by the server due to malformed syntax.
      */
     BAD_REQUEST(400),
@@ -54,12 +59,7 @@ public enum HttpStatusCode {
     /**
      * Indicates that the server encountered an unexpected condition which prevented it from fulfilling the request.
      */
-    INTERNAL_SERVER_ERROR(500),
-
-    /**
-     * Indicates that the server successfully processed the request and is not returning any content.
-     */
-    NO_CONTENT(204);
+    INTERNAL_SERVER_ERROR(500);
 
 
 
