@@ -8,7 +8,7 @@ import {
 } from "../ui/breadcrumb";
 import { Separator } from "../ui/separator";
 import { SidebarTrigger } from "../ui/sidebar";
-import { useBasePath } from "./useBasePath";
+import { useBasePath } from "./use-base-path";
 
 const AppSidebarHeader = () => {
   const basePath = useBasePath();
@@ -22,7 +22,7 @@ const AppSidebarHeader = () => {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbPage>{`${basePath
+                <BreadcrumbPage className="text-xl">{`${basePath
                   ?.charAt(1)
                   .toUpperCase()}${basePath?.slice(2)}`}</BreadcrumbPage>
               </BreadcrumbItem>
@@ -34,4 +34,4 @@ const AppSidebarHeader = () => {
   );
 };
 
-export default AppSidebarHeader;
+export { AppSidebarHeader };

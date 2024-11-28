@@ -10,10 +10,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
   SidebarMenuSub,
 } from "@/components/ui/sidebar";
 import { navOptions } from "@/components/sidebar/options";
-import { useBasePath } from "@/components/sidebar/useBasePath";
+import { useBasePath } from "@/components/sidebar/use-base-path";
 import {
   Collapsible,
   CollapsibleContent,
@@ -35,31 +36,51 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { useDegree, Degree, Semester } from "@/context/degree-context";
-import { MouseEvent, useState } from "react";
+import { MouseEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AddDegreeDialog } from "@/components/dialogs/addDegree";
 import { AddSemesterDialog } from "@/components/dialogs/addSemester";
 import { DegreeDropdown } from "./degree-dropdown";
 import { UserDropdown } from "./user-dropdown";
-import { useUser } from "@/hooks/use-user";
+import { Degree, Semester } from "@/types";
 import clsx from "clsx";
+import { useUserSettings } from "@/hooks/use-user-settings";
+import { useDegrees } from "@/hooks/use-degree";
+import { useSemesters } from "@/hooks/use-semester";
+import { logoutRequest } from "@/lib/api";
+import { toast } from "sonner";
+import { Badge } from "../ui/badge";
 
 const AppSidebar = () => {
-  const basePath = useBasePath();
-  const {
-    selectedDegree,
-    setSelectedDegree,
-    activeSemester,
-    setActiveSemester,
-    degrees,
-  } = useDegree();
-  const { user } = useUser();
-  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState<boolean>(true);
-  const [selectedSemester, setSelectedSemester] = useState<Semester | null>(
-    null
-  );
   const router = useRouter();
+  const basePath = useBasePath();
+
+  const { user, settings, updateActiveDegree } = useUserSettings();
+  const { degrees, updateDegree } = useDegrees();
+  const { semesters } = useSemesters();
+
+  const activeSemesterId = useMemo(() => {
+    if (!degrees || !semesters) return undefined;
+
+    const currDegree = degrees?.find((d) => d.id === settings?.activeDegreeId);
+
+    if (currDegree && currDegree.activeSemesterId) {
+      return currDegree.activeSemesterId;
+    }
+
+    return undefined;
+  }, [degrees, semesters, settings?.activeDegreeId]);
+
+  useEffect(() => {
+    console.log(activeSemesterId);
+  }, [activeSemesterId]); // TODO: remove
+
+  useEffect(() => {
+    console.log(degrees);
+    console.log(settings);
+  }, [degrees, settings]); // TODO: remove
+
+  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState<boolean>(true);
   const [isAddDegreeDialogOpen, setIsAddDegreeDialogOpen] = useState(false);
   const [isAddSemesterDialogOpen, setIsAddSemesterDialogOpen] = useState(false);
 
@@ -69,41 +90,26 @@ const AppSidebar = () => {
   const openAddSemesterDialog = () => setIsAddSemesterDialogOpen(true);
   const closeAddSemesterDialog = () => setIsAddSemesterDialogOpen(false);
 
-  const handleSelectDegree = (degree: Degree) => {
-    setSelectedDegree(degree);
-    const activeSem = degree.semesters.find((sem) => sem.isActive);
-    if (activeSem) {
-      setActiveSemester(activeSem);
-      if (window.location.pathname.includes("curriculum")) {
-        router.push(`/degree/${degree.id}/semester/${activeSem.id}/curriculum`);
-      }
-    } else {
-      const firstSemester = degree.semesters[0];
-      setActiveSemester(firstSemester); // Set to the first semester if no active semester is found
-      if (window.location.pathname.includes("curriculum")) {
-        router.push(
-          `/degree/${degree.id}/semester/${firstSemester.id}/curriculum`
-        );
-      }
+  const handleSelectDegree = async (degree: Degree) => {
+    if (settings?.activeDegreeId === degree.id) return;
+
+    try {
+      await updateActiveDegree({ activeDegreeId: degree.id });
+
+      toast.success("Successfully updated active degree!");
+
+      router.push("/dashboard");
+    } catch (err) {
+      toast.error("Failed to update active degree.");
     }
-    fetch("/api/degree", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ degreeId: degree.id }),
-    })
-      .then((response) => response.json())
-      .catch((error) => console.error("Error setting degree:", error));
   };
 
   const handleSelectSemester = (semester: Semester) => {
-    setSelectedSemester(semester); // Set the clicked semester as the selected one
-    if (selectedDegree) {
-      router.push(
-        `/degree/${selectedDegree.id}/semester/${semester.id}/curriculum`
-      );
-    }
+    if (!settings?.activeDegreeId) return;
+
+    router.push(
+      `/degree/${settings?.activeDegreeId}/semester/${semester.id}/curriculum`
+    );
   };
 
   const handleAddDegree = () => {
@@ -116,15 +122,32 @@ const AppSidebar = () => {
 
   const handleEditSemester = (semester: Semester) => {
     console.log("Edit Semester", semester);
+    // TODO: check if request was successfull and then refetch
   };
 
   const handleDeleteSemester = (semester: Semester) => {
     console.log("Delete Semester", semester);
+    // TODO: check if request was successfull and then refetch
   };
 
-  const handleSetActiveSemester = (semester: Semester) => {
-    setActiveSemester(semester);
-    console.log("Set Active Semester", semester);
+  const handleSetActiveSemester = async (semester: Semester) => {
+    if (!settings?.activeDegreeId) return;
+
+    const currDegree = degrees?.find((d) => d.id === settings.activeDegreeId);
+    if (!currDegree) return;
+
+    try {
+      await updateDegree(
+        { ...currDegree, activeSemesterId: semester.id },
+        settings.activeDegreeId
+      );
+
+      toast.success("Successfully updated active semester!");
+
+      router.push("/dashboard");
+    } catch (err) {
+      toast.error("Failed to update active semester.");
+    }
   };
 
   const handleProfileClick = () => {
@@ -134,18 +157,14 @@ const AppSidebar = () => {
   const handleLogout = async (e: MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
 
-    const res = await fetch("/api/auth/logout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: "",
-    });
+    try {
+      await logoutRequest();
 
-    if (res.ok) {
-      router.push("/login");
-    } else {
-      alert("Logout failed");
+      toast.success("Successfully logged out!");
+
+      router.push("/dashboard");
+    } catch (err) {
+      toast.error("Failed to log out.");
     }
   };
 
@@ -156,7 +175,7 @@ const AppSidebar = () => {
           <SidebarMenuItem>
             <DegreeDropdown
               degrees={degrees}
-              selectedDegree={selectedDegree}
+              selectedDegreeId={settings?.activeDegreeId}
               handleSelectDegree={handleSelectDegree}
               handleAddDegree={handleAddDegree}
             />
@@ -169,16 +188,27 @@ const AppSidebar = () => {
           <SidebarMenu>
             {navOptions.map((option) => (
               <SidebarMenuItem key={option.title}>
-                <SidebarMenuButton asChild>
-                  <a
-                    href={option.href}
-                    className={clsx("hover:text-foreground transition", {
-                      "bg-sidebar-accent transition": basePath === option.href,
-                    })}
+                <SidebarMenuButton
+                  asChild
+                  onClick={() => {
+                    router.push(option.href);
+                  }}
+                  className={clsx("hover:text-foreground transition", {
+                    "bg-sidebar-accent transition": basePath === option.href,
+                  })}
+                >
+                  <div
+                    className={clsx(
+                      "hover:text-foreground transition cursor-pointer",
+                      {
+                        "bg-sidebar-accent transition":
+                          basePath === option.href,
+                      }
+                    )}
                   >
                     <option.icon className="mr-2" />
                     {option.title}
-                  </a>
+                  </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -206,62 +236,81 @@ const AppSidebar = () => {
             <CollapsibleContent>
               <SidebarMenuSub>
                 <SidebarMenu>
-                  {selectedDegree?.semesters.map((semester) => (
-                    <SidebarMenuItem
-                      key={semester.id}
-                      className="flex items-center justify-between space-x-2 pl-4"
-                    >
-                      <a
-                        href="#"
-                        className={`text-sm cursor-pointer ${
-                          selectedSemester?.id === semester.id
-                            ? "font-bold"
-                            : ""
-                        }`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleSelectSemester(semester);
-                        }}
-                      >
-                        {semester.name}
-                      </a>
-                      <div className="flex items-center space-x-2">
-                        {activeSemester?.id === semester.id && (
-                          <CheckCircle
-                            aria-label="Active"
-                            className="text-blue-600 h-4 w-4"
-                          />
-                        )}
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem
-                              onClick={() => handleEditSemester(semester)}
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDeleteSemester(semester)}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleSetActiveSemester(semester)}
-                            >
-                              <CheckCircle className="mr-2 h-4 w-4" />
-                              Set as Active
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </SidebarMenuItem>
-                  ))}
+                  {!semesters && !activeSemesterId ? (
+                    <>
+                      <SidebarMenuSkeleton />
+                      <SidebarMenuSkeleton />
+                      <SidebarMenuSkeleton />
+                      <SidebarMenuSkeleton />
+                    </>
+                  ) : (
+                    semesters
+                      ?.filter(
+                        (sem) => sem.degreeId === settings?.activeDegreeId
+                      )
+                      .map((semester) => (
+                        <SidebarMenuItem
+                          key={semester.id}
+                          className="flex items-center justify-between space-x-2 pl-4"
+                        >
+                          <div
+                            className={clsx(
+                              "relative text-sm cursor-pointer pl-2 py-2 pr-6 rounded-md hover:bg-muted transition",
+                              {
+                                "font-bold": activeSemesterId === semester.id,
+                                "text-blue-500":
+                                  activeSemesterId === semester.id,
+                              }
+                            )}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleSelectSemester(semester);
+                            }}
+                          >
+                            <span>{semester.name}</span>
+                            {activeSemesterId === semester.id && (
+                              <Badge
+                                variant="secondary"
+                                className="absolute top-0 right-0 h-4 px-1 text-blue-500"
+                              >
+                                Active
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-2 w-2 p-0" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent>
+                                <DropdownMenuItem
+                                  onClick={() => handleEditSemester(semester)}
+                                >
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleDeleteSemester(semester)}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleSetActiveSemester(semester)
+                                  }
+                                >
+                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  Set as Active
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </SidebarMenuItem>
+                      ))
+                  )}
                   <SidebarMenuItem>
                     <Button
                       variant="ghost"
@@ -285,11 +334,8 @@ const AppSidebar = () => {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            {/* TODO: check how to handle type checking here */}
             <UserDropdown
-              username={user?.username ?? ""}
-              firstname={user?.firstname ?? ""}
-              lastname={user?.lastname ?? ""}
+              user={user}
               handleProfileClick={handleProfileClick}
               handleLogout={handleLogout}
             />

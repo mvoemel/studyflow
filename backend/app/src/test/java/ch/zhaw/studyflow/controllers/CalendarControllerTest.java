@@ -125,7 +125,7 @@ class CalendarControllerTest {
         RequestContext context = makeRequestContext(request, Map.of("calendarId", "1"));
         HttpMockHelpers.addQueryParameters(request, Map.of("from", List.of(from), "to", List.of(to)));
 
-        final HttpResponse actualResponse = calendarController.getAppointmentsByDate(context);
+        final HttpResponse actualResponse = calendarController.getAppointments(context);
 
         final ArgumentCaptor<WritableBodyContent> responseBodyCaptor = HttpMockHelpers.captureResponseBody(actualResponse);
         final ArgumentCaptor<HttpStatusCode> statusCodeCaptor = HttpMockHelpers.captureResponseCode(actualResponse);
@@ -222,7 +222,6 @@ class CalendarControllerTest {
                 makeTarget("deleteCalendar", ctrl -> ctrl::deleteCalendar),
                 makeTarget("getAppointment", ctrl -> ctrl::getAppointment),
                 makeTarget("getAppointments", ctrl -> ctrl::getAppointments),
-                makeTarget("getAppointmentsByDate", ctrl -> ctrl::getAppointmentsByDate),
                 makeTarget("deleteAppointment", ctrl -> ctrl::deleteAppointment),
                 makeTarget("createAppointment", ctrl -> ctrl::createAppointment)
         );

@@ -14,36 +14,34 @@ import { Label } from "@/components/ui/label";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoadingSpinner } from "@/components/global/loading-spinner";
+import { loginRequest } from "@/lib/api";
+import { toast } from "sonner";
 
 const LoginPage = () => {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setIsLoading(true);
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
+    try {
+      await loginRequest({ email, password });
 
-    if (res.ok) {
+      toast.success("Successfully logged in!");
+
       router.push("/dashboard");
-    } else {
-      alert("Login failed");
+    } catch (err) {
+      toast.error("Failed to log in.");
+    } finally {
+      setIsLoading(false);
+      setEmail("");
+      setPassword("");
     }
-
-    setIsLoading(false);
-    setUsername("");
-    setPassword("");
   };
 
   return (
@@ -51,20 +49,19 @@ const LoginPage = () => {
       <CardHeader>
         <CardTitle className="text-2xl">Login</CardTitle>
         <CardDescription>
-          Enter your username below to login to your account.
+          Enter your email below to login to your account.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleLogin}>
           <div className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="username"
-                type="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="johndoe"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
