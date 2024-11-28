@@ -1,7 +1,7 @@
 package ch.zhaw.studyflow.domain.curriculum;
 
 import ch.zhaw.studyflow.domain.curriculum.impls.DegreeManagerImpl;
-import ch.zhaw.studyflow.services.persistance.DegreeDao;
+import ch.zhaw.studyflow.services.persistence.DegreeDao;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;

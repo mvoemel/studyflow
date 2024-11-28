@@ -17,6 +17,11 @@ public enum HttpStatusCode {
     CREATED(201),
 
     /**
+     * Indicates that the server successfully processed the request and is not returning any content.
+     */
+    NO_CONTENT(204),
+
+    /**
      * Indicates that the request could not be understood by the server due to malformed syntax.
      */
     BAD_REQUEST(400),
@@ -37,6 +42,11 @@ public enum HttpStatusCode {
     NOT_FOUND(404),
 
     /**
+     * Indicates that the request could not be completed due to a conflict with the current state of the resource.
+     */
+    CONFLICT(409),
+
+    /**
      * Indicates that the server cannot or will not process the request due to something that is perceived to be a client error.
      */
     UNSUPPORTED_MEDIA_TYPE(415),
@@ -49,12 +59,9 @@ public enum HttpStatusCode {
     /**
      * Indicates that the server encountered an unexpected condition which prevented it from fulfilling the request.
      */
-    INTERNAL_SERVER_ERROR(500),
+    INTERNAL_SERVER_ERROR(500);
 
-    /**
-     * Indicates that the server successfully processed the request and is not returning any content.
-     */
-    NO_CONTENT(204);
+
 
     private final int code;
 

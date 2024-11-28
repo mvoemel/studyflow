@@ -2,10 +2,7 @@ package ch.zhaw.studyflow.domain.curriculum.impls;
 
 import ch.zhaw.studyflow.domain.curriculum.Degree;
 import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
-import ch.zhaw.studyflow.services.persistance.DegreeDao;
-import ch.zhaw.studyflow.webserver.security.principal.Claim;
-import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
-import ch.zhaw.studyflow.webserver.security.principal.Principal;
+import ch.zhaw.studyflow.services.persistence.DegreeDao;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,6 +15,16 @@ public class DegreeManagerImpl implements DegreeManager {
         this.degreeDao  = degreeDao;
     }
 
+
+    @Override
+    public void createDegreeFor(long userId, Degree degree) {
+
+    }
+
+    @Override
+    public List<Degree> getDegreesForUser(long usersId) {
+        return List.of();
+    }
 
     @Override
     public void createDegree(Degree degree) {

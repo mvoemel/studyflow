@@ -35,7 +35,7 @@ public class DegreeController {
             final HttpResponse response = request.createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            final Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
+            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
                 request.getRequestBody()
                         .flatMap(body -> body.tryRead(Degree.class))
@@ -60,7 +60,7 @@ public class DegreeController {
             final HttpResponse response = request.createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            final Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
+            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
                 response.setResponseBody(JsonContent.writableOf(degreeManager.getDegreesForStudent(userId.get())))
                         .setStatusCode(HttpStatusCode.OK);
@@ -78,7 +78,7 @@ public class DegreeController {
             final HttpResponse response = request.createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            final Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
+            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             final Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").map(Long::parseLong);
             if (userId.isPresent() && degreeId.isPresent()) {
                 final Degree requestedDegree = degreeManager.getDegree(degreeId.get());
@@ -101,7 +101,7 @@ public class DegreeController {
             final HttpResponse response = request.createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            final Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
+            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             final Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").map(Long::parseLong);
             if (userId.isPresent() && degreeId.isPresent()) {
                 request.getRequestBody()
@@ -126,7 +126,7 @@ public class DegreeController {
             final HttpResponse response = request.createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            final Optional<Integer> userId = principal.getClaim(CommonClaims.USER_ID);
+            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             final Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").map(Long::parseLong);
             if (userId.isPresent() && degreeId.isPresent()) {
                 final Degree degree = degreeManager.getDegree(degreeId.get());

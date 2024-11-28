@@ -7,8 +7,10 @@ import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
+import ch.zhaw.studyflow.webserver.http.query.QueryParameters;
 import org.mockito.ArgumentCaptor;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -22,13 +24,12 @@ public class HttpMockHelpers {
     }
 
     public static RequestContext makeRequestContext(HttpRequest request) {
-        RequestContext requestContext = mock(RequestContext.class);
-        when(requestContext.getRequest()).thenReturn(request);
-        return requestContext;
+        return makeRequestContext(request, Map.of());
     }
 
     public static RequestContext makeRequestContext(HttpRequest request, Map<String, String> captures) {
-        RequestContext requestContext = makeRequestContext(request);
+        RequestContext requestContext = mock(RequestContext.class);
+        when(requestContext.getRequest()).thenReturn(request);
         CaptureContainer container = mock(CaptureContainer.class);
         when(requestContext.getUrlCaptures()).thenReturn(container);
         when(container.get(any())).then(a -> Optional.ofNullable(captures.get(a.getArgument(0))));
@@ -46,6 +47,25 @@ public class HttpMockHelpers {
         HttpRequest request = makeHttpRequest();
         when(request.getRequestBody()).thenReturn(Optional.of(body));
         return request;
+    }
+
+    public static  void addQueryParameters(HttpRequest request, Map<String, List<String>> parameters) {
+        QueryParameters queryParameters = mock(QueryParameters.class);
+        when(queryParameters.getSingleValue(anyString()))
+                .then(invoc -> {
+                    List<String> values = parameters.get(invoc.getArgument(0));
+                    if (values == null || values.isEmpty()) {
+                        return Optional.empty();
+                    }
+                    if (values.size() > 1) {
+                        throw new IllegalArgumentException("Multiple values found for key: ");
+                    }
+                    return Optional.of(values.getFirst());
+                });
+        when(queryParameters.keys()).thenReturn(parameters.keySet());
+        when(queryParameters.getValues(anyString()))
+                .then(a -> Optional.ofNullable(parameters.get(a.getArgument(0))));
+        when(request.getQueryParameters()).thenReturn(queryParameters);
     }
 
     public static HttpResponse makeHttpResponse() {
