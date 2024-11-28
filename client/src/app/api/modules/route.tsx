@@ -23,7 +23,7 @@ const modules = [
         Importance: 8,
     },
     {
-        id3: 3,
+        id: 3,
         degreeId: 1,
         semesterId: 1,
         name: 'Database Systems',
