@@ -1,12 +1,16 @@
 package ch.zhaw.studyflow;
 
 import ch.zhaw.studyflow.controllers.CalendarController;
+import ch.zhaw.studyflow.controllers.ModuleController;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
+import ch.zhaw.studyflow.domain.curriculum.impls.ModuleManagerImpl;
 import ch.zhaw.studyflow.services.persistence.AppointmentDao;
 import ch.zhaw.studyflow.services.persistence.CalendarDao;
 import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
+import ch.zhaw.studyflow.services.persistence.ModuleDao;
+import ch.zhaw.studyflow.services.persistence.memory.InMemoryModuleDao;
 import ch.zhaw.studyflow.controllers.StudentController;
 import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.domain.student.impls.StudentManagerImpl;
@@ -48,7 +52,15 @@ public class Main {
                     serviceCollection -> new CalendarController(
                             serviceCollection.getRequiredService(AuthenticationHandler.class),
                             serviceCollection.getRequiredService(CalendarManagerImpl.class),
-                            serviceCollection.getRequiredService(AppointmentManagerImpl.class)
+                            serviceCollection.getRequiredService(AppointmentManager.class)
+                    ));
+            controllerRegistry.register(
+                    ModuleController.class,
+                    serviceCollection -> new ModuleController(
+                            serviceCollection.getRequiredService(ModuleManagerImpl.class),
+                            serviceCollection.getRequiredService(AuthenticationHandler.class),
+                            serviceCollection.getRequiredService(PrincipalProvider.class)
+
                     ));
             controllerRegistry.register(
                     StudentController.class,
@@ -69,6 +81,8 @@ public class Main {
             builder.register(CalendarManager.class, serviceCollection -> new CalendarManagerImpl(
                     serviceCollection.getRequiredService(CalendarDao.class)
             ));
+
+            builder.registerSingelton(AppointmentDao.class, serviceCollection -> new InMemoryAppointmentDao());
             builder.register(AppointmentManager.class, serviceCollection -> new AppointmentManagerImpl(
                     serviceCollection.getRequiredService(AppointmentDao.class)
             ));
@@ -83,6 +97,13 @@ public class Main {
                     new JwtPrincipalProviderOptions("secret", JwtHashAlgorithm.HS256, "superdupersecret", Duration.ofDays(1)),
                     List.of(CommonClaims.AUTHENTICATED, CommonClaims.USER_ID)
             ));
+
+            builder.registerSingelton(ModuleDao.class, serviceCollection -> new InMemoryModuleDao());
+            builder.register(ModuleManagerImpl.class, serviceCollection -> new ModuleManagerImpl(
+                    serviceCollection.getRequiredService(ModuleDao.class)
+            ));
+
+
             builder.registerSingelton(AuthenticationHandler.class, serviceCollection ->
                     new ClaimBasedAuthenticationHandler(
                             serviceCollection.getRequiredService(PrincipalProvider.class),

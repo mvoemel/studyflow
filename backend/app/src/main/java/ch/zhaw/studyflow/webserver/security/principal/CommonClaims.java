@@ -17,4 +17,19 @@ public final class CommonClaims {
      * The user id claim is used to store the user id of a user.
      */
     public static final Claim<Long> USER_ID = new Claim<>("id", Long.class);
+
+    /**
+     * The degree id claim is used to store the degree id of a user.
+     */
+    public static final Claim<Integer> DEGREE_ID = new Claim<>("degreeId", Integer.class);
+
+    /**
+     * The semester id claim is used to store the semester id of a user.
+     */
+    public static final Claim<Integer> SEMESTER_ID = new Claim<>("semesterId", Integer.class);
+
+    /**
+     * The module id claim is used to store the module id of a user.
+     */
+    public static final Claim<Integer> MODULE_ID = new Claim<>("moduleId", Integer.class);
 }
