@@ -13,6 +13,8 @@ public class DegreeManagerImplTest {
         DegreeDao degreeDao = mock(DegreeDao.class);
         DegreeManager degreeManager = new DegreeManagerImpl(degreeDao);
         Degree degree = new Degree();
+        degree.setName("Test Degree");
+        degree.setDescription("Test Description");
         degreeManager.createDegree(1L, degree);
         verify(degreeDao, times(1)).create(degree);
     }
