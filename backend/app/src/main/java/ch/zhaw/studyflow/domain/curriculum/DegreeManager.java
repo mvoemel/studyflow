@@ -1,5 +1,7 @@
 package ch.zhaw.studyflow.domain.curriculum;
 
+import ch.zhaw.studyflow.webserver.security.principal.Principal;
+
 import java.util.List;
 
 public interface DegreeManager {
@@ -16,7 +18,7 @@ public interface DegreeManager {
      * @return a list of degrees if available; otherwise an empty list.
      */
     List<Degree> getDegreesForUser(long usersId);
-    void createDegree(Degree degree);
+    void createDegree(Principal actor, Degree degree);
     List<Degree> getDegreesForStudent(long userId);
     Degree getDegree(long degreeId);
     void updateDegree(Degree degree);

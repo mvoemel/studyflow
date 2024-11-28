@@ -2,6 +2,7 @@ package ch.zhaw.studyflow.controllers;
 
 import ch.zhaw.studyflow.domain.curriculum.Degree;
 import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
+import ch.zhaw.studyflow.utils.LongUtils;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
 import ch.zhaw.studyflow.webserver.annotations.Route;
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
@@ -14,9 +15,12 @@ import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 
 import java.util.Optional;
+import java.util.logging.Logger;
 
-@Route(path = "/api/degrees")
+@Route(path = "api/degrees")
 public class DegreeController {
+    private static final Logger LOGGER = Logger.getLogger(DegreeController.class.getName());
+
     private final AuthenticationHandler authenticationHandler;
     private final DegreeManager degreeManager;
 
@@ -35,19 +39,18 @@ public class DegreeController {
             final HttpResponse response = request.createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
-            if (userId.isPresent()) {
-                request.getRequestBody()
-                        .flatMap(body -> body.tryRead(Degree.class))
-                        .map(degree -> {
-                            degree.setOwnerId(userId.get());
-                            degreeManager.createDegree(degree);
-                            return degree;
-                        }).ifPresent(
-                                value -> response.setResponseBody(JsonContent.writableOf(value))
-                                        .setStatusCode(HttpStatusCode.CREATED)
-                        );
-            }
+            principal.getClaim(CommonClaims.USER_ID)
+                    .flatMap(userId -> request.getRequestBody()
+                            .flatMap(body -> body.tryRead(Degree.class))
+                            .map(degree -> {
+                                degree.setOwnerId(userId);
+                                degreeManager.createDegree(principal, degree);
+                                return degree;
+                            }))
+                    .ifPresent(value ->
+                            response.setResponseBody(JsonContent.writableOf(value))
+                                    .setStatusCode(HttpStatusCode.CREATED)
+                    );
             return response;
         });
     }
@@ -60,11 +63,11 @@ public class DegreeController {
             final HttpResponse response = request.createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
-            if (userId.isPresent()) {
-                response.setResponseBody(JsonContent.writableOf(degreeManager.getDegreesForStudent(userId.get())))
-                        .setStatusCode(HttpStatusCode.OK);
-            }
+            principal.getClaim(CommonClaims.USER_ID)
+                    .ifPresent(userId ->
+                            response.setResponseBody(JsonContent.writableOf(degreeManager.getDegreesForStudent(userId)))
+                                    .setStatusCode(HttpStatusCode.OK)
+                    );
             return response;
         });
     }
@@ -79,14 +82,12 @@ public class DegreeController {
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
             final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
-            final Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").map(Long::parseLong);
+            final Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").flatMap(LongUtils::tryParseLong);
             if (userId.isPresent() && degreeId.isPresent()) {
                 final Degree requestedDegree = degreeManager.getDegree(degreeId.get());
                 if (requestedDegree != null) {
                     response.setResponseBody(JsonContent.writableOf(requestedDegree))
                             .setStatusCode(HttpStatusCode.OK);
-                } else {
-                    response.setStatusCode(HttpStatusCode.NOT_FOUND);
                 }
             }
             return response;
@@ -94,23 +95,28 @@ public class DegreeController {
     }
 
     @Route(path = "{degreeId}")
-    @Endpoint(method = HttpMethod.PUT)
+    @Endpoint(method = HttpMethod.PATCH)
     public HttpResponse updateDegree(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
+
         return authenticationHandler.handleIfAuthenticated(request, principal -> {
             final HttpResponse response = request.createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
             final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
-            final Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").map(Long::parseLong);
+            final Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").flatMap(LongUtils::tryParseLong);
             if (userId.isPresent() && degreeId.isPresent()) {
                 request.getRequestBody()
                         .flatMap(body -> body.tryRead(Degree.class))
                         .ifPresent(
                                 degree -> {
-                                    degreeManager.updateDegree(degree);
-                                    response.setResponseBody(JsonContent.writableOf(degree));
-                                    response.setStatusCode(HttpStatusCode.OK);
+                                    if (degree.getId() == degreeId.get()) {
+                                        degreeManager.updateDegree(degree);
+                                        response.setResponseBody(JsonContent.writableOf(degree));
+                                        response.setStatusCode(HttpStatusCode.OK);
+                                    } else {
+                                        LOGGER.warning("Ignoring degree update due to mismatching degree ID.");
+                                    }
                                 }
                         );
             }
@@ -122,19 +128,16 @@ public class DegreeController {
     @Endpoint(method = HttpMethod.DELETE)
     public HttpResponse deleteDegree(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
+
         return authenticationHandler.handleIfAuthenticated(request, principal -> {
             final HttpResponse response = request.createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
             final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
-            final Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").map(Long::parseLong);
+            final Optional<Long> degreeId = requestContext.getUrlCaptures().get("degreeId").flatMap(LongUtils::tryParseLong);
             if (userId.isPresent() && degreeId.isPresent()) {
-                final Degree degree = degreeManager.getDegree(degreeId.get());
-
-                if (degree != null) {
-                    degreeManager.deleteDegree(degreeId.get());
-                    response.setStatusCode(HttpStatusCode.NO_CONTENT);
-                }
+                degreeManager.deleteDegree(degreeId.get());
+                response.setStatusCode(HttpStatusCode.NO_CONTENT);
             }
             return response;
         });

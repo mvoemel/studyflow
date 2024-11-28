@@ -8,6 +8,7 @@ public class Degree {
     private long ownerId;
     private String name;
     private String description;
+    private long activeSemesterId;
 
     public Degree() {
         this.id = -1;
@@ -44,6 +45,16 @@ public class Degree {
     @JsonSetter
     public void setName(String name) {
         this.name = name;
+    }
+
+    @JsonSetter
+    public long getActiveSemesterId() {
+        return activeSemesterId;
+    }
+
+    @JsonSetter
+    public void setActiveSemesterId(long activeSemesterId) {
+        this.activeSemesterId = activeSemesterId;
     }
 
     @JsonGetter
