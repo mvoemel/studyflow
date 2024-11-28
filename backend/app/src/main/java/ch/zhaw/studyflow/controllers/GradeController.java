@@ -11,7 +11,6 @@ import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -43,8 +42,8 @@ public class GradeController {
                 List<Grade> grades = gradeDao.readByDegree(degreeId);
                 Map<Long, Map<Long, List<Grade>>> semesters = grades.stream()
                         .collect(Collectors.groupingBy(
-                                grade -> getFieldValue(grade, "semesterId"),
-                                Collectors.groupingBy(grade -> getFieldValue(grade, "moduleId"))
+                                grade -> Optional.ofNullable(getFieldValue(grade, "semesterId")).orElse(0L),
+                                Collectors.groupingBy(grade -> Optional.ofNullable(getFieldValue(grade, "moduleId")).orElse(0L))
                         ));
                 response.setResponseBody(JsonContent.writableOf(semesters))
                         .setStatusCode(HttpStatusCode.OK);
@@ -109,8 +108,8 @@ public class GradeController {
                 List<Grade> grades = gradeDao.readByDegree(degreeId);
                 Map<Long, Map<Long, List<Grade>>> semesters = grades.stream()
                         .collect(Collectors.groupingBy(
-                                grade -> getFieldValue(grade, "semesterId"),
-                                Collectors.groupingBy(grade -> getFieldValue(grade, "moduleId"))
+                                grade -> Optional.ofNullable(getFieldValue(grade, "semesterId")).orElse(0L),
+                                Collectors.groupingBy(grade -> Optional.ofNullable(getFieldValue(grade, "moduleId")).orElse(0L))
                         ));
                 Map<Long, Map<Long, Double>> averages = semesters.entrySet().stream()
                         .collect(Collectors.toMap(
@@ -130,13 +129,13 @@ public class GradeController {
         });
     }
 
-    private long getFieldValue(Grade grade, String fieldName) {
+    private Long getFieldValue(Grade grade, String fieldName) {
         try {
             Field field = Grade.class.getDeclaredField(fieldName);
             field.setAccessible(true);
             return field.getLong(grade);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 

@@ -1,11 +1,11 @@
-package ch.zhaw.studyflow.domain.grade;
+package ch.zhaw.studyflow.services.persistence.sql;
 
+import ch.zhaw.studyflow.domain.grade.Grade;
 import ch.zhaw.studyflow.services.persistence.GradeDao;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.reflect.Field;
 
 /**
  * SQL implementation of GradeDao.
@@ -19,11 +19,11 @@ public class SqlGradeDao implements GradeDao {
 
     @Override
     public void create(Grade grade) {
-        String sql = "INSERT INTO grades (module_id, student_id, value) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO grades (name, percentage, value) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setLong(1, getFieldValue(grade, "belongsTo"));
-            stmt.setLong(2, getFieldValue(grade, "studentId"));
-            stmt.setDouble(3, grade.getMark());
+            stmt.setString(1, grade.getName());
+            stmt.setDouble(2, grade.getPercentage());
+            stmt.setDouble(3, grade.getValue());
             stmt.executeUpdate();
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -86,12 +86,47 @@ public class SqlGradeDao implements GradeDao {
     }
 
     @Override
-    public void update(Grade grade) {
-        String sql = "UPDATE grades SET module_id = ?, student_id = ?, value = ? WHERE id = ?";
+    public List<Grade> readByDegree(long degreeId) {
+        String sql = "SELECT * FROM grades WHERE degree_id = ?";
+        List<Grade> grades = new ArrayList<>();
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, getFieldValue(grade, "belongsTo"));
-            stmt.setLong(2, getFieldValue(grade, "studentId"));
-            stmt.setDouble(3, grade.getMark());
+            stmt.setLong(1, degreeId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    grades.add(mapRowToGrade(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return grades;
+    }
+
+    @Override
+    public void updateByDegree(long degreeId, List<Grade> grades) {
+        String sql = "UPDATE grades SET name = ?, percentage = ?, value = ? WHERE degree_id = ? AND id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            for (Grade grade : grades) {
+                stmt.setString(1, grade.getName());
+                stmt.setDouble(2, grade.getPercentage());
+                stmt.setDouble(3, grade.getValue());
+                stmt.setLong(4, degreeId);
+                stmt.setLong(5, grade.getId());
+                stmt.addBatch();
+            }
+            stmt.executeBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void update(Grade grade) {
+        String sql = "UPDATE grades SET name = ?, percentage = ?, value = ? WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, grade.getName());
+            stmt.setDouble(2, grade.getPercentage());
+            stmt.setDouble(3, grade.getValue());
             stmt.setLong(4, grade.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -113,29 +148,9 @@ public class SqlGradeDao implements GradeDao {
     private Grade mapRowToGrade(ResultSet rs) throws SQLException {
         Grade grade = new Grade();
         grade.setId(rs.getLong("id"));
-        grade.setBelongsTo(rs.getLong("module_id"));
-        grade.setMark((long) rs.getDouble("value")); // Cast double to long
-        setFieldValue(grade, "studentId", rs.getLong("student_id"));
+        grade.setName(rs.getString("name"));
+        grade.setPercentage(rs.getDouble("percentage"));
+        grade.setValue(rs.getDouble("value"));
         return grade;
-    }
-
-    private long getFieldValue(Grade grade, String fieldName) {
-        try {
-            Field field = Grade.class.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return field.getLong(grade);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void setFieldValue(Grade grade, String fieldName, long value) {
-        try {
-            Field field = Grade.class.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.setLong(grade, value);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

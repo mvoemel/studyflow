@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  */
 public class Grade {
     private long id;
-    private long belongsTo;
     private String name;
     private double percentage;
     private double value;
@@ -19,16 +18,18 @@ public class Grade {
     public Grade() {}
 
     /**
-     * Constructs a grade with the specified ID, module ID, and mark.
+     * Constructs a grade with the specified ID, name, percentage, and value.
      *
      * @param id the ID of the grade
-     * @param belongsTo the module ID to which this grade belongs
-     * @param mark the mark of the grade
+     * @param name the name of the grade
+     * @param percentage the percentage of the grade
+     * @param value the value of the grade
      */
-    public Grade(long id, long belongsTo, long mark) {
+    public Grade(long id, String name, double percentage, double value) {
         this.id = id;
-        this.belongsTo = belongsTo;
-        this.mark = mark;
+        this.name = name;
+        this.percentage = percentage;
+        this.value = value;
     }
 
     /**
@@ -49,46 +50,6 @@ public class Grade {
     @JsonSetter("id")
     public void setId(long id) {
         this.id = id;
-    }
-
-    /**
-     * Gets the module ID to which this grade belongs.
-     *
-     * @return the module ID.
-     */
-    @JsonGetter("belongsTo")
-    public long getBelongsTo() {
-        return belongsTo;
-    }
-
-    /**
-     * Sets the module ID to which this grade belongs.
-     *
-     * @param belongsTo the new module ID.
-     */
-    @JsonSetter("belongsTo")
-    public void setBelongsTo(long belongsTo) {
-        this.belongsTo = belongsTo;
-    }
-
-    /**
-     * Gets the mark of the grade.
-     *
-     * @return the mark.
-     */
-    @JsonGetter("mark")
-    public long getMark() {
-        return mark;
-    }
-
-    /**
-     * Sets the mark of the grade.
-     *
-     * @param mark the new mark.
-     */
-    @JsonSetter("mark")
-    public void setMark(long mark) {
-        this.mark = mark;
     }
 
     /**

@@ -1,5 +1,7 @@
-package ch.zhaw.studyflow.domain.grade;
+package ch.zhaw.studyflow.domain.grade.impls;
 
+import ch.zhaw.studyflow.domain.grade.Grade;
+import ch.zhaw.studyflow.domain.grade.GradeManager;
 import ch.zhaw.studyflow.services.persistence.GradeDao;
 
 import java.util.List;
@@ -45,13 +47,4 @@ public class GradeManagerImpl implements GradeManager {
         return gradeDao.readByStudent(studentId);
     }
 
-    @Override
-    public List<Grade> readByDegree(long degreeId) {
-        return gradeDao.readByDegree(degreeId);
-    }
-
-    @Override
-    public void updateByDegree(long degreeId, List<Grade> grades) {
-        gradeDao.updateByDegree(degreeId, grades);
-    }
 }
