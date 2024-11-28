@@ -5,6 +5,7 @@ export * from "./auth/register";
 export * from "./auth/update-active-degree";
 export * from "./auth/update-user";
 
+export * from "./degrees/dashboard";
 export * from "./degrees/get-all-degrees";
 export * from "./degrees/new-degree";
 export * from "./degrees/update-degree";

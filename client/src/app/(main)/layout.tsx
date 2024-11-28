@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { AppSidebarHeader } from "@/components/sidebar/app-sidebar-header";
 import { preload } from "swr";
 import {
+  dashboardRequest,
   getAllDegreesRequest,
   getAllModulesRequest,
   getAllSemestersRequest,
@@ -21,6 +22,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   preload("degrees", getAllDegreesRequest);
   preload("semesters", getAllSemestersRequest);
   preload("modules", getAllModulesRequest);
+  preload("ects-average", dashboardRequest);
 
   return (
     <SidebarProvider>

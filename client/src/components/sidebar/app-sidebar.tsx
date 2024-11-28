@@ -75,6 +75,11 @@ const AppSidebar = () => {
     console.log(activeSemesterId);
   }, [activeSemesterId]); // TODO: remove
 
+  useEffect(() => {
+    console.log(degrees);
+    console.log(settings);
+  }, [degrees, settings]); // TODO: remove
+
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState<boolean>(true);
   const [isAddDegreeDialogOpen, setIsAddDegreeDialogOpen] = useState(false);
   const [isAddSemesterDialogOpen, setIsAddSemesterDialogOpen] = useState(false);

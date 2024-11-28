@@ -9,7 +9,7 @@ const updateActiveDegreeRequest = async (
   body: UpdateActiveDegreeRequestBody
 ) => {
   return await tuam.patch<void, UpdateActiveDegreeRequestBody>(
-    "/api/settings",
+    "/api/auth/settings",
     body
   );
 };
