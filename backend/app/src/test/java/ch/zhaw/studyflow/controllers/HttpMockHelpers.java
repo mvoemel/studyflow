@@ -6,10 +6,13 @@ import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
+import ch.zhaw.studyflow.webserver.http.cookies.Cookie;
+import ch.zhaw.studyflow.webserver.http.cookies.CookieContainer;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.http.query.QueryParameters;
 import org.mockito.ArgumentCaptor;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,7 +52,7 @@ public class HttpMockHelpers {
         return request;
     }
 
-    public static  void addQueryParameters(HttpRequest request, Map<String, List<String>> parameters) {
+    public static void addQueryParameters(HttpRequest request, Map<String, List<String>> parameters) {
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getSingleValue(anyString()))
                 .then(invoc -> {
@@ -92,5 +95,36 @@ public class HttpMockHelpers {
         ArgumentCaptor<WritableBodyContent> captor = ArgumentCaptor.forClass(WritableBodyContent.class);
         verify(response, atLeast(0)).setResponseBody(captor.capture());
         return captor;
+    }
+
+    public static HashMap<String, Cookie> addCookieContainer(HttpResponse response) {
+        final HashMap<String, Cookie> cookies = new HashMap<>();
+        final CookieContainer cookieContainer = makeFakeCookieContainer(cookies);
+        when(response.getCookies()).thenReturn(cookieContainer);
+        return cookies;
+    }
+
+    public static HashMap<String, Cookie> addCookieContainer(HttpRequest request) {
+        final HashMap<String, Cookie> cookies = new HashMap<>();
+        final CookieContainer cookieContainer = makeFakeCookieContainer(cookies);
+        when(request.getCookies()).thenReturn(cookieContainer);
+        return cookies;
+    }
+
+    public static CookieContainer makeFakeCookieContainer(HashMap<String, Cookie> cookies) {
+        CookieContainer cookieContainer = mock(CookieContainer.class);
+        when(cookieContainer.get(anyString())).then(invocation -> Optional.ofNullable(cookies.get(invocation.getArgument(0))));
+        when(cookieContainer.hasCookie(anyString())).thenAnswer(invocation -> cookies.containsKey(invocation.getArgument(0)));
+        when(cookieContainer.asCollection()).thenAnswer(invocationOnMock -> cookies.values());
+        doAnswer(invocation -> {
+            cookies.remove(invocation.getArgument(0));
+            return cookieContainer;
+        }).when(cookieContainer).remove(anyString());
+        doAnswer(invocation -> {
+            Cookie cookie = invocation.getArgument(0);
+            cookies.put(cookie.getName(), cookie);
+            return cookieContainer;
+        }).when(cookieContainer).set(any(Cookie.class));
+        return cookieContainer;
     }
 }

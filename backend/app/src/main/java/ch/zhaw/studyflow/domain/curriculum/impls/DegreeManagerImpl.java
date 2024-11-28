@@ -30,7 +30,7 @@ public class DegreeManagerImpl implements DegreeManager {
     }
 
     @Override
-    public void createDegree(Principal actor, Degree degree) {
+    public void createDegree(long userId, Degree degree) {
         Objects.requireNonNull(degree);
 
         if (degree.getId() != -1) {
@@ -38,7 +38,7 @@ public class DegreeManagerImpl implements DegreeManager {
         }
 
         if (degree.getOwnerId() == -1) {
-            degree.setOwnerId(actor.getClaim(CommonClaims.USER_ID).orElseThrow());
+            degree.setOwnerId(userId);
         }
 
         if (Validation.isNullOrEmpty(degree.getName())) {

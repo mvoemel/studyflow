@@ -2,13 +2,17 @@ package ch.zhaw.studyflow;
 
 import ch.zhaw.studyflow.controllers.CalendarController;
 import ch.zhaw.studyflow.controllers.DegreeController;
+import ch.zhaw.studyflow.controllers.ModuleController;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
 import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
+import ch.zhaw.studyflow.domain.curriculum.impls.ModuleManagerImpl;
 import ch.zhaw.studyflow.services.persistence.AppointmentDao;
 import ch.zhaw.studyflow.services.persistence.CalendarDao;
 import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
+import ch.zhaw.studyflow.services.persistence.ModuleDao;
+import ch.zhaw.studyflow.services.persistence.memory.InMemoryModuleDao;
 import ch.zhaw.studyflow.controllers.StudentController;
 import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.domain.student.impls.StudentManagerImpl;
@@ -21,7 +25,7 @@ import ch.zhaw.studyflow.services.persistence.StudentDao;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
 import ch.zhaw.studyflow.webserver.http.contents.*;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
-import ch.zhaw.studyflow.webserver.security.authentication.ClaimBasedAuthenticationHandler;
+import ch.zhaw.studyflow.webserver.security.authentication.JwtBasedAuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 import ch.zhaw.studyflow.webserver.security.principal.jwt.JwtHashAlgorithm;
@@ -30,7 +34,11 @@ import ch.zhaw.studyflow.webserver.security.principal.jwt.JwtPrincipalProviderOp
 import ch.zhaw.studyflow.webserver.sun.SunHttpServerWebServerBuilder;
 
 import java.net.InetSocketAddress;
+import java.sql.Time;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
@@ -50,7 +58,15 @@ public class Main {
                     serviceCollection -> new CalendarController(
                             serviceCollection.getRequiredService(AuthenticationHandler.class),
                             serviceCollection.getRequiredService(CalendarManagerImpl.class),
-                            serviceCollection.getRequiredService(AppointmentManagerImpl.class)
+                            serviceCollection.getRequiredService(AppointmentManager.class)
+                    ));
+            controllerRegistry.register(
+                    ModuleController.class,
+                    serviceCollection -> new ModuleController(
+                            serviceCollection.getRequiredService(ModuleManagerImpl.class),
+                            serviceCollection.getRequiredService(AuthenticationHandler.class),
+                            serviceCollection.getRequiredService(PrincipalProvider.class)
+
                     ));
             controllerRegistry.register(
                     StudentController.class,
@@ -58,12 +74,6 @@ public class Main {
                             serviceCollection.getRequiredService(AuthenticationHandler.class),
                             serviceCollection.getRequiredService(PrincipalProvider.class),
                             serviceCollection.getRequiredService(StudentManager.class)
-                    ));
-            controllerRegistry.register(
-                    DegreeController.class,
-                    serviceCollection -> new DegreeController(
-                            serviceCollection.getRequiredService(AuthenticationHandler.class),
-                            serviceCollection.getRequiredService(DegreeManager.class)
                     ));
         });
         webServerBuilder.configureServices(builder -> {
@@ -77,6 +87,8 @@ public class Main {
             builder.register(CalendarManager.class, serviceCollection -> new CalendarManagerImpl(
                     serviceCollection.getRequiredService(CalendarDao.class)
             ));
+
+            builder.registerSingelton(AppointmentDao.class, serviceCollection -> new InMemoryAppointmentDao());
             builder.register(AppointmentManager.class, serviceCollection -> new AppointmentManagerImpl(
                     serviceCollection.getRequiredService(AppointmentDao.class)
             ));
@@ -89,12 +101,19 @@ public class Main {
             // REGISTER AUTHENTICATION SERVICES
             builder.registerSingelton(PrincipalProvider.class, serviceCollection -> new JwtPrincipalProvider(
                     new JwtPrincipalProviderOptions("secret", JwtHashAlgorithm.HS256, "superdupersecret", Duration.ofDays(1)),
-                    List.of(CommonClaims.AUTHENTICATED, CommonClaims.USER_ID)
+                    List.of(CommonClaims.EXPIRES, CommonClaims.USER_ID)
             ));
+
+            builder.registerSingelton(ModuleDao.class, serviceCollection -> new InMemoryModuleDao());
+            builder.register(ModuleManagerImpl.class, serviceCollection -> new ModuleManagerImpl(
+                    serviceCollection.getRequiredService(ModuleDao.class)
+            ));
+
+
             builder.registerSingelton(AuthenticationHandler.class, serviceCollection ->
-                    new ClaimBasedAuthenticationHandler(
+                    new JwtBasedAuthenticationHandler(
                             serviceCollection.getRequiredService(PrincipalProvider.class),
-                            CommonClaims.AUTHENTICATED
+                            Duration.ofHours(2)
                     )
             );
 

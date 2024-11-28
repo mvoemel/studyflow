@@ -18,7 +18,7 @@ public interface DegreeManager {
      * @return a list of degrees if available; otherwise an empty list.
      */
     List<Degree> getDegreesForUser(long usersId);
-    void createDegree(Principal actor, Degree degree);
+    void createDegree(long userId, Degree degree);
     List<Degree> getDegreesForStudent(long userId);
     Degree getDegree(long degreeId);
     void updateDegree(Degree degree);

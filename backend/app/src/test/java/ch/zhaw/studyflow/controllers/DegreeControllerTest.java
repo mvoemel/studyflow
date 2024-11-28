@@ -49,27 +49,20 @@ class DegreeControllerTest {
         HttpRequest request = makeHttpRequest(makeJsonRequestBody(Degree.class, degree));
 
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.AUTHENTICATED, true,
-                CommonClaims.USER_ID, 1)
-        );
-
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
         HttpResponse response = degreeController.createDegree(makeRequestContext(request));
 
         ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
 
         assertEquals(HttpStatusCode.CREATED, responseStatusCode.getValue());
 
-        verify(degreeManager, times(1)).createDegree(degree);
+        verify(degreeManager, times(1)).createDegree(1L, degree);
     }
 
     @Test
     void testGetDegree() {
         HttpRequest request = makeHttpRequest();
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.AUTHENTICATED, true,
-                CommonClaims.USER_ID, 1)
-        );
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
 
         when(degreeManager.getDegree(1)).thenReturn(makeDegree(1, 1));
 
@@ -98,10 +91,7 @@ class DegreeControllerTest {
         );
 
         HttpRequest request = makeHttpRequest();
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.AUTHENTICATED, true,
-                CommonClaims.USER_ID, 1)
-        );
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
 
         HttpResponse response = degreeController.getDegrees(makeRequestContext(request));
 
@@ -122,17 +112,14 @@ class DegreeControllerTest {
         when(degreeManager.getDegree(1)).thenReturn(degree);
 
         HttpRequest request = makeHttpRequest();
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, Map.of(
-                CommonClaims.AUTHENTICATED, true,
-                CommonClaims.USER_ID, 1)
-        );
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
 
         RequestContext context = makeRequestContext(request, Map.of("degreeId", "1"));
 
         HttpResponse response = degreeController.deleteDegree(context);
 
         ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
-        assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
+        assertEquals(HttpStatusCode.NO_CONTENT, responseStatusCode.getValue());
 
         verify(degreeManager, times(1)).deleteDegree(1);
     }

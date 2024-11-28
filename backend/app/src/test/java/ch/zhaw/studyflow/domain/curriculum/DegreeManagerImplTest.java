@@ -13,7 +13,7 @@ public class DegreeManagerImplTest {
         DegreeDao degreeDao = mock(DegreeDao.class);
         DegreeManager degreeManager = new DegreeManagerImpl(degreeDao);
         Degree degree = new Degree();
-        degreeManager.createDegree(degree);
+        degreeManager.createDegree(1L, degree);
         verify(degreeDao, times(1)).create(degree);
     }
 
@@ -24,7 +24,7 @@ public class DegreeManagerImplTest {
         Degree degree = new Degree();
         degree.setId(1);
         degree.setOwnerId(1);
-        assertThrows(IllegalArgumentException.class, () -> degreeManager.createDegree(degree));
+        assertThrows(IllegalArgumentException.class, () -> degreeManager.createDegree(1L, degree));
     }
 
     @Test

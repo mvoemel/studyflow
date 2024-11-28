@@ -25,7 +25,7 @@ const ShortCutBox = ({
   className,
 }: ShortCutBoxProps) => {
   return (
-    <Card className={cn(className)}>
+    <Card className={cn(className, "bg-muted/50")}>
       <CardHeader className="pb-3">
         <CardTitle>{title}</CardTitle>
         {description && (

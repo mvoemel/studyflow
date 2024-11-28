@@ -3,6 +3,7 @@ package ch.zhaw.studyflow.webserver.security.principal.jwt;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.cookies.Cookie;
+import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import ch.zhaw.studyflow.webserver.security.principal.impls.PrincipalImpl;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
@@ -14,15 +15,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.swing.text.html.Option;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.ByteBuffer;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,23 +58,19 @@ public class JwtPrincipalProvider extends PrincipalProvider {
 
     @Override
     public Principal getPrincipal(HttpRequest request) {
-        Optional<Cookie> jwt = request.getCookies().get(options.getCookieName());
-        PrincipalImpl result = new PrincipalImpl();
-        if (jwt.isEmpty()) {
-            return result;
-        }
+        Objects.requireNonNull(request, "Request must not be null");
 
-        final Cookie cookie = jwt.get();
-        if (!validateTokenLifetime(cookie.getExpires())) {
-            LOGGER.log(Level.FINE, "Failed to validate token, expired");
-            return result;
+        Optional<Cookie> jwt = request.getCookies().get(options.getCookieName());
+        PrincipalImpl principal = new PrincipalImpl();
+        if (jwt.isEmpty()) {
+            return principal;
         }
 
         String[] parts = jwt.get().getValue().split("\\.");
         if (parts.length == 3) {
             if (!validateTokenBySignature(parts[0], parts[1], parts[2])) {
                 LOGGER.log(Level.WARNING, "Failed to validate token, invalid signature");
-                return result;
+                return principal;
             }
 
             try {
@@ -84,26 +80,46 @@ public class JwtPrincipalProvider extends PrincipalProvider {
                     String fieldName = knownClaim.getName();
                     JsonNode node = rootNode.get(fieldName);
                     if (node != null) {
-                        handleClaim(result, node, knownClaim);
+                        handleClaim(principal, node, knownClaim);
                     }
                 }
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Failed to parse JWT cookie", e);
             }
+
+            if (!isExpirationDateValid(principal)) {
+                LOGGER.log(Level.WARNING, "Token expired");
+                principal.clearClaims();
+            }
         }
-        return result;
+        return principal;
     }
 
     @Override
     public void setPrincipal(HttpResponse response, Principal principal) {
+        Objects.requireNonNull(response, "Response must not be null");
+        Objects.requireNonNull(principal, "Principal must not be null");
+
         final String claims = buildClaimsPart(principal);
 
         byte[] signature = calculateSignature(precomputedHeader, claims);
         if (signature != null) {
-            Cookie cookie = new Cookie(options.getCookieName(), precomputedHeader + "." + claims + "." + new String(signature));
+            Cookie cookie = new Cookie(
+                    options.getCookieName(),
+                    precomputedHeader + "." + claims + "." + base64Encoder.encodeToString(signature)
+            );
             cookie.setExpires(LocalDateTime.now().plus(options.getExpiresAfter()));
-            response.getCookies().set(options.getCookieName(), precomputedHeader + "." + claims + "." + base64Encoder.encodeToString(signature));
+            response.getCookies().set(cookie);
         }
+    }
+
+    @Override
+    public void clearPrincipal(HttpResponse response) {
+        Objects.requireNonNull(response, "Response must not be null");
+        response.getCookies().remove(options.getCookieName());
+        Cookie cookie = new Cookie(options.getCookieName(), "");
+        cookie.setExpires(LocalDateTime.MIN);
+        response.getCookies().set(cookie);
     }
 
     /**
@@ -116,16 +132,15 @@ public class JwtPrincipalProvider extends PrincipalProvider {
 
 
     /**
-     * Validates the lifetime of a token.
-     * @param expirationDate The expiration date of the token.
-     * @return True if the token is still valid, false otherwise.
+     * Validates a principal.
+     * @param principal The principal to validate.
+     * @return True if the principal is valid, false otherwise.
      */
-    private boolean validateTokenLifetime(LocalDateTime expirationDate) {
-        boolean result = true;
-        if (expirationDate != null) {
-            result = expirationDate.isAfter(LocalDateTime.now());
-        }
-        return result;
+    private boolean isExpirationDateValid(Principal principal) {
+
+        return principal.getClaim(CommonClaims.EXPIRES)
+                .map(expires -> Instant.now().getEpochSecond() < expires)
+                .orElse(true);
     }
 
     /**

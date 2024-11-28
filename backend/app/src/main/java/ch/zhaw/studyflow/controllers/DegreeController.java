@@ -43,8 +43,7 @@ public class DegreeController {
                     .flatMap(userId -> request.getRequestBody()
                             .flatMap(body -> body.tryRead(Degree.class))
                             .map(degree -> {
-                                degree.setOwnerId(userId);
-                                degreeManager.createDegree(principal, degree);
+                                degreeManager.createDegree(userId, degree);
                                 return degree;
                             }))
                     .ifPresent(value ->
