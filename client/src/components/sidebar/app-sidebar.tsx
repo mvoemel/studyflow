@@ -188,16 +188,27 @@ const AppSidebar = () => {
           <SidebarMenu>
             {navOptions.map((option) => (
               <SidebarMenuItem key={option.title}>
-                <SidebarMenuButton asChild>
-                  <a
-                    href={option.href}
-                    className={clsx("hover:text-foreground transition", {
-                      "bg-sidebar-accent transition": basePath === option.href,
-                    })}
+                <SidebarMenuButton
+                  asChild
+                  onClick={() => {
+                    router.push(option.href);
+                  }}
+                  className={clsx("hover:text-foreground transition", {
+                    "bg-sidebar-accent transition": basePath === option.href,
+                  })}
+                >
+                  <div
+                    className={clsx(
+                      "hover:text-foreground transition cursor-pointer",
+                      {
+                        "bg-sidebar-accent transition":
+                          basePath === option.href,
+                      }
+                    )}
                   >
                     <option.icon className="mr-2" />
                     {option.title}
-                  </a>
+                  </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
