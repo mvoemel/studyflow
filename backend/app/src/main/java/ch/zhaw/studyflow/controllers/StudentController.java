@@ -179,7 +179,7 @@ public class StudentController {
                                 })
                                 .flatMap(studentManager::register)
                                 .ifPresentOrElse(student -> {
-                                            principal.addClaim(CommonClaims.USER_ID, student.getId());
+                                            setLoggedinPrincipalClaims(principal, student);
                                             response.setStatusCode(HttpStatusCode.CREATED);
                                         },
                                         () -> response.setStatusCode(HttpStatusCode.FORBIDDEN)
@@ -203,7 +203,7 @@ public class StudentController {
                         .flatMap(body -> body.tryRead(LoginRequest.class))
                         .flatMap(loginRequest -> studentManager.login(loginRequest.getEmail(), loginRequest.getPassword()))
                         .ifPresentOrElse(student -> {
-                                    principal.addClaim(CommonClaims.USER_ID, student.getId());
+                                    setLoggedinPrincipalClaims(principal, student);
                                     response.setStatusCode(HttpStatusCode.OK);
                                 },
                                 () -> response.setStatusCode(HttpStatusCode.UNAUTHORIZED)
@@ -211,6 +211,12 @@ public class StudentController {
             }
             return response;
         });
+    }
+
+    private static void setLoggedinPrincipalClaims(Principal principal, Student student) {
+        principal.addClaim(CommonClaims.USER_ID, student.getId());
+        principal.addClaim(CommonClaims.EMAIL, student.getEmail());
+        principal.addClaim(CommonClaims.SETTINGS_ID, student.getSettingsId());
     }
 
     @Route(path = "logout")
