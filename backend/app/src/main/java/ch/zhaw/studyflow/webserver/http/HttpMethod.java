@@ -1,10 +1,13 @@
 package ch.zhaw.studyflow.webserver.http;
 
+import javax.sound.midi.Patch;
+
 public enum HttpMethod {
     GET("GET"),
     PUT("PUT"),
     POST("POST"),
-    DELETE("DELETE");
+    DELETE("DELETE"),
+    PATCH("PATCH");
 
     private final String method;
 

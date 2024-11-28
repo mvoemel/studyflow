@@ -52,4 +52,20 @@ public interface GradeManager {
      * @return the list of grades.
      */
     List<Grade> readByStudent(long studentId);
+
+    /**
+     * Reads grades by degree ID.
+     *
+     * @param degreeId the degree ID.
+     * @return the list of grades.
+     */
+    List<Grade> readByDegree(long degreeId);
+
+    /**
+     * Updates grades by degree ID.
+     *
+     * @param degreeId the degree ID.
+     * @param grades the list of grades to update.
+     */
+    void updateByDegree(long degreeId, List<Grade> grades);
 }

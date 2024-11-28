@@ -9,7 +9,9 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 public class Grade {
     private long id;
     private long belongsTo;
-    private long mark;
+    private String name;
+    private double percentage;
+    private double value;
 
     /**
      * Default constructor.
@@ -87,5 +89,65 @@ public class Grade {
     @JsonSetter("mark")
     public void setMark(long mark) {
         this.mark = mark;
+    }
+
+    /**
+     * Gets the name of the grade.
+     *
+     * @return the name.
+     */
+    @JsonGetter("name")
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the name of the grade.
+     *
+     * @param name the new name.
+     */
+    @JsonSetter("name")
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Gets the percentage of the grade.
+     *
+     * @return the percentage.
+     */
+    @JsonGetter("percentage")
+    public double getPercentage() {
+        return percentage;
+    }
+
+    /**
+     * Sets the percentage of the grade.
+     *
+     * @param percentage the new percentage.
+     */
+    @JsonSetter("percentage")
+    public void setPercentage(double percentage) {
+        this.percentage = percentage;
+    }
+
+    /**
+     * Gets the value of the grade.
+     *
+     * @return the value.
+     */
+    @JsonGetter("value")
+    public double getValue() {
+        return value;
+    }
+
+    /**
+     * Sets the value of the grade.
+     *
+     * @param value the new value.
+     */
+    @JsonSetter("value")
+    public void setValue(double value) {
+        this.value = value;
     }
 }

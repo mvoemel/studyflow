@@ -1,4 +1,6 @@
+// InMemoryGradeDao.java
 package ch.zhaw.studyflow.services.persistence.memory;
+
 import ch.zhaw.studyflow.domain.grade.Grade;
 import ch.zhaw.studyflow.services.persistence.GradeDao;
 
@@ -13,6 +15,7 @@ import java.util.Map;
  */
 public class InMemoryGradeDao implements GradeDao {
     private final Map<Long, Grade> grades = new HashMap<>();
+    private final Map<Long, List<Grade>> degrees = new HashMap<>();
     private long currentId = 1;
 
     @Override
@@ -49,8 +52,18 @@ public class InMemoryGradeDao implements GradeDao {
     }
 
     @Override
+    public List<Grade> readByDegree(long degreeId) {
+        return degrees.get(degreeId);
+    }
+
+    @Override
     public void update(Grade grade) {
         grades.put(grade.getId(), grade);
+    }
+
+    @Override
+    public void updateByDegree(long degreeId, List<Grade> grades) {
+        degrees.put(degreeId, grades);
     }
 
     @Override
