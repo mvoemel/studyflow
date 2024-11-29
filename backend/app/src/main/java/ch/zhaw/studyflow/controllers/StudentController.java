@@ -22,6 +22,11 @@ import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 
 import javax.swing.text.html.Option;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.TemporalField;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -152,10 +157,10 @@ public class StudentController {
     public HttpResponse register(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
 
-        final Principal principal = principalProvider.getPrincipal(request);
-        HttpResponse response = requestContext.getRequest().createResponse()
-                .setStatusCode(HttpStatusCode.BAD_REQUEST);
-        if (!principal.getClaim(CommonClaims.AUTHENTICATED).orElse(false)) {
+        return authenticator.handleIfUnauthenticated(request, principal -> {
+            HttpResponse response = requestContext.getRequest().createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
             if (request.getRequestBody().isPresent()) {
                 Optional<Registration> optionalRegistration = request.getRequestBody()
                         .flatMap(body -> body.tryRead(Registration.class));
@@ -174,9 +179,7 @@ public class StudentController {
                                 })
                                 .flatMap(studentManager::register)
                                 .ifPresentOrElse(student -> {
-                                            principal.addClaim(CommonClaims.AUTHENTICATED, true);
-                                            principal.addClaim(CommonClaims.USER_ID, student.getId());
-                                            principalProvider.setPrincipal(response, principal);
+                                            setLoggedinPrincipalClaims(principal, student);
                                             response.setStatusCode(HttpStatusCode.CREATED);
                                         },
                                         () -> response.setStatusCode(HttpStatusCode.FORBIDDEN)
@@ -184,10 +187,8 @@ public class StudentController {
                     }
                 }
             }
-        } else {
-            response.setStatusCode(HttpStatusCode.OK);
-        }
-        return response;
+            return response;
+        });
     }
 
     @Route(path = "login")
@@ -195,37 +196,36 @@ public class StudentController {
     public HttpResponse login(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
 
-        final Principal principal = principalProvider.getPrincipal(request);
-        HttpResponse response = requestContext.getRequest().createResponse();
-        if (!principal.getClaim(CommonClaims.AUTHENTICATED).orElse(false)) {
+        return authenticator.handleIfUnauthenticated(request, principal -> {
+            final HttpResponse response = requestContext.getRequest().createResponse();
             if (request.getRequestBody().isPresent()) {
                 request.getRequestBody()
                         .flatMap(body -> body.tryRead(LoginRequest.class))
                         .flatMap(loginRequest -> studentManager.login(loginRequest.getEmail(), loginRequest.getPassword()))
                         .ifPresentOrElse(student -> {
-                                    principal.addClaim(CommonClaims.AUTHENTICATED, true);
-                                    principal.addClaim(CommonClaims.USER_ID, student.getId());
-                                    principalProvider.setPrincipal(response, principal);
+                                    setLoggedinPrincipalClaims(principal, student);
                                     response.setStatusCode(HttpStatusCode.OK);
                                 },
                                 () -> response.setStatusCode(HttpStatusCode.UNAUTHORIZED)
                         );
             }
-        } else {
-            response.setStatusCode(HttpStatusCode.OK);
-        }
-        return response;
+            return response;
+        });
+    }
+
+    private static void setLoggedinPrincipalClaims(Principal principal, Student student) {
+        principal.addClaim(CommonClaims.USER_ID, student.getId());
+        principal.addClaim(CommonClaims.EMAIL, student.getEmail());
+        principal.addClaim(CommonClaims.SETTINGS_ID, student.getSettingsId());
     }
 
     @Route(path = "logout")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse logout(RequestContext requestContext) {
         return authenticator.handleIfAuthenticated(requestContext.getRequest(), principal -> {
-            principal.addClaim(CommonClaims.AUTHENTICATED, false);
-            principal.addClaim(CommonClaims.USER_ID, -1L);
-
             HttpResponse response = requestContext.getRequest().createResponse();
-            principalProvider.setPrincipal(response, principal);
+            principal.clearClaims();
+            principalProvider.clearPrincipal(response);
             return response.setStatusCode(HttpStatusCode.OK);
         });
     }

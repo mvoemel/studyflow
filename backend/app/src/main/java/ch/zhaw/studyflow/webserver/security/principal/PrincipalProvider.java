@@ -37,4 +37,6 @@ public abstract class PrincipalProvider {
      * @param principal The principal to set in the response.
      */
     public abstract void setPrincipal(HttpResponse response, Principal principal);
+
+    public abstract void clearPrincipal(HttpResponse response);
 }

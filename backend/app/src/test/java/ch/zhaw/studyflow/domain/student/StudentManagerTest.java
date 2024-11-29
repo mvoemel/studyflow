@@ -109,20 +109,17 @@ class StudentManagerTest {
 
     @Test
     void testGetSettings() {
-        final Student student = makeFakeStudent();
-        student.setId(1);
-
         final Settings settings = new Settings();
         settings.setGlobalCalendarId(42);
-        settings.setId(0);
+        settings.setId(1);
 
-        when(settingsDao.readByUserId(1)).thenReturn(settings);
+        when(settingsDao.read(1L)).thenReturn(settings);
 
-        final Optional<Settings> settingsResult = studentManager.getSettings(1);
+        final Optional<Settings> settingsResult = studentManager.getSettings(1L);
 
         assertTrue(settingsResult.isPresent());
         assertEquals(settings, settingsResult.get());
-        verify(settingsDao).readByUserId(1);
+        verify(settingsDao).read(1);
     }
 
 
