@@ -10,6 +10,7 @@ import { Module } from "@/types";
 import useSWR from "swr";
 
 const useModules = () => {
+  // BUG: "modules" is passed to the getAllModulesRequest method
   const { data, error, mutate, isLoading } = useSWR<AllModulesResponseData>(
     "modules",
     getAllModulesRequest
