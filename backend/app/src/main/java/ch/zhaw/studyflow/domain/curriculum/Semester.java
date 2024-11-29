@@ -11,6 +11,14 @@ public class Semester {
         this.id = -1;
     }
 
+    public Semester(long id, String name, String description, long degreeId, long userId) {
+        this.id = id;
+        this.name = name;
+        this.degreeId = degreeId;
+        this.userId = userId;
+        this.description = description;
+    }
+
     public long getId() {
         return id;
     }
