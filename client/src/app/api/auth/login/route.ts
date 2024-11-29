@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { mockToken } from "../../_mockdata/user-token-settings";
+import { awaitTimeout } from "../../_utils";
 
 const SECRET_KEY = process.env.JWT_SECRET || "tmp-secret-key";
-
-const awaitTimeout = (delay: number) =>
-  new Promise((resolve) => setTimeout(resolve, delay));
 
 export async function POST(request: Request) {
   const { email, password } = await request.json();
 
-  await awaitTimeout(1000); // Simulate delay for database operations
+  await awaitTimeout(1000);
 
   if (email === "john@john.com" && password === "pass") {
     const token = jwt.sign(mockToken, SECRET_KEY, { expiresIn: "1h" });

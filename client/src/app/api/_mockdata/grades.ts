@@ -1,4 +1,6 @@
-const mockGrades = [
+import { GradeViewTree } from "@/types";
+
+const mockGrades: GradeViewTree = [
   {
     semesterId: "semester-21",
     semesterName: "1. Semester",

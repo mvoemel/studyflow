@@ -10,7 +10,7 @@ const newAppointmentForCalendarRequest = async (
   calendarId: string,
   body: NewAppointmentForCalendarRequestBody
 ) => {
-  return await tuam.post<void, NewAppointmentForCalendarRequestBody>(
+  return await tuam.post<Appointment, NewAppointmentForCalendarRequestBody>(
     `/api/calendars/${calendarId}/appointments`,
     body
   );

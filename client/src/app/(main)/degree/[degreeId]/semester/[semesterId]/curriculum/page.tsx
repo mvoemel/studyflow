@@ -30,15 +30,15 @@ import { useModules } from "@/hooks/use-modules";
 const ModulesSettingsPage = () => {
   const { degreeId, semesterId } = useParams();
 
-  const { settings, isLoading: loadingSettings } = useUserSettings();
-  const { degrees, isLoading: loadingDegrees } = useDegrees();
-  const { semesters, isLoading: loadingSemesters } = useSemesters();
-  const { modules, isLoading: loadingModules } = useModules();
+  const { settings } = useUserSettings();
+  const { degrees } = useDegrees();
+  const { semesters } = useSemesters();
+  const { modules } = useModules();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedModule, setSelectedModule] = useState<Module | undefined>();
-  const [title, setTitle] = useState<string>("");
+  const [title, setTitle] = useState<string>(""); // TODO: remove
 
   useEffect(() => {
     const degree = degrees?.find(
@@ -73,7 +73,7 @@ const ModulesSettingsPage = () => {
 
   return (
     <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
-      <h1 className="text-3xl font-semibold">{title || "Select a Semester"}</h1>
+      {/* <h1 className="text-3xl font-semibold">{title || "Select a Semester"}</h1> */}
       <Card className="bg-muted/50">
         <CardHeader>
           <CardTitle>Modules</CardTitle>

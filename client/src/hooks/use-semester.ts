@@ -1,5 +1,6 @@
 import {
   AllSemestersResponseData,
+  deleteSemesterRequest,
   getAllSemestersRequest,
   newSemesterRequest,
   NewSemesterRequestBody,
@@ -12,26 +13,66 @@ import useSWR from "swr";
 const useSemesters = () => {
   const { data, error, mutate, isLoading } = useSWR<AllSemestersResponseData>(
     "semesters",
-    getAllSemestersRequest
+    () => getAllSemestersRequest()
   );
 
   const addNewSemester = async (body: NewSemesterRequestBody) => {
-    await newSemesterRequest(body);
-    mutate(); // TODO: change so new request is not sent
+    const optimisticSemester = {
+      ...body,
+      id: `tmp-semester-id-${Date.now()}`,
+      userId: `tmp-user-id-${Date.now()}`,
+    };
+
+    await mutate(
+      async () => {
+        const addedSemester = await newSemesterRequest(body);
+        return [...(data || []), addedSemester];
+      },
+      {
+        optimisticData: [...(data || []), optimisticSemester],
+        rollbackOnError: true,
+        populateCache: true,
+        revalidate: false,
+      }
+    );
   };
 
   const updateSemester = async (
     body: UpdateSemesterRequestBody,
     semesterId: Semester["id"]
   ) => {
-    await updateSemesterRequest(body, semesterId);
-    mutate(); // TODO: change so new request is not sent
+    await mutate(
+      async () => {
+        await updateSemesterRequest(body, semesterId);
+        return (data || []).map((d) =>
+          d.id === semesterId ? { ...d, ...body } : d
+        );
+      },
+      {
+        optimisticData: (data || []).map((d) =>
+          d.id === semesterId ? { ...d, ...body } : d
+        ),
+        rollbackOnError: true,
+        populateCache: true,
+        revalidate: false,
+      }
+    );
   };
 
-  //   const deleteSemester = async (semesterId: Semester["id"]) => {
-  //     await deleteSemesterRequest(semesterId);
-  //     mutate(); // TODO: change so new request is not sent
-  //   };
+  const deleteSemester = async (semesterId: Semester["id"]) => {
+    await mutate(
+      async () => {
+        await deleteSemesterRequest(semesterId);
+        return (data || []).filter((d) => d.id !== semesterId);
+      },
+      {
+        optimisticData: (data || []).filter((d) => d.id !== semesterId),
+        rollbackOnError: true,
+        populateCache: true,
+        revalidate: false,
+      }
+    );
+  };
 
   return {
     semesters: data,
@@ -39,7 +80,7 @@ const useSemesters = () => {
     error,
     addNewSemester,
     updateSemester,
-    // deleteSemester,
+    deleteSemester,
   };
 };
 

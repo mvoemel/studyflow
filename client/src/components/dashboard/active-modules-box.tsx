@@ -22,7 +22,7 @@ const ActiveModuleBox = ({ className }: ActiveModuleBoxProps) => {
     if (!degrees || !semesters || !modules) return undefined;
 
     const currDegree = degrees?.find((d) => d.id === settings?.activeDegreeId);
-    console.log(currDegree); // TODO: remove
+    // console.log(currDegree); // TODO: remove
 
     if (!currDegree || !currDegree.activeSemesterId) {
       return undefined;

@@ -11,17 +11,69 @@ import useSWR from "swr";
 const useUserSettings = () => {
   const { data, error, mutate, isLoading } = useSWR<MeRequestResponseData>(
     "user-settings",
-    meRequest
+    () => meRequest()
   );
 
   const updateUser = async (body: UpdateUserRequestBody) => {
-    await updateUserRequest(body);
-    mutate(); // TODO: change so new request is not sent
+    await mutate(
+      async () => {
+        await updateUserRequest(body);
+        return data
+          ? {
+              settings: data.settings,
+              user: {
+                ...data.user,
+                ...body,
+              },
+            }
+          : undefined;
+      },
+      {
+        optimisticData: data
+          ? {
+              settings: data.settings,
+              user: {
+                ...data.user,
+                ...body,
+              },
+            }
+          : undefined,
+        rollbackOnError: true,
+        populateCache: true,
+        revalidate: false,
+      }
+    );
   };
 
   const updateActiveDegree = async (body: UpdateActiveDegreeRequestBody) => {
-    await updateActiveDegreeRequest(body);
-    mutate(); // TODO: change so new request is not sent
+    await mutate(
+      async () => {
+        await updateActiveDegreeRequest(body);
+        return data
+          ? {
+              settings: {
+                ...data.settings,
+                activeDegreeId: body.activeDegreeId,
+              },
+              user: data.user,
+            }
+          : undefined;
+      },
+      {
+        optimisticData: data
+          ? {
+              settings: {
+                ...data.settings,
+                activeDegreeId: body.activeDegreeId,
+              },
+              user: data.user,
+            }
+          : undefined,
+        rollbackOnError: true,
+        populateCache: true,
+        revalidate: false,
+      }
+    );
   };
 
   return {

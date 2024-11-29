@@ -6,9 +6,13 @@ import { EctsBox } from "@/components/dashboard/ects-box";
 import { GradeBox } from "@/components/dashboard/grade-box";
 import { ShortCutBox } from "@/components/dashboard/shortcut-box";
 import { useEctsAverage } from "@/hooks/use-ects-average";
+import { useUserSettings } from "@/hooks/use-user-settings";
 
 const DashboardPage = () => {
-  const { average, currEcts, totalEcts } = useEctsAverage();
+  const { settings } = useUserSettings();
+  const { average, currEcts, totalEcts } = useEctsAverage(
+    settings?.activeDegreeId
+  );
 
   return (
     <main className="grid grid-cols-1 md:grid-cols-3 auto-rows-max md:grid-rows-3 gap-4 h-full p-4">
