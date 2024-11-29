@@ -1,5 +1,6 @@
 package ch.zhaw.studyflow.controllers;
 
+import ch.zhaw.studyflow.controllers.deo.ModuleGrade;
 import ch.zhaw.studyflow.domain.grade.Grade;
 import ch.zhaw.studyflow.services.persistence.GradeDao;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
@@ -12,24 +13,37 @@ import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
+/**
+ * Controller for handling grade-related requests.
+ */
 @Route(path = "api/degrees")
 public class GradeController {
     private static final Logger logger = Logger.getLogger(GradeController.class.getName());
     private final GradeDao gradeDao;
     private final AuthenticationHandler authenticator;
 
+    /**
+     * Constructs a GradeController with the specified GradeDao and AuthenticationHandler.
+     *
+     * @param gradeDao the GradeDao to use for data access.
+     * @param authenticator the AuthenticationHandler to use for authentication.
+     */
     public GradeController(GradeDao gradeDao, AuthenticationHandler authenticator) {
         this.gradeDao = gradeDao;
         this.authenticator = authenticator;
     }
 
+    /**
+     * Handles GET requests to retrieve grades by degree ID.
+     *
+     * @param context the request context.
+     * @return the HTTP response.
+     */
     @Route(path = "{degreeId}/grades")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getGradesByDegreeId(RequestContext context) {
@@ -40,12 +54,7 @@ public class GradeController {
             if (degreeIdOpt.isPresent()) {
                 long degreeId = Long.parseLong(degreeIdOpt.get());
                 List<Grade> grades = gradeDao.readByDegree(degreeId);
-                Map<Long, Map<Long, List<Grade>>> semesters = grades.stream()
-                        .collect(Collectors.groupingBy(
-                                grade -> Optional.ofNullable(getFieldValue(grade, "semesterId")).orElse(0L),
-                                Collectors.groupingBy(grade -> Optional.ofNullable(getFieldValue(grade, "moduleId")).orElse(0L))
-                        ));
-                response.setResponseBody(JsonContent.writableOf(semesters))
+                response.setResponseBody(JsonContent.writableOf(grades))
                         .setStatusCode(HttpStatusCode.OK);
             } else {
                 response.setStatusCode(HttpStatusCode.BAD_REQUEST);
@@ -54,6 +63,12 @@ public class GradeController {
         });
     }
 
+    /**
+     * Handles PATCH requests to update grades by degree ID.
+     *
+     * @param context the request context.
+     * @return the HTTP response.
+     */
     @Route(path = "{degreeId}/grades")
     @Endpoint(method = HttpMethod.PATCH)
     public HttpResponse patchGradesByDegreeId(RequestContext context) {
@@ -64,20 +79,10 @@ public class GradeController {
             if (degreeIdOpt.isPresent()) {
                 long degreeId = Long.parseLong(degreeIdOpt.get());
                 request.getRequestBody()
-                        .flatMap(body -> body.tryRead(Map.class))
+                        .flatMap(body -> body.tryRead(ModuleGrade.class))
                         .ifPresentOrElse(
-                                moduleData -> {
-                                    Map<String, Object> moduleDataMap = (Map<String, Object>) moduleData;
-                                    long moduleId = ((Number) moduleDataMap.get("id")).longValue();
-                                    List<Map<String, Object>> gradesData = (List<Map<String, Object>>) moduleDataMap.get("grades");
-                                    List<Grade> grades = gradesData.stream().map(data -> {
-                                        Grade grade = new Grade();
-                                        grade.setId(((Number) data.get("id")).longValue());
-                                        grade.setName((String) data.get("name"));
-                                        grade.setPercentage(((Number) data.get("percentage")).doubleValue());
-                                        grade.setValue(((Number) data.get("value")).doubleValue());
-                                        return grade;
-                                    }).collect(Collectors.toList());
+                                moduleGrade -> {
+                                    List<Grade> grades = moduleGrade.getGrades();
                                     if (validateGrades(grades)) {
                                         gradeDao.updateByDegree(degreeId, grades);
                                         response.setStatusCode(HttpStatusCode.OK);
@@ -96,6 +101,12 @@ public class GradeController {
         });
     }
 
+    /**
+     * Handles GET requests to retrieve the average grade value by degree ID.
+     *
+     * @param context the request context.
+     * @return the HTTP response.
+     */
     @Route(path = "{degreeId}/grades/averages")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getGradesAveragesByDegreeId(RequestContext context) {
@@ -106,21 +117,8 @@ public class GradeController {
             if (degreeIdOpt.isPresent()) {
                 long degreeId = Long.parseLong(degreeIdOpt.get());
                 List<Grade> grades = gradeDao.readByDegree(degreeId);
-                Map<Long, Map<Long, List<Grade>>> semesters = grades.stream()
-                        .collect(Collectors.groupingBy(
-                                grade -> Optional.ofNullable(getFieldValue(grade, "semesterId")).orElse(0L),
-                                Collectors.groupingBy(grade -> Optional.ofNullable(getFieldValue(grade, "moduleId")).orElse(0L))
-                        ));
-                Map<Long, Map<Long, Double>> averages = semesters.entrySet().stream()
-                        .collect(Collectors.toMap(
-                                Map.Entry::getKey,
-                                entry -> entry.getValue().entrySet().stream()
-                                        .collect(Collectors.toMap(
-                                                Map.Entry::getKey,
-                                                e -> e.getValue().stream().mapToDouble(Grade::getValue).average().orElse(0.0)
-                                        ))
-                        ));
-                response.setResponseBody(JsonContent.writableOf(averages))
+                double average = grades.stream().mapToDouble(Grade::getValue).average().orElse(0.0);
+                response.setResponseBody(JsonContent.writableOf(Map.of("average", average)))
                         .setStatusCode(HttpStatusCode.OK);
             } else {
                 response.setStatusCode(HttpStatusCode.BAD_REQUEST);
@@ -129,16 +127,12 @@ public class GradeController {
         });
     }
 
-    private Long getFieldValue(Grade grade, String fieldName) {
-        try {
-            Field field = Grade.class.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return field.getLong(grade);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            return null;
-        }
-    }
-
+    /**
+     * Validates the list of grades to ensure the total percentage is 1.0.
+     *
+     * @param grades the list of grades to validate.
+     * @return true if the total percentage is 1.0, false otherwise.
+     */
     private boolean validateGrades(List<Grade> grades) {
         double totalPercentage = grades.stream().mapToDouble(Grade::getPercentage).sum();
         return totalPercentage == 1.0;

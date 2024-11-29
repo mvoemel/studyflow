@@ -47,4 +47,8 @@ public class GradeManagerImpl implements GradeManager {
         return gradeDao.readByStudent(studentId);
     }
 
+    @Override
+    public void updateByDegree(long degreeId, List<Grade> grades) {
+        gradeDao.updateByDegree(degreeId, grades);
+    }
 }

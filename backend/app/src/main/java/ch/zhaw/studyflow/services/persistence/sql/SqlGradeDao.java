@@ -19,11 +19,12 @@ public class SqlGradeDao implements GradeDao {
 
     @Override
     public void create(Grade grade) {
-        String sql = "INSERT INTO grades (name, percentage, value) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO grades (name, percentage, value, belongs_to_module) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, grade.getName());
             stmt.setDouble(2, grade.getPercentage());
             stmt.setDouble(3, grade.getValue());
+            stmt.setLong(4, grade.getBelongsTo());
             stmt.executeUpdate();
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -53,7 +54,7 @@ public class SqlGradeDao implements GradeDao {
 
     @Override
     public List<Grade> readByModule(long moduleId) {
-        String sql = "SELECT * FROM grades WHERE module_id = ?";
+        String sql = "SELECT * FROM grades WHERE belongs_to_module = ?";
         List<Grade> grades = new ArrayList<>();
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, moduleId);
@@ -104,14 +105,15 @@ public class SqlGradeDao implements GradeDao {
 
     @Override
     public void updateByDegree(long degreeId, List<Grade> grades) {
-        String sql = "UPDATE grades SET name = ?, percentage = ?, value = ? WHERE degree_id = ? AND id = ?";
+        String sql = "UPDATE grades SET name = ?, percentage = ?, value = ?, belongs_to_module = ? WHERE degree_id = ? AND id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             for (Grade grade : grades) {
                 stmt.setString(1, grade.getName());
                 stmt.setDouble(2, grade.getPercentage());
                 stmt.setDouble(3, grade.getValue());
-                stmt.setLong(4, degreeId);
-                stmt.setLong(5, grade.getId());
+                stmt.setLong(4, grade.getBelongsTo());
+                stmt.setLong(5, degreeId);
+                stmt.setLong(6, grade.getId());
                 stmt.addBatch();
             }
             stmt.executeBatch();
@@ -122,12 +124,13 @@ public class SqlGradeDao implements GradeDao {
 
     @Override
     public void update(Grade grade) {
-        String sql = "UPDATE grades SET name = ?, percentage = ?, value = ? WHERE id = ?";
+        String sql = "UPDATE grades SET name = ?, percentage = ?, value = ?, belongs_to_module = ? WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, grade.getName());
             stmt.setDouble(2, grade.getPercentage());
             stmt.setDouble(3, grade.getValue());
-            stmt.setLong(4, grade.getId());
+            stmt.setLong(4, grade.getBelongsTo());
+            stmt.setLong(5, grade.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -151,6 +154,7 @@ public class SqlGradeDao implements GradeDao {
         grade.setName(rs.getString("name"));
         grade.setPercentage(rs.getDouble("percentage"));
         grade.setValue(rs.getDouble("value"));
+        grade.setBelongsTo(rs.getLong("belongs_to_module"));
         return grade;
     }
 }

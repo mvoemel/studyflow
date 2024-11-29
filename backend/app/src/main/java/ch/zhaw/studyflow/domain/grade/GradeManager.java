@@ -53,4 +53,11 @@ public interface GradeManager {
      */
     List<Grade> readByStudent(long studentId);
 
+    /**
+     * Updates grades by degree ID.
+     *
+     * @param degreeId the degree ID.
+     * @param grades the list of grades to update.
+     */
+    void updateByDegree(long degreeId, List<Grade> grades);
 }

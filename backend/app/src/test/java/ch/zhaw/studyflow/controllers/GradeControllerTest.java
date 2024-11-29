@@ -1,5 +1,6 @@
 package ch.zhaw.studyflow.controllers;
 
+import ch.zhaw.studyflow.controllers.deo.ModuleGrade;
 import ch.zhaw.studyflow.domain.grade.Grade;
 import ch.zhaw.studyflow.services.persistence.GradeDao;
 import ch.zhaw.studyflow.webserver.http.CaptureContainer;
@@ -88,9 +89,9 @@ public class GradeControllerTest {
         var contentField = capturedContent.getClass().getDeclaredField("content");
         contentField.setAccessible(true);
         Object content = contentField.get(capturedContent);
-        assertTrue(content instanceof Map);
+        assertTrue(content instanceof List);
 
-        Map<Long, Map<Long, List<Grade>>> expected = Map.of(0L, Map.of(0L, grades));
+        List<Grade> expected = grades;
         assertEquals(expected, content);
     }
 
@@ -101,15 +102,10 @@ public class GradeControllerTest {
         CaptureContainer captureContainer = mock(CaptureContainer.class);
         when(context.getUrlCaptures()).thenReturn(captureContainer);
         when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
-        Map<String, Object> moduleData = Map.of(
-                "id", 1L,
-                "grades", List.of(
-                        Map.of("id", 1L, "name", "Test", "percentage", 1.0, "value", 100.0)
-                )
-        );
+        ModuleGrade moduleGrade = new ModuleGrade(1L, "Module", List.of(new Grade(1L, "Test", 1.0, 100.0, 1L)));
         ReadableBodyContent bodyContent = mock(ReadableBodyContent.class);
         when(request.getRequestBody()).thenReturn(Optional.of(bodyContent));
-        when(bodyContent.tryRead(Map.class)).thenReturn(Optional.of(moduleData));
+        when(bodyContent.tryRead(ModuleGrade.class)).thenReturn(Optional.of(moduleGrade));
 
         HttpResponse actualResponse = gradeController.patchGradesByDegreeId(context);
 
@@ -124,7 +120,7 @@ public class GradeControllerTest {
         CaptureContainer captureContainer = mock(CaptureContainer.class);
         when(context.getUrlCaptures()).thenReturn(captureContainer);
         when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
-        List<Grade> grades = List.of(new Grade());
+        List<Grade> grades = List.of(new Grade(1L, "Test", 1.0, 100.0, 1L));
         when(gradeDao.readByDegree(1)).thenReturn(grades);
 
         HttpResponse actualResponse = gradeController.getGradesAveragesByDegreeId(context);
@@ -141,5 +137,48 @@ public class GradeControllerTest {
         contentField.setAccessible(true);
         Object content = contentField.get(capturedContent);
         assertTrue(content instanceof Map);
+
+        Map<String, Double> expected = Map.of("average", 100.0);
+        assertEquals(expected, content);
+    }
+
+    @Test
+    void testGetGradesByDegreeIdMissingDegreeId() {
+        configureSuccessfulAuth();
+        RequestContext context = mockRequestContext();
+        CaptureContainer captureContainer = mock(CaptureContainer.class);
+        when(context.getUrlCaptures()).thenReturn(captureContainer);
+        when(captureContainer.get("degreeId")).thenReturn(Optional.empty());
+
+        HttpResponse actualResponse = gradeController.getGradesByDegreeId(context);
+
+        verify(response).setStatusCode(HttpStatusCode.BAD_REQUEST);
+    }
+
+    @Test
+    void testPatchGradesByDegreeIdInvalidBody() {
+        configureSuccessfulAuth();
+        RequestContext context = mockRequestContext();
+        CaptureContainer captureContainer = mock(CaptureContainer.class);
+        when(context.getUrlCaptures()).thenReturn(captureContainer);
+        when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
+        when(request.getRequestBody()).thenReturn(Optional.empty());
+
+        HttpResponse actualResponse = gradeController.patchGradesByDegreeId(context);
+
+        verify(response).setStatusCode(HttpStatusCode.BAD_REQUEST);
+    }
+
+    @Test
+    void testGetGradesByDegreeIdUnauthorized() {
+        configureFailingAuth();
+        RequestContext context = mockRequestContext();
+        CaptureContainer captureContainer = mock(CaptureContainer.class);
+        when(context.getUrlCaptures()).thenReturn(captureContainer);
+        when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
+
+        HttpResponse actualResponse = gradeController.getGradesByDegreeId(context);
+
+        verify(response).setStatusCode(HttpStatusCode.UNAUTHORIZED);
     }
 }

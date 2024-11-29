@@ -1,10 +1,8 @@
-// InMemoryGradeDao.java
 package ch.zhaw.studyflow.services.persistence.memory;
 
 import ch.zhaw.studyflow.domain.grade.Grade;
 import ch.zhaw.studyflow.services.persistence.GradeDao;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +31,7 @@ public class InMemoryGradeDao implements GradeDao {
     public List<Grade> readByModule(long moduleId) {
         List<Grade> result = new ArrayList<>();
         for (Grade grade : grades.values()) {
-            if (getFieldValue(grade, "belongsTo") == moduleId) {
+            if (grade.getBelongsTo() == moduleId) {
                 result.add(grade);
             }
         }
@@ -44,7 +42,7 @@ public class InMemoryGradeDao implements GradeDao {
     public List<Grade> readByStudent(long studentId) {
         List<Grade> result = new ArrayList<>();
         for (Grade grade : grades.values()) {
-            if (getFieldValue(grade, "studentId") == studentId) {
+            if (grade.getBelongsTo() == studentId) {
                 result.add(grade);
             }
         }
@@ -69,15 +67,5 @@ public class InMemoryGradeDao implements GradeDao {
     @Override
     public void delete(long gradeId) {
         grades.remove(gradeId);
-    }
-
-    private long getFieldValue(Grade grade, String fieldName) {
-        try {
-            Field field = Grade.class.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return field.getLong(grade);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
