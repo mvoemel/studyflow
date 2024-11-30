@@ -50,8 +50,7 @@ public class GradeControllerTest {
 
     private void configureSuccessfulAuth() {
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1L,
-                CommonClaims.AUTHENTICATED, true
+                CommonClaims.USER_ID, 1L
         ));
     }
 
