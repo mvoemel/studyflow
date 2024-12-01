@@ -6,21 +6,35 @@ import java.util.List;
 
 public interface DegreeManager {
     /**
-     * Creates the degree for the specified user.
+     * Creates a degree for the specified user.
      * @param userId The users id
      * @param degree The degree model to store in the database.
      */
-    void createDegreeFor(long userId, Degree degree);
+    void createDegree(long userId, Degree degree);
 
     /**
-     * Fetches all available degrees for the user specified.
-     * @param usersId The users id
-     * @return a list of degrees if available; otherwise an empty list.
+     * Returns a list of degrees for the specified user.
+     * @param userId The users id
+     * @return A list of degree models
      */
-    List<Degree> getDegreesForUser(long usersId);
-    void createDegree(long userId, Degree degree);
     List<Degree> getDegreesForStudent(long userId);
+
+    /**
+     * Returns the degree for the specified id.
+     * @param degreeId The degree id
+     * @return The degree model
+     */
     Degree getDegree(long degreeId);
+
+    /**
+     * Writes the passed degree to the persistant storage.
+     * @param degree The degree to store
+     */
     void updateDegree(Degree degree);
+
+    /**
+     * Deletes the degree with the specified id.
+     * @param degreeId The degree id
+     */
     void deleteDegree(long degreeId);
 }

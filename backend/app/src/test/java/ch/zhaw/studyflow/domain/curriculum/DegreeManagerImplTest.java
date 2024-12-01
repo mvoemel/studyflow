@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-public class DegreeManagerImplTest {
+class DegreeManagerImplTest {
     @Test
     void testCreateDegree() {
         DegreeDao degreeDao = mock(DegreeDao.class);

@@ -18,17 +18,6 @@ public class DegreeManagerImpl implements DegreeManager {
         this.degreeDao  = degreeDao;
     }
 
-
-    @Override
-    public void createDegreeFor(long userId, Degree degree) {
-
-    }
-
-    @Override
-    public List<Degree> getDegreesForUser(long usersId) {
-        return List.of();
-    }
-
     @Override
     public void createDegree(long userId, Degree degree) {
         Objects.requireNonNull(degree);

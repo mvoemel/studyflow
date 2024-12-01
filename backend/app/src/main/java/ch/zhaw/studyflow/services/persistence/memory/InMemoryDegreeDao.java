@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MemoryDegreeDao implements DegreeDao {
+public class InMemoryDegreeDao implements DegreeDao {
     private final HashMap<Long, Degree> degrees;
-    private AtomicInteger idCounter;
+    private final AtomicInteger idCounter;
 
 
-    public MemoryDegreeDao() {
+    public InMemoryDegreeDao() {
         this.degrees    = new HashMap<>();
         this.idCounter  = new AtomicInteger();
     }
@@ -23,8 +23,8 @@ public class MemoryDegreeDao implements DegreeDao {
     public void create(Degree degree) {
         Objects.requireNonNull(degree);
 
-        if (degree.getId() >= 0) {
-            throw new IllegalArgumentException("Expected id not to be null");
+        if (degree.getId() > 0) {
+            throw new IllegalArgumentException("Expected id to be negative (unset)");
         }
 
         degree.setId(idCounter.incrementAndGet());
@@ -38,6 +38,8 @@ public class MemoryDegreeDao implements DegreeDao {
 
     @Override
     public List<Degree> readAllByStudent(long degreeId) {
+        if (degreeId < 0)
+            return List.of();
         return degrees.values()
                 .stream().filter(d -> d.getOwnerId() == degreeId)
                 .toList();
@@ -48,7 +50,7 @@ public class MemoryDegreeDao implements DegreeDao {
         Objects.requireNonNull(degree);
 
         if (degree.getId() < 0) {
-            throw new IllegalArgumentException("Expected id not to be null");
+            throw new IllegalArgumentException("Expected id to be positive");
         }
 
         degrees.put(degree.getId(), degree);

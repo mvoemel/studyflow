@@ -4,16 +4,21 @@ import ch.zhaw.studyflow.services.ServiceCollection;
 import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.controllers.routing.RouteTrie;
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContentFactory;
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class SunRootHttpHandlerTest {
     /**
@@ -22,21 +27,31 @@ class SunRootHttpHandlerTest {
      */
     @Test
     void testUnknownMediaType() {
-        ReadableBodyContentFactory factory = Mockito.mock(ReadableBodyContentFactory.class);
-        Mockito.when(factory.create(any(), any(), any())).thenThrow(new IllegalArgumentException());
+        ReadableBodyContentFactory factory = mock(ReadableBodyContentFactory.class);
+        when(factory.create(any(), any(), any())).thenThrow(new IllegalArgumentException());
 
-        ServiceCollection serviceCollection = Mockito.mock(ServiceCollection.class);
-        Mockito.when(serviceCollection.getRequiredService(ReadableBodyContentFactory.class))
+        ServiceCollection serviceCollection = mock(ServiceCollection.class);
+        when(serviceCollection.getRequiredService(ReadableBodyContentFactory.class))
                 .thenReturn(factory);
-        RouteTrie routeTrie = Mockito.mock(RouteTrie.class);
-        Mockito.when(routeTrie.retrieve(any(), any()))
+        RouteTrie routeTrie = mock(RouteTrie.class);
+        when(routeTrie.retrieve(any(), any()))
                 .thenReturn(Optional.of(new Tuple<>(null, List.of())));
 
-        HttpExchange exchange = Mockito.mock(HttpExchange.class);
-        Mockito.when(exchange.getRequestMethod()).thenReturn("POST");
-        Mockito.when(exchange.getRequestHeaders()).thenReturn(Mockito.mock(com.sun.net.httpserver.Headers.class));
-        Mockito.when(exchange.getRequestURI()).thenReturn(URI.create("http://test.ch/user/current/1"));
+        HttpExchange exchange = mock(HttpExchange.class);
+
+        when(exchange.getRequestMethod()).thenReturn("POST");
+        Headers headers = mock(Headers.class);
+        when(headers.get("Content-Type")).thenReturn(List.of("text/aac"));
+        when(exchange.getRequestHeaders()).thenReturn(headers);
+        when(exchange.getRequestURI()).thenReturn(URI.create("http://test.ch/user/current/1"));
         SunRootHttpHandler handler = new SunRootHttpHandler(serviceCollection, routeTrie, null);
-        Assertions.assertDoesNotThrow(() -> handler.handle(exchange));
+        assertDoesNotThrow(() -> handler.handle(exchange));
+        ArgumentCaptor<Integer> responseCodeCaptor = ArgumentCaptor.forClass(Integer.class);
+        try {
+            verify(exchange, atLeastOnce()).sendResponseHeaders(responseCodeCaptor.capture(), anyLong());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals(415, responseCodeCaptor.getValue());
     }
 }
