@@ -10,16 +10,18 @@ import {
 import { Appointment } from "@/types";
 import useSWR from "swr";
 
-const useAppointments = (calendarId: string) => {
+const useAppointments = (calendarId: string | undefined) => {
   const { data, error, mutate, isLoading } =
     useSWR<AppointmentsForCalendarResponseData>(
       !calendarId ? null : `appointments-${calendarId}`,
-      () => getAppointmentsForCalendarRequest(calendarId)
+      () => getAppointmentsForCalendarRequest(calendarId!)
     );
 
   const addNewAppointment = async (
     body: NewAppointmentForCalendarRequestBody
   ) => {
+    if (!calendarId) return;
+
     const optimisticAppointment = {
       ...body,
       id: `tmp-appointment-id-${Date.now()}`,
@@ -47,6 +49,8 @@ const useAppointments = (calendarId: string) => {
     body: UpdateAppointmentForCalendarRequestBody,
     appointmentId: Appointment["id"]
   ) => {
+    if (!calendarId) return;
+
     await mutate(
       async () => {
         await updateAppointmentForCalendarRequest(
@@ -70,6 +74,8 @@ const useAppointments = (calendarId: string) => {
   };
 
   const deleteAppointment = async (appointmentId: Appointment["id"]) => {
+    if (!calendarId) return;
+
     await mutate(
       async () => {
         await deleteAppointmentForCalendarRequest(calendarId, appointmentId);

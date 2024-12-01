@@ -28,6 +28,7 @@ import {
   Edit,
   Trash2,
   CheckCircle,
+  UniversityIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -39,7 +40,7 @@ import { Button } from "@/components/ui/button";
 import { MouseEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AddDegreeDialog } from "@/components/dialogs/add-degree";
-import { AddSemesterDialog } from "@/components/dialogs/addSemester";
+import { AddSemesterDialog } from "@/components/dialogs/add-semester";
 import { DegreeDropdown } from "./degree-dropdown";
 import { UserDropdown } from "./user-dropdown";
 import { Degree, Semester } from "@/types";
@@ -51,6 +52,8 @@ import { logoutRequest } from "@/lib/api";
 import { toast } from "sonner";
 import { Badge } from "../ui/badge";
 import { useSWRConfig } from "swr";
+
+// TODO: refactor entire sidebar, split into smaller components also check documentation on how to use SidebarItems and SidebarMenus
 
 const AppSidebar = () => {
   const { mutate } = useSWRConfig();
@@ -96,6 +99,12 @@ const AppSidebar = () => {
     router.push(
       `/degree/${settings?.activeDegreeId}/semester/${semester.id}/curriculum`
     );
+  };
+
+  const handleCurrentDegreeClick = () => {
+    if (!settings?.activeDegreeId) return;
+
+    router.push(`/degree/${settings?.activeDegreeId}`);
   };
 
   const handleEditSemester = (semester: Semester) => {
@@ -202,6 +211,15 @@ const AppSidebar = () => {
 
         <SidebarGroup>
           <SidebarGroupLabel>Curriculum</SidebarGroupLabel>
+          <SidebarMenuButton
+            onClick={(e) => {
+              e.preventDefault();
+              handleCurrentDegreeClick();
+            }}
+          >
+            <UniversityIcon className="mr-2" />
+            Degree
+          </SidebarMenuButton>
           <Collapsible
             open={isCollapsibleOpen}
             onOpenChange={setIsCollapsibleOpen}
@@ -327,10 +345,12 @@ const AppSidebar = () => {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
       <AddDegreeDialog
         isOpen={isAddDegreeDialogOpen}
         onClose={() => setIsAddDegreeDialogOpen(false)}
       />
+
       <AddSemesterDialog
         isOpen={isAddSemesterDialogOpen}
         onClose={() => setIsAddSemesterDialogOpen(false)}

@@ -13,3 +13,12 @@ export async function PATCH(request: NextRequest, context: { params: Params }) {
 
   return NextResponse.json({ message: "Updated" });
 }
+
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Params }
+) {
+  await awaitTimeout(600);
+
+  return NextResponse.json({ message: "Successfully deleted semester" });
+}

@@ -69,7 +69,7 @@ const useUserSettings = () => {
               user: data.user,
             }
           : undefined,
-        rollbackOnError: true,
+        rollbackOnError: false,
         populateCache: true,
         revalidate: false,
       }

@@ -13,6 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useModules } from "@/hooks/use-modules";
+import { toast } from "sonner";
+import { useParams } from "next/navigation";
 
 const formsSchema = z.object({
   moduleName: z
@@ -21,7 +24,8 @@ const formsSchema = z.object({
     .max(50),
   moduleDescription: z
     .string()
-    .max(200, "Module description must be at most 200 characters long"),
+    .max(200, "Module description must be at most 200 characters long")
+    .optional(),
   moduleECTS: z
     .number()
     .int()
@@ -45,16 +49,25 @@ const formsSchema = z.object({
 });
 
 type ModuleFormsProps = {
-  defaultValues?: Partial<z.infer<typeof formsSchema>>;
   onClose: () => void;
   isEdit: boolean;
+  defaultValues?: Partial<z.infer<typeof formsSchema>>;
+  moduleId?: string;
 };
 
-export function ModuleForms({
-  defaultValues,
+// TODO: refactor so that whole module is passed
+// Attention: right now of no moduleId is passed when isEdit is true, it could break the app
+const ModuleForm = ({
   onClose,
   isEdit,
-}: ModuleFormsProps) {
+  defaultValues,
+  moduleId,
+}: ModuleFormsProps) => {
+  // TODO: refactor the use of params here
+  const { degreeId, semesterId } = useParams();
+
+  const { addNewModule, updateModule } = useModules();
+
   const form = useForm<z.infer<typeof formsSchema>>({
     resolver: zodResolver(formsSchema),
     defaultValues: defaultValues || {
@@ -67,15 +80,47 @@ export function ModuleForms({
     },
   });
 
-  function onSubmit(values: z.infer<typeof formsSchema>) {
-    if (isEdit) {
-      console.log("Edit", values);
-      onClose();
-    } else {
-      console.log("Add", values);
-      onClose();
+  const onSubmit = async (values: z.infer<typeof formsSchema>) => {
+    onClose();
+
+    if (!degreeId || !semesterId) {
+      console.warn(
+        "ModuleForm component was used outside a path that has the degreeId and semesterId"
+      );
+      return;
     }
-  }
+
+    try {
+      if (isEdit) {
+        await updateModule(
+          {
+            name: values.moduleName,
+            description: values.moduleDescription,
+            ects: values.moduleECTS,
+            understanding: values.moduleUnderstanding,
+            time: values.moduleTime,
+            complexity: values.moduleImportance,
+          },
+          moduleId as string
+        );
+      } else {
+        await addNewModule({
+          name: values.moduleName,
+          description: values.moduleDescription,
+          ects: values.moduleECTS,
+          understanding: values.moduleUnderstanding,
+          time: values.moduleTime,
+          complexity: values.moduleImportance,
+          degreeId: degreeId as string,
+          semesterId: semesterId as string,
+        });
+      }
+
+      toast.success(`Successfully ${isEdit ? "updated" : "added"}  module!`);
+    } catch (err) {
+      toast.error(`Failed to ${isEdit ? "update" : "add"} module.`);
+    }
+  };
 
   return (
     <Form {...form}>
@@ -195,4 +240,6 @@ export function ModuleForms({
       </form>
     </Form>
   );
-}
+};
+
+export { ModuleForm };
