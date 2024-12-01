@@ -27,7 +27,7 @@ const DailyCalendarBox = ({ className }: DailyCalendarBoxProps) => {
       <CardHeader className="pb-3">
         <CardDescription>Schedule for Today</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="h-full">
         <FullCalendar
           plugins={[timeGridPlugin, interactionPlugin]}
           initialView={"timeGridDay"}
@@ -52,6 +52,7 @@ const DailyCalendarBox = ({ className }: DailyCalendarBoxProps) => {
             year: "numeric",
             day: "2-digit",
           }}
+          height="90%"
         />
       </CardContent>
     </Card>
