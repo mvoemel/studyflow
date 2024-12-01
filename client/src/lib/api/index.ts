@@ -17,11 +17,11 @@ export * from "./degrees/get-all-degrees";
 export * from "./degrees/get-grades-for-degree";
 export * from "./degrees/new-degree";
 export * from "./degrees/update-degree";
+export * from "./degrees/update-grades-for-module";
 
 export * from "./modules/delete-module";
 export * from "./modules/get-all-modules";
 export * from "./modules/new-module";
-export * from "./modules/update-grades-for-module";
 export * from "./modules/update-module";
 
 export * from "./semesters/create-studyplan";

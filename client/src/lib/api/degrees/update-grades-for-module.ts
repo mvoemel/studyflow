@@ -1,14 +1,17 @@
 import { tuam } from "@/lib/tuam";
-import { Grade } from "@/types";
+import { Grade, Module } from "@/types";
 
-type UpdateGradesForModuleRequestBody = Omit<Grade, "moduleId">[];
+type UpdateGradesForModuleRequestBody = {
+  id: Module["id"];
+  grades: Omit<Grade, "moduleId">[];
+};
 
 const updateGradesForModuleRequest = async (
   body: UpdateGradesForModuleRequestBody,
-  moduleId: string
+  degreeId: string
 ) => {
   return await tuam.patch<void, UpdateGradesForModuleRequestBody>(
-    `/api/modules/${moduleId}/grades`,
+    `/api/degrees/${degreeId}/grades`,
     body
   );
 };
