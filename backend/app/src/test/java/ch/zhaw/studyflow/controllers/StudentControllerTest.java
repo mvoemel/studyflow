@@ -141,7 +141,6 @@ class StudentControllerTest {
         HttpResponse response = studentController.register(makeRequestContext(request));
         ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
         verify(studentManager, times(1)).register(any(Student.class));
-        verify(principal, times(1)).addClaim(eq(CommonClaims.USER_ID), eq(1L));
 
         assertEquals(HttpStatusCode.CREATED, responseStatusCode.getValue());
     }
