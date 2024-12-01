@@ -28,6 +28,7 @@ import {
   Edit,
   Trash2,
   CheckCircle,
+  UniversityIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -38,8 +39,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { MouseEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AddDegreeDialog } from "@/components/dialogs/addDegree";
-import { AddSemesterDialog } from "@/components/dialogs/addSemester";
+import { AddDegreeDialog } from "@/components/dialogs/add-degree";
+import { AddSemesterDialog } from "@/components/dialogs/add-semester";
 import { DegreeDropdown } from "./degree-dropdown";
 import { UserDropdown } from "./user-dropdown";
 import { Degree, Semester } from "@/types";
@@ -50,14 +51,19 @@ import { useSemesters } from "@/hooks/use-semester";
 import { logoutRequest } from "@/lib/api";
 import { toast } from "sonner";
 import { Badge } from "../ui/badge";
+import { useSWRConfig } from "swr";
+
+// TODO: refactor entire sidebar, split into smaller components also check documentation on how to use SidebarItems and SidebarMenus
 
 const AppSidebar = () => {
+  const { mutate } = useSWRConfig();
+
   const router = useRouter();
   const basePath = useBasePath();
 
   const { user, settings, updateActiveDegree } = useUserSettings();
   const { degrees, updateDegree } = useDegrees();
-  const { semesters } = useSemesters();
+  const { semesters, deleteSemester } = useSemesters();
 
   const activeSemesterId = useMemo(() => {
     if (!degrees || !semesters) return undefined;
@@ -71,24 +77,9 @@ const AppSidebar = () => {
     return undefined;
   }, [degrees, semesters, settings?.activeDegreeId]);
 
-  useEffect(() => {
-    console.log(activeSemesterId);
-  }, [activeSemesterId]); // TODO: remove
-
-  useEffect(() => {
-    console.log(degrees);
-    console.log(settings);
-  }, [degrees, settings]); // TODO: remove
-
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState<boolean>(true);
   const [isAddDegreeDialogOpen, setIsAddDegreeDialogOpen] = useState(false);
   const [isAddSemesterDialogOpen, setIsAddSemesterDialogOpen] = useState(false);
-
-  const openAddDegreeDialog = () => setIsAddDegreeDialogOpen(true);
-  const closeAddDegreeDialog = () => setIsAddDegreeDialogOpen(false);
-
-  const openAddSemesterDialog = () => setIsAddSemesterDialogOpen(true);
-  const closeAddSemesterDialog = () => setIsAddSemesterDialogOpen(false);
 
   const handleSelectDegree = async (degree: Degree) => {
     if (settings?.activeDegreeId === degree.id) return;
@@ -97,8 +88,6 @@ const AppSidebar = () => {
       await updateActiveDegree({ activeDegreeId: degree.id });
 
       toast.success("Successfully updated active degree!");
-
-      router.push("/dashboard");
     } catch (err) {
       toast.error("Failed to update active degree.");
     }
@@ -112,22 +101,24 @@ const AppSidebar = () => {
     );
   };
 
-  const handleAddDegree = () => {
-    openAddDegreeDialog();
-  };
+  const handleCurrentDegreeClick = () => {
+    if (!settings?.activeDegreeId) return;
 
-  const handleAddSemester = () => {
-    openAddSemesterDialog();
+    router.push(`/degree/${settings?.activeDegreeId}`);
   };
 
   const handleEditSemester = (semester: Semester) => {
-    console.log("Edit Semester", semester);
-    // TODO: check if request was successfull and then refetch
+    // TODO: open dialog with edit semester form
   };
 
-  const handleDeleteSemester = (semester: Semester) => {
-    console.log("Delete Semester", semester);
-    // TODO: check if request was successfull and then refetch
+  const handleDeleteSemester = async (semester: Semester) => {
+    try {
+      await deleteSemester(semester.id);
+
+      toast.success("Successfully deleted semester!");
+    } catch (err) {
+      toast.error("Failed to delete semester.");
+    }
   };
 
   const handleSetActiveSemester = async (semester: Semester) => {
@@ -160,6 +151,9 @@ const AppSidebar = () => {
     try {
       await logoutRequest();
 
+      // Clear cache
+      mutate(() => true, undefined, { revalidate: false });
+
       toast.success("Successfully logged out!");
 
       router.push("/dashboard");
@@ -177,7 +171,7 @@ const AppSidebar = () => {
               degrees={degrees}
               selectedDegreeId={settings?.activeDegreeId}
               handleSelectDegree={handleSelectDegree}
-              handleAddDegree={handleAddDegree}
+              handleAddDegree={() => setIsAddDegreeDialogOpen(true)}
             />
           </SidebarMenuItem>
         </SidebarMenu>
@@ -217,6 +211,15 @@ const AppSidebar = () => {
 
         <SidebarGroup>
           <SidebarGroupLabel>Curriculum</SidebarGroupLabel>
+          <SidebarMenuButton
+            onClick={(e) => {
+              e.preventDefault();
+              handleCurrentDegreeClick();
+            }}
+          >
+            <UniversityIcon className="mr-2" />
+            Degree
+          </SidebarMenuButton>
           <Collapsible
             open={isCollapsibleOpen}
             onOpenChange={setIsCollapsibleOpen}
@@ -315,7 +318,7 @@ const AppSidebar = () => {
                     <Button
                       variant="ghost"
                       className="gap-2 p-2 w-full justify-start"
-                      onClick={handleAddSemester}
+                      onClick={() => setIsAddSemesterDialogOpen(true)}
                     >
                       <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                         <PlusIcon className="size-4" />
@@ -342,13 +345,15 @@ const AppSidebar = () => {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
       <AddDegreeDialog
         isOpen={isAddDegreeDialogOpen}
-        onClose={closeAddDegreeDialog}
+        onClose={() => setIsAddDegreeDialogOpen(false)}
       />
+
       <AddSemesterDialog
         isOpen={isAddSemesterDialogOpen}
-        onClose={closeAddSemesterDialog}
+        onClose={() => setIsAddSemesterDialogOpen(false)}
       />
     </Sidebar>
   );

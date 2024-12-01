@@ -16,7 +16,8 @@ import { useRouter } from "next/navigation";
 import { LoadingSpinner } from "@/components/global/loading-spinner";
 import { registerRequest } from "@/lib/api";
 import { toast } from "sonner";
-import { CheckIcon, XIcon } from "lucide-react";
+
+// TODO: implement zod for form validation
 
 const RegisterPage = () => {
   const router = useRouter();

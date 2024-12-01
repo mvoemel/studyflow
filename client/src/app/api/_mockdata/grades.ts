@@ -1,4 +1,6 @@
-const mockGrades = [
+import { GradeViewTree } from "@/types";
+
+const mockGrades: GradeViewTree = [
   {
     semesterId: "semester-21",
     semesterName: "1. Semester",
@@ -6,6 +8,7 @@ const mockGrades = [
       {
         moduleId: "module-1",
         moduleName: "Algorithms",
+        moduleEcts: 4,
         grades: [
           {
             id: "grade-1",
@@ -19,6 +22,7 @@ const mockGrades = [
       {
         moduleId: "module-2",
         moduleName: "Mathematics 1",
+        moduleEcts: 4,
         grades: [
           { id: "grade-3", name: "Projekt", percentage: 0.35, value: 4.5 },
           { id: "grade-4", name: "Aufgabe", percentage: 0.65, value: 3.5 },
@@ -33,6 +37,7 @@ const mockGrades = [
       {
         moduleId: "module-3",
         moduleName: "Datastructure",
+        moduleEcts: 4,
         grades: [
           {
             id: "grade-5",
@@ -46,6 +51,7 @@ const mockGrades = [
       {
         moduleId: "module-4",
         moduleName: "Mathematics 2",
+        moduleEcts: 2,
         grades: [
           { id: "grade-7", name: "Projekt", percentage: 0.35, value: 4.5 },
           { id: "grade-8", name: "Aufgabe", percentage: 0.65, value: 3.5 },
@@ -60,6 +66,7 @@ const mockGrades = [
       {
         moduleId: "module-5",
         moduleName: "Communication",
+        moduleEcts: 2,
         grades: [],
       },
     ],

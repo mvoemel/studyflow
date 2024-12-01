@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Module } from "@/context/ModuleContext";
+import { Module } from "@/types";
 
 const formsSchema = z.object({
   startDate: z.string().min(1, "Start date is required"),
@@ -40,7 +40,8 @@ type CreateScheduleFormsProps = {
   modules: Module[];
 };
 
-export function CreateScheduleForms({
+// TODO: refactor
+export function CreateScheduleForm({
   defaultValues,
   onClose,
   modules,

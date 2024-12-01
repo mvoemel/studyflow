@@ -5,8 +5,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { CreateScheduleForms } from "@/components/dialogforms/createScheduleForms";
-import { Module } from "@/context/ModuleContext";
+import { CreateScheduleForm } from "@/components/dialogforms/create-schedule-form";
+import { Module } from "@/types";
 
 export function CreateScheduleDialog({
   isOpen,
@@ -26,7 +26,7 @@ export function CreateScheduleDialog({
             Fill in all the details to generate a study plan.
           </DialogDescription>
         </DialogHeader>
-        <CreateScheduleForms onClose={onClose} modules={modules} />
+        <CreateScheduleForm onClose={onClose} modules={modules} />
       </DialogContent>
     </Dialog>
   );

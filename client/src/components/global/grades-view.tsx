@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { semesterGradesMock } from "./mock-data";
-import { Semester, Module } from "./types";
 import clsx from "clsx";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { GradesViewModule, GradesViewSemester, GradeViewTree } from "@/types";
 
-// TODO: refactor this component and split into smaller components
-// TODO: properly implement types
+type GradesViewProps = {
+  gradesTree: GradeViewTree;
+};
 
-const GradesView = () => {
+const GradesView = ({ gradesTree }: GradesViewProps) => {
   return (
     <Card className="bg-muted/50 text-sm min-w-full max-w-5xl mx-auto p-4 rounded-lg">
       <div className="grid grid-cols-2 mb-2 px-4">
@@ -19,9 +19,9 @@ const GradesView = () => {
         <span className="text-right">ECTS & Grade</span>
       </div>
       <div className="space-y-2">
-        {semesterGradesMock.map((semester, index) => {
+        {gradesTree.map((semester, index) => {
           // if is last return without separator
-          if (index === semesterGradesMock.length - 1)
+          if (index === gradesTree.length - 1)
             return <SemesterSection key={index} semester={semester} />;
 
           return (
@@ -36,8 +36,41 @@ const GradesView = () => {
   );
 };
 
-const SemesterSection = ({ semester }: { semester: Semester }) => {
+const SemesterSection = ({ semester }: { semester: GradesViewSemester }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const ects = useMemo(
+    () =>
+      semester.modules.reduce(
+        (prevVal, currModule) => prevVal + currModule.moduleEcts,
+        0
+      ),
+    [semester]
+  );
+
+  const grade = useMemo(() => {
+    const moduleGrades = semester.modules.map((m) => {
+      return {
+        grade: m.grades.reduce(
+          (prevVal, currGrade) =>
+            prevVal + currGrade.percentage * currGrade.value,
+          0
+        ),
+        ects: m.moduleEcts,
+      };
+    });
+
+    const totalEcts = moduleGrades.reduce(
+      (prevVal, currGrade) => prevVal + currGrade.ects,
+      0
+    );
+
+    return moduleGrades.reduce(
+      (prevVal, currModule) =>
+        prevVal + (currModule.grade * currModule.ects) / totalEcts,
+      0
+    );
+  }, [semester]);
 
   return (
     <div className="border-none">
@@ -52,20 +85,18 @@ const SemesterSection = ({ semester }: { semester: Semester }) => {
           }`}
         />
         <div className="flex justify-between items-center w-full">
-          <span>{semester.name}</span>
+          <span>{semester.semesterName}</span>
           <span className="flex items-center">
-            <span className="mr-4 text-muted-foreground text-xs">
-              {semester.ects}/{semester.ects}
-            </span>
+            <span className="mr-4 text-muted-foreground text-xs">{ects}</span>
             <span
               className={clsx("", {
-                "text-green-500": semester.grade >= 5,
-                "text-yellow-500": semester.grade >= 4.5 && semester.grade < 5,
-                "text-orange-500": semester.grade >= 4 && semester.grade < 4.5,
-                "text-red-500": semester.grade < 4,
+                "text-green-500": grade >= 5,
+                "text-yellow-500": grade >= 4.5 && grade < 5,
+                "text-orange-500": grade >= 4 && grade < 4.5,
+                "text-red-500": grade >= 1 && grade < 4,
               })}
             >
-              {semester.grade}
+              {grade === 0 ? "-" : grade.toFixed(2)}
             </span>
           </span>
         </div>
@@ -83,15 +114,25 @@ const SemesterSection = ({ semester }: { semester: Semester }) => {
   );
 };
 
-const ModuleSection = ({ module }: { module: Module }) => {
+const ModuleSection = ({ module }: { module: GradesViewModule }) => {
+  const grade = useMemo(
+    () =>
+      module.grades.reduce(
+        (previousValue, currentGrade) =>
+          previousValue + currentGrade.percentage * currentGrade.value,
+        0
+      ),
+    [module]
+  );
+
   return (
     <div className="bg-opacity-50 p-4 rounded-md hover:bg-muted/50 flex justify-between items-center">
-      <span>{module.name}</span>
+      <span>{module.moduleName}</span>
       <span className="flex items-center">
         <span className="mr-4 text-muted-foreground text-xs">
-          {module.ects}
+          {module.moduleEcts}
         </span>
-        <span>{module.grade}</span>
+        <span>{grade === 0 ? "-" : grade.toFixed(2)}</span>
       </span>
     </div>
   );

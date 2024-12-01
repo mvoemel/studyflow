@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ModuleForms } from "@/components/dialogforms/moduleForms";
+import { ModuleForm } from "@/components/dialogforms/module-form";
 import { Module } from "@/types";
 
 type ModuleDialogProps = {
@@ -16,6 +16,7 @@ type ModuleDialogProps = {
 };
 
 // TODO: refactor
+
 const ModuleDialog = ({
   isOpen,
   onClose,
@@ -33,12 +34,13 @@ const ModuleDialog = ({
               : "Fill in the details for the new module."}
           </DialogDescription>
         </DialogHeader>
-        <ModuleForms
+        <ModuleForm
+          // TODO: refactor so that the whole module is passed not the default values
           defaultValues={
             isEdit && module
               ? {
                   moduleName: module.name,
-                  moduleDescription: "",
+                  moduleDescription: module.description,
                   moduleECTS: module.ects,
                   moduleUnderstanding: module.understanding,
                   moduleTime: module.time,
@@ -48,6 +50,7 @@ const ModuleDialog = ({
           }
           onClose={onClose}
           isEdit={isEdit}
+          moduleId={module?.id}
         />
       </DialogContent>
     </Dialog>

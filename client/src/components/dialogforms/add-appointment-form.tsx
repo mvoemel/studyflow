@@ -13,6 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useAppointments } from "@/hooks/use-appointments";
+import { useUserSettings } from "@/hooks/use-user-settings";
+import { toast } from "sonner";
 
 const formsSchema = z.object({
   appointmentTitle: z
@@ -22,7 +25,8 @@ const formsSchema = z.object({
   appointmentDescription: z
     .string()
     .max(200, "Degree description must be at most 200 characters long"),
-  appointmentDate: z.string().date("Invalid date"),
+  appointmentStartDate: z.string(),
+  appointmentEndDate: z.string(),
 });
 
 type AddApointmentFormsProps = {
@@ -30,23 +34,39 @@ type AddApointmentFormsProps = {
   onClose: () => void;
 };
 
-export function AddAppointmentForms({
+export function AddAppointmentForm({
   defaultValues,
   onClose,
 }: AddApointmentFormsProps) {
+  const { settings } = useUserSettings();
+  const { addNewAppointment } = useAppointments(settings?.globalCalendarId);
+
   const form = useForm<z.infer<typeof formsSchema>>({
     resolver: zodResolver(formsSchema),
     defaultValues: defaultValues || {
       appointmentTitle: "",
       appointmentDescription: "",
-      appointmentDate: "",
+      appointmentStartDate: new Date().toISOString(),
+      appointmentEndDate: new Date().toISOString(),
     },
   });
 
-  function onSubmit(values: z.infer<typeof formsSchema>) {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof formsSchema>) => {
     onClose();
-  }
+
+    try {
+      await addNewAppointment({
+        title: values.appointmentTitle,
+        description: values.appointmentDescription,
+        startDateTime: new Date(values.appointmentStartDate),
+        endDateTime: new Date(values.appointmentEndDate),
+      });
+
+      toast.success("Successfully added new appointment!");
+    } catch (err) {
+      toast.error("Failed to add new appointment.");
+    }
+  };
 
   return (
     <Form {...form}>
@@ -85,15 +105,31 @@ export function AddAppointmentForms({
         />
         <FormField
           control={form.control}
-          name="appointmentDate"
+          name="appointmentStartDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Appointment Date</FormLabel>
+              <FormLabel>Appointment Start Date</FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
               <FormDescription>
-                Enter the date of the appointment.
+                Enter the start date of the appointment.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="appointmentEndDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Appointment End Date</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormDescription>
+                Enter the end date of the appointment.
               </FormDescription>
               <FormMessage />
             </FormItem>

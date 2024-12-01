@@ -5,7 +5,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { AddAppointmentForms } from "@/components/dialogforms/addAppointmentForms";
+import { AddAppointmentForm } from "@/components/dialogforms/add-appointment-form";
 
 export function AddAppointmentDialog({
   isOpen,
@@ -23,7 +23,7 @@ export function AddAppointmentDialog({
             Fill in the details to add a new appointment.
           </DialogDescription>
         </DialogHeader>
-        <AddAppointmentForms onClose={onClose} />
+        <AddAppointmentForm onClose={onClose} />
       </DialogContent>
     </Dialog>
   );
