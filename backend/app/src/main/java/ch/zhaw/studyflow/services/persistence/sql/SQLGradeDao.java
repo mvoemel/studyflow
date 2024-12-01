@@ -10,10 +10,10 @@ import java.util.List;
 /**
  * SQL implementation of GradeDao.
  */
-public class SqlGradeDao implements GradeDao {
+public class SQLGradeDao implements GradeDao {
     private final Connection connection;
 
-    public SqlGradeDao(Connection connection) {
+    public SQLGradeDao(Connection connection) {
         this.connection = connection;
     }
 
