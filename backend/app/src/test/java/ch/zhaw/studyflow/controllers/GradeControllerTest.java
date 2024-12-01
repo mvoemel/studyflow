@@ -1,8 +1,13 @@
 package ch.zhaw.studyflow.controllers;
 
 import ch.zhaw.studyflow.controllers.deo.ModuleGrade;
+import ch.zhaw.studyflow.controllers.deo.SemesterGrade;
+import ch.zhaw.studyflow.domain.curriculum.Module;
+import ch.zhaw.studyflow.domain.curriculum.Semester;
 import ch.zhaw.studyflow.domain.grade.Grade;
 import ch.zhaw.studyflow.services.persistence.GradeDao;
+import ch.zhaw.studyflow.services.persistence.ModuleDao;
+import ch.zhaw.studyflow.services.persistence.SemesterDao;
 import ch.zhaw.studyflow.webserver.http.CaptureContainer;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
@@ -31,6 +36,10 @@ public class GradeControllerTest {
 
     @Mock
     private GradeDao gradeDao;
+    @Mock
+    private SemesterDao semesterDao;
+    @Mock
+    private ModuleDao moduleDao;
     @Mock
     private AuthenticationHandler authenticator;
     @InjectMocks
@@ -64,6 +73,7 @@ public class GradeControllerTest {
         return context;
     }
 
+
     @Test
     void testGetGradesByDegreeIdSuccessful() throws NoSuchFieldException, IllegalAccessException {
         configureSuccessfulAuth();
@@ -71,13 +81,26 @@ public class GradeControllerTest {
         CaptureContainer captureContainer = mock(CaptureContainer.class);
         when(context.getUrlCaptures()).thenReturn(captureContainer);
         when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
+
+        Semester semester = new Semester();
+        semester.setId(1L);
+        semester.setName("Semester 1");
+        List<Semester> semesters = List.of(semester);
+        when(semesterDao.readByDegreeId(1L)).thenReturn(semesters);
+
+        Module module = new Module(1L, "Module 1");
+        List<Module> modules = List.of(module);
+        when(moduleDao.readBySemesterId(1L)).thenReturn(modules);
+
         Grade grade = new Grade();
         List<Grade> grades = List.of(grade);
-        when(gradeDao.readByDegree(1)).thenReturn(grades);
+        when(gradeDao.readByModule(1L)).thenReturn(grades);
 
         HttpResponse actualResponse = gradeController.getGradesByDegreeId(context);
 
-        verify(gradeDao).readByDegree(1);
+        verify(semesterDao).readByDegreeId(1L);
+        verify(moduleDao).readBySemesterId(1L);
+        verify(gradeDao).readByModule(1L);
         verify(response).setStatusCode(HttpStatusCode.OK);
 
         ArgumentCaptor<WritableBodyContent> argumentCaptor = ArgumentCaptor.forClass(WritableBodyContent.class);
@@ -90,8 +113,30 @@ public class GradeControllerTest {
         Object content = contentField.get(capturedContent);
         assertTrue(content instanceof List);
 
-        List<Grade> expected = grades;
-        assertEquals(expected, content);
+        List<SemesterGrade> expected = List.of(new SemesterGrade(1L, "Semester 1", List.of(new ModuleGrade(1L, "Module 1", grades))));
+        assertSemesterGradesEqual(expected, (List<SemesterGrade>) content);
+    }
+
+    private void assertSemesterGradesEqual(List<SemesterGrade> expected, List<SemesterGrade> actual) {
+        assertEquals(expected.size(), actual.size());
+        for (int i = 0; i < expected.size(); i++) {
+            SemesterGrade expectedSemesterGrade = expected.get(i);
+            SemesterGrade actualSemesterGrade = actual.get(i);
+            assertEquals(expectedSemesterGrade.getId(), actualSemesterGrade.getId());
+            assertEquals(expectedSemesterGrade.getName(), actualSemesterGrade.getName());
+            assertModuleGradesEqual(expectedSemesterGrade.getModules(), actualSemesterGrade.getModules());
+        }
+    }
+
+    private void assertModuleGradesEqual(List<ModuleGrade> expected, List<ModuleGrade> actual) {
+        assertEquals(expected.size(), actual.size());
+        for (int i = 0; i < expected.size(); i++) {
+            ModuleGrade expectedModuleGrade = expected.get(i);
+            ModuleGrade actualModuleGrade = actual.get(i);
+            assertEquals(expectedModuleGrade.getId(), actualModuleGrade.getId());
+            assertEquals(expectedModuleGrade.getName(), actualModuleGrade.getName());
+            assertEquals(expectedModuleGrade.getGrades(), actualModuleGrade.getGrades());
+        }
     }
 
     @Test

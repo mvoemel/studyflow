@@ -6,6 +6,7 @@ import ch.zhaw.studyflow.services.persistence.SemesterDao;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class SemesterManagerImpl implements SemesterManager {
 
@@ -39,4 +40,5 @@ public class SemesterManagerImpl implements SemesterManager {
     public void deleteSemester(long semesterId) {
         SemesterDao.deleteSemester(semesterId);
     }
+
 }

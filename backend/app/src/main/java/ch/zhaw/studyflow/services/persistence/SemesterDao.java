@@ -11,4 +11,6 @@ public interface SemesterDao {
     Optional<Semester> getSemesterById(long semesterId);
     void updateSemester(Semester semester);
     void deleteSemester(long semesterId);
+    List<Semester> readByDegreeId(long degreeId);
+
 }

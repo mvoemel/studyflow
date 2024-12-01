@@ -80,4 +80,15 @@ public class InMemoryModuleDao implements ModuleDao {
                 .filter(module -> module.getName().equals(name))
                 .findFirst();
     }
+
+    @Override
+    public List<Module> readBySemesterId(long semesterId) {
+        List<Module> modulesForSemester = new ArrayList<>();
+        moduleToSemester.forEach((moduleId, sId) -> {
+            if(sId == semesterId) {
+                modulesForSemester.add(modules.get(moduleId));
+            }
+        });
+        return modulesForSemester;
+    }
 }

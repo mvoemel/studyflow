@@ -1,8 +1,15 @@
 package ch.zhaw.studyflow.controllers;
 
+import ch.zhaw.studyflow.controllers.deo.ModuleDeo;
 import ch.zhaw.studyflow.controllers.deo.ModuleGrade;
+import ch.zhaw.studyflow.controllers.deo.SemesterDeo;
+import ch.zhaw.studyflow.controllers.deo.SemesterGrade;
+import ch.zhaw.studyflow.domain.curriculum.Module;
+import ch.zhaw.studyflow.domain.curriculum.Semester;
 import ch.zhaw.studyflow.domain.grade.Grade;
 import ch.zhaw.studyflow.services.persistence.GradeDao;
+import ch.zhaw.studyflow.services.persistence.ModuleDao;
+import ch.zhaw.studyflow.services.persistence.SemesterDao;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
 import ch.zhaw.studyflow.webserver.annotations.Route;
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
@@ -17,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Controller for handling grade-related requests.
@@ -25,6 +33,8 @@ import java.util.logging.Logger;
 public class GradeController {
     private static final Logger logger = Logger.getLogger(GradeController.class.getName());
     private final GradeDao gradeDao;
+    private final SemesterDao semesterDao;
+    private final ModuleDao moduleDao;
     private final AuthenticationHandler authenticator;
 
     /**
@@ -33,8 +43,10 @@ public class GradeController {
      * @param gradeDao the GradeDao to use for data access.
      * @param authenticator the AuthenticationHandler to use for authentication.
      */
-    public GradeController(GradeDao gradeDao, AuthenticationHandler authenticator) {
+    public GradeController(GradeDao gradeDao,SemesterDao semesterDao, ModuleDao moduleDao, AuthenticationHandler authenticator) {
         this.gradeDao = gradeDao;
+        this.semesterDao = semesterDao;
+        this.moduleDao = moduleDao;
         this.authenticator = authenticator;
     }
 
@@ -53,8 +65,17 @@ public class GradeController {
             Optional<String> degreeIdOpt = context.getUrlCaptures().get("degreeId");
             if (degreeIdOpt.isPresent()) {
                 long degreeId = Long.parseLong(degreeIdOpt.get());
-                List<Grade> grades = gradeDao.readByDegree(degreeId);
-                response.setResponseBody(JsonContent.writableOf(grades))
+                List<Semester> semesters = semesterDao.readByDegreeId(degreeId);
+                List<SemesterGrade> semesterGrades = semesters.stream().map(semester -> {
+                    List<Module> modules = moduleDao.readBySemesterId(semester.getId());
+                    List<ModuleGrade> moduleGrades = modules.stream().map(module -> {
+                        List<Grade> grades = gradeDao.readByModule(module.getId());
+                        return new ModuleGrade(module.getId(), module.getName(), grades);
+                    }).collect(Collectors.toList());
+                    return new SemesterGrade(semester.getId(), semester.getName(), moduleGrades);
+                }).collect(Collectors.toList());
+
+                response.setResponseBody(JsonContent.writableOf(semesterGrades))
                         .setStatusCode(HttpStatusCode.OK);
             } else {
                 response.setStatusCode(HttpStatusCode.BAD_REQUEST);

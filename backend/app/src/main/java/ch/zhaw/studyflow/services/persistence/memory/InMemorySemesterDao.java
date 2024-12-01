@@ -66,4 +66,15 @@ public class InMemorySemesterDao implements SemesterDao {
         semesters.remove(semesterId);
         semestersToDegree.remove(semesterId);
     }
+
+    @Override
+    public List<Semester> readByDegreeId(long degreeId) {
+        List<Semester> semestersForDegree = new ArrayList<>();
+        semestersToDegree.forEach((semesterId, dId) -> {
+            if(dId == degreeId) {
+                semestersForDegree.add(semesters.get(semesterId));
+            }
+        });
+        return semestersForDegree;
+    }
 }
