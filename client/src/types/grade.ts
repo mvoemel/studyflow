@@ -8,12 +8,17 @@ export type Grade = {
   moduleId: Module["id"];
 };
 
-export type GradeViewTree = {
+export type GradeViewTree = GradesViewSemester[];
+
+export type GradesViewSemester = {
   semesterId: string;
   semesterName: string;
-  modules: {
-    moduleId: string;
-    moduleName: string;
-    grades: Omit<Grade, "moduleId">[];
-  }[];
-}[];
+  modules: GradesViewModule[];
+};
+
+export type GradesViewModule = {
+  moduleId: string;
+  moduleName: string;
+  moduleEcts: number;
+  grades: Omit<Grade, "moduleId">[];
+};
