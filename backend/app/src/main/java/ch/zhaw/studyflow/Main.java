@@ -2,24 +2,18 @@ package ch.zhaw.studyflow;
 
 import ch.zhaw.studyflow.controllers.CalendarController;
 import ch.zhaw.studyflow.controllers.ModuleController;
+import ch.zhaw.studyflow.controllers.SemesterController;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
+import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
 import ch.zhaw.studyflow.domain.curriculum.impls.ModuleManagerImpl;
-import ch.zhaw.studyflow.services.persistence.AppointmentDao;
-import ch.zhaw.studyflow.services.persistence.CalendarDao;
+import ch.zhaw.studyflow.services.persistence.*;
 import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
-import ch.zhaw.studyflow.services.persistence.ModuleDao;
-import ch.zhaw.studyflow.services.persistence.memory.InMemoryModuleDao;
+import ch.zhaw.studyflow.services.persistence.memory.*;
 import ch.zhaw.studyflow.controllers.StudentController;
 import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.domain.student.impls.StudentManagerImpl;
-import ch.zhaw.studyflow.services.persistence.memory.InMemoryAppointmentDao;
-import ch.zhaw.studyflow.services.persistence.memory.InMemoryCalendarDao;
-import ch.zhaw.studyflow.services.persistence.memory.InMemorySettingsDao;
-import ch.zhaw.studyflow.services.persistence.memory.InMemoryStudentDao;
-import ch.zhaw.studyflow.services.persistence.SettingsDao;
-import ch.zhaw.studyflow.services.persistence.StudentDao;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
 import ch.zhaw.studyflow.webserver.http.contents.*;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
@@ -73,6 +67,13 @@ public class Main {
                             serviceCollection.getRequiredService(PrincipalProvider.class),
                             serviceCollection.getRequiredService(StudentManager.class)
                     ));
+            controllerRegistry.register(
+                    SemesterController.class,
+                    serviceCollection -> new SemesterController(
+                            serviceCollection.getRequiredService(AuthenticationHandler.class),
+                            serviceCollection.getRequiredService(SemesterManager.class),
+                            serviceCollection.getRequiredService(PrincipalProvider.class)
+                    ));
         });
         webServerBuilder.configureServices(builder -> {
             // REGISTER DAO'S
@@ -80,6 +81,8 @@ public class Main {
             builder.registerSingelton(AppointmentDao.class, serviceCollection -> new InMemoryAppointmentDao());
             builder.registerSingelton(StudentDao.class, serviceCollection -> new InMemoryStudentDao());
             builder.registerSingelton(SettingsDao.class, serviceCollection -> new InMemorySettingsDao());
+            builder.registerSingelton(SemesterDao.class, serviceCollection -> new InMemorySemesterDao());
+            builder.registerSingelton(ModuleDao.class, serviceCollection -> new InMemoryModuleDao());
 
             // REGISTER MANAGERS
             builder.register(CalendarManager.class, serviceCollection -> new CalendarManagerImpl(
@@ -95,18 +98,15 @@ public class Main {
                     serviceCollection.getRequiredService(StudentDao.class),
                     serviceCollection.getRequiredService(SettingsDao.class)
             ));
+            builder.register(ModuleManagerImpl.class, serviceCollection -> new ModuleManagerImpl(
+                    serviceCollection.getRequiredService(ModuleDao.class)
+            ));
 
             // REGISTER AUTHENTICATION SERVICES
             builder.registerSingelton(PrincipalProvider.class, serviceCollection -> new JwtPrincipalProvider(
                     new JwtPrincipalProviderOptions("secret", JwtHashAlgorithm.HS256, "superdupersecret", Duration.ofDays(1)),
                     List.of(CommonClaims.EXPIRES, CommonClaims.USER_ID)
             ));
-
-            builder.registerSingelton(ModuleDao.class, serviceCollection -> new InMemoryModuleDao());
-            builder.register(ModuleManagerImpl.class, serviceCollection -> new ModuleManagerImpl(
-                    serviceCollection.getRequiredService(ModuleDao.class)
-            ));
-
 
             builder.registerSingelton(AuthenticationHandler.class, serviceCollection ->
                     new JwtBasedAuthenticationHandler(
