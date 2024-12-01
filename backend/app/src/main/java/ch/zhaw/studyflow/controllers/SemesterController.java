@@ -50,7 +50,6 @@ public class SemesterController {
                     } else {
                         semesterDeo.map(obj -> {
                             Semester semester = new Semester();
-                            semester.setId(obj.getId());
                             semester.setName(obj.getName());
                             semester.setDescription(obj.getDescription());
                             semester.setDegreeId(obj.getDegreeId());
