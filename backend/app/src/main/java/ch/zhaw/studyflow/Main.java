@@ -3,9 +3,11 @@ package ch.zhaw.studyflow;
 import ch.zhaw.studyflow.controllers.CalendarController;
 import ch.zhaw.studyflow.controllers.DegreeController;
 import ch.zhaw.studyflow.controllers.ModuleController;
+import ch.zhaw.studyflow.controllers.SemesterController;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
+import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
 import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
 import ch.zhaw.studyflow.domain.curriculum.impls.DegreeManagerImpl;
 import ch.zhaw.studyflow.domain.curriculum.impls.ModuleManagerImpl;
@@ -27,7 +29,11 @@ import ch.zhaw.studyflow.webserver.security.principal.jwt.JwtPrincipalProviderOp
 import ch.zhaw.studyflow.webserver.sun.SunHttpServerWebServerBuilder;
 
 import java.net.InetSocketAddress;
+import java.sql.Time;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
@@ -65,6 +71,13 @@ public class Main {
                             serviceCollection.getRequiredService(StudentManager.class)
                     ));
             controllerRegistry.register(
+                    SemesterController.class,
+                    serviceCollection -> new SemesterController(
+                            serviceCollection.getRequiredService(AuthenticationHandler.class),
+                            serviceCollection.getRequiredService(SemesterManager.class),
+                            serviceCollection.getRequiredService(PrincipalProvider.class)
+                    ));
+            controllerRegistry.register(
                     DegreeController.class,
                     serviceCollection -> new DegreeController(
                             serviceCollection.getRequiredService(AuthenticationHandler.class),
@@ -78,6 +91,8 @@ public class Main {
             builder.registerSingelton(AppointmentDao.class, serviceCollection -> new InMemoryAppointmentDao());
             builder.registerSingelton(StudentDao.class, serviceCollection -> new InMemoryStudentDao());
             builder.registerSingelton(SettingsDao.class, serviceCollection -> new InMemorySettingsDao());
+            builder.registerSingelton(SemesterDao.class, serviceCollection -> new InMemorySemesterDao());
+            builder.registerSingelton(ModuleDao.class, serviceCollection -> new InMemoryModuleDao());
             builder.registerSingelton(DegreeDao.class, serviceCollection -> new InMemoryDegreeDao());
 
             // REGISTER MANAGERS
@@ -94,6 +109,9 @@ public class Main {
                     serviceCollection.getRequiredService(StudentDao.class),
                     serviceCollection.getRequiredService(SettingsDao.class)
             ));
+            builder.register(ModuleManagerImpl.class, serviceCollection -> new ModuleManagerImpl(
+                    serviceCollection.getRequiredService(ModuleDao.class)
+            ));
 
             builder.register(DegreeManager.class, serviceCollection -> new DegreeManagerImpl(
                     serviceCollection.getRequiredService(DegreeDao.class)
@@ -104,12 +122,6 @@ public class Main {
                     new JwtPrincipalProviderOptions("secret", JwtHashAlgorithm.HS256, "superdupersecret", Duration.ofDays(1)),
                     List.of(CommonClaims.EXPIRES, CommonClaims.USER_ID)
             ));
-
-            builder.registerSingelton(ModuleDao.class, serviceCollection -> new InMemoryModuleDao());
-            builder.register(ModuleManagerImpl.class, serviceCollection -> new ModuleManagerImpl(
-                    serviceCollection.getRequiredService(ModuleDao.class)
-            ));
-
 
             builder.registerSingelton(AuthenticationHandler.class, serviceCollection ->
                     new JwtBasedAuthenticationHandler(
