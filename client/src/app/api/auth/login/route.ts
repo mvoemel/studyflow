@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     const token = jwt.sign(mockToken, SECRET_KEY, { expiresIn: "1h" });
 
     const response = NextResponse.json({ message: "Login successful" });
-    response.cookies.set("token", token, {
+    response.cookies.set("secret", token, {
       httpOnly: true,
       secure: true,
       maxAge: 60 * 60,
