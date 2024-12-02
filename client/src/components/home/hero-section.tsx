@@ -15,13 +15,7 @@ const Hero = () => (
       >
         <div>
           <div className="space-y-5 max-w-3xl mx-auto text-center">
-            <h1
-              className="text-4xl bg-clip-text text-transparent bg-gradient-to-r font-extrabold mx-auto sm:text-6xl"
-              style={{
-                backgroundImage:
-                  "linear-gradient(179.1deg, #FFFFFF 0.77%, rgba(65, 128, 246, 0.1) 182.09%)",
-              }}
-            >
+            <h1 className="text-4xl bg-clip-text text-transparent bg-gradient-to-b from-primary to-blue-300 font-extrabold mx-auto sm:text-6xl">
               Conquer Your Semester with Confidence – Join Thousands of
               Successful Students.
             </h1>
