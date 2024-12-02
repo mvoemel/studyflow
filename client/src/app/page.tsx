@@ -1,7 +1,11 @@
-import { redirect } from "next/navigation";
+import { Hero } from "@/components/home/hero";
 
 const HomePage = () => {
-  return redirect("/dashboard");
+  return (
+    <div>
+      <Hero />
+    </div>
+  );
 };
 
 export default HomePage;
