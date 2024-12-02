@@ -1,4 +1,4 @@
-const BASE_URL = process.env.SERVER_BASE_URL || "";
+const BASE_URL = process.env.NEXT_PUBLIC_SERVER_BASE_URL || "";
 
 /**
  * This object allows you to make type safe requests

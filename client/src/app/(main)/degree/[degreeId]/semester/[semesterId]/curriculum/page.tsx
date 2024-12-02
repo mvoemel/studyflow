@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -20,39 +20,27 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useParams } from "next/navigation";
-import { ModuleDialog } from "@/components/dialogs/moduleDialog";
+import { ModuleDialog } from "@/components/dialogs/module-dialog";
 import { Module } from "@/types";
-import { useUserSettings } from "@/hooks/use-user-settings";
-import { useDegrees } from "@/hooks/use-degree";
-import { useSemesters } from "@/hooks/use-semester";
 import { useModules } from "@/hooks/use-modules";
+import { PenIcon } from "lucide-react";
 
 const ModulesSettingsPage = () => {
   const { degreeId, semesterId } = useParams();
 
-  const { settings, isLoading: loadingSettings } = useUserSettings();
-  const { degrees, isLoading: loadingDegrees } = useDegrees();
-  const { semesters, isLoading: loadingSemesters } = useSemesters();
-  const { modules, isLoading: loadingModules } = useModules();
+  const { modules } = useModules();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedModule, setSelectedModule] = useState<Module | undefined>();
-  const [title, setTitle] = useState<string>("");
 
-  useEffect(() => {
-    const degree = degrees?.find(
-      (degree) =>
-        degree.id === (Array.isArray(degreeId) ? degreeId[0] : degreeId)
+  const filteredModules = useMemo(() => {
+    return (
+      modules?.filter(
+        (m) => m.degreeId === degreeId && m.semesterId === semesterId
+      ) || []
     );
-    const semester = semesters?.find(
-      (semester) =>
-        semester.id === (Array.isArray(semesterId) ? semesterId[0] : semesterId)
-    );
-    if (degree && semester) {
-      setTitle(`Modules for ${semester.name} of ${degree.name}`);
-    }
-  }, [degreeId, semesterId, degrees, semesters]);
+  }, [degreeId, semesterId, modules]);
 
   const openEditDialog = useCallback((module: Module) => {
     setSelectedModule(module);
@@ -73,21 +61,16 @@ const ModulesSettingsPage = () => {
 
   return (
     <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
-      <h1 className="text-3xl font-semibold">{title || "Select a Semester"}</h1>
       <Card className="bg-muted/50">
         <CardHeader>
           <CardTitle>Modules</CardTitle>
           <CardDescription>Here you can add or remove modules.</CardDescription>
         </CardHeader>
         <CardContent>
-          {/* {loading && (
-            <div className="w-full flex justify-center">
-              <LoadingSpinner />
-            </div>
-          )} */}
-          {/* {!loading && ( */}
           <Table>
-            <TableCaption>List of your current modules.</TableCaption>
+            {filteredModules.length === 0 && (
+              <TableCaption>No Modules in this Semester.</TableCaption>
+            )}
             <TableHeader>
               <TableRow>
                 <TableHead>Module</TableHead>
@@ -99,46 +82,29 @@ const ModulesSettingsPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {modules
-                ?.filter(
-                  (m) =>
-                    m.degreeId === settings?.activeDegreeId &&
-                    m.semesterId === settings?.activeSemesterId
-                )
-                .map((module) => (
-                  <TableRow
-                    key={`${module.id}-${module.degreeId}-${module.semesterId}`}
-                  >
-                    <TableCell className="font-medium">{module.name}</TableCell>
-                    <TableCell>{module.ects}</TableCell>
-                    <TableCell>{module.complexity + "/10"}</TableCell>
-                    <TableCell>{module.time + "/10"}</TableCell>
-                    <TableCell>{module.understanding + "/10"}</TableCell>
-                    <TableCell>
-                      <button onClick={() => openEditDialog(module)}>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="lucide lucide-ellipsis"
-                        >
-                          <circle cx="12" cy="12" r="1" />
-                          <circle cx="19" cy="12" r="1" />
-                          <circle cx="5" cy="12" r="1" />
-                        </svg>
-                      </button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {filteredModules.map((module) => (
+                <TableRow
+                  key={`${module.id}-${module.semesterId}-${module.degreeId}`}
+                >
+                  <TableCell className="font-medium">{module.name}</TableCell>
+                  <TableCell>{module.ects}</TableCell>
+                  <TableCell>{module.complexity + "/10"}</TableCell>
+                  <TableCell>{module.time + "/10"}</TableCell>
+                  <TableCell>{module.understanding + "/10"}</TableCell>
+                  <TableCell>
+                    <Button
+                      className="p-0"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => openEditDialog(module)}
+                    >
+                      <PenIcon className="h-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
-          {/* )} */}
         </CardContent>
         <CardFooter className="border-t px-6 py-4">
           <Button onClick={openAddDialog}>Add Module</Button>

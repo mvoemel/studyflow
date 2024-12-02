@@ -3,6 +3,7 @@ package ch.zhaw.studyflow.controllers;
 import ch.zhaw.studyflow.controllers.deo.ModuleDeo;
 import ch.zhaw.studyflow.domain.curriculum.Module;
 import ch.zhaw.studyflow.domain.curriculum.ModuleManager;
+import ch.zhaw.studyflow.domain.curriculum.Semester;
 import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
@@ -129,6 +130,18 @@ public class ModuleControllerTest {
         assertEquals(moduleDeo.getName(), module.getName());
         assertEquals(moduleDeo.getDescription(), module.getDescription());
         assertEquals(moduleDeo.getEcts(), module.getECTS());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideTargets")
+    void testAuthorizationTest(Tuple<String, Function<Tuple<ModuleController, RequestContext>, HttpResponse>> target) {
+        HttpRequest request = makeHttpRequest(makeJsonRequestBody(Semester.class, new Semester()));
+        AuthMockHelpers.configureFailingAuthHandler(authenticationHandler);
+
+        HttpResponse response = target.value2().apply(new Tuple<>(moduleController, makeRequestContext(request)));
+
+        ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
+        assertEquals(HttpStatusCode.UNAUTHORIZED, responseStatusCode.getValue());
     }
 
 

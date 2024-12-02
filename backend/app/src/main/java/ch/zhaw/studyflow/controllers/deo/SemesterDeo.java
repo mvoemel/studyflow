@@ -56,8 +56,13 @@ public class SemesterDeo {
         return userId;
     }
 
+    @JsonSetter("userId")
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
+
     public boolean isValid() {
-        return name != null && !name.isEmpty() && degreeId > 0 && userId > 0;
+        return name != null && !name.isEmpty() && degreeId > -1 && userId > -1;
     }
 
 }

@@ -3,10 +3,9 @@ import { Semester } from "@/types";
 
 type AllSemestersResponseData = Semester[];
 
-const getAllSemestersRequest = async (degreeId?: string) => {
-  return await tuam.get<AllSemestersResponseData>(
-    `/api/semesters?degreeId=${degreeId}`
-  );
+// TODO: add optional degreeId query parameters
+const getAllSemestersRequest = async () => {
+  return await tuam.get<AllSemestersResponseData>(`/api/semesters`);
 };
 
 export { type AllSemestersResponseData, getAllSemestersRequest };

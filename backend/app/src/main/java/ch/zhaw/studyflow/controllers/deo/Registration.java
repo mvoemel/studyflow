@@ -10,12 +10,12 @@ public class Registration {
     private String password;
 
 
-    @JsonGetter("username")
+    @JsonGetter("firstname")
     public String getFirstname() {
         return firstname;
     }
 
-    @JsonSetter("username")
+    @JsonSetter("firstname")
     public void setFirstname(String firstname) {
         this.firstname = firstname;
     }

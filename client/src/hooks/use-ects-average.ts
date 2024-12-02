@@ -1,10 +1,10 @@
 import { dashboardRequest, DashboardResponseData } from "@/lib/api";
 import useSWR from "swr";
 
-const useEctsAverage = () => {
+const useEctsAverage = (degreeId: string | undefined) => {
   const { data, error, isLoading } = useSWR<DashboardResponseData>(
-    "ects-average",
-    dashboardRequest
+    !degreeId ? null : `ects-average-${degreeId}`,
+    () => dashboardRequest(degreeId!)
   );
 
   return {

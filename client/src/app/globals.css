@@ -6,6 +6,10 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .custom-screen {
+    @apply max-w-screen-xl mx-auto px-4 md:px-8;
+  }
 }
 
 @layer base {

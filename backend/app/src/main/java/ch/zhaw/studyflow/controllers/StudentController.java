@@ -21,12 +21,8 @@ import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 
-import javax.swing.text.html.Option;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.temporal.TemporalField;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -179,7 +175,6 @@ public class StudentController {
                                 })
                                 .flatMap(studentManager::register)
                                 .ifPresentOrElse(student -> {
-                                            setLoggedinPrincipalClaims(principal, student);
                                             response.setStatusCode(HttpStatusCode.CREATED);
                                         },
                                         () -> response.setStatusCode(HttpStatusCode.FORBIDDEN)
@@ -217,6 +212,7 @@ public class StudentController {
         principal.addClaim(CommonClaims.USER_ID, student.getId());
         principal.addClaim(CommonClaims.EMAIL, student.getEmail());
         principal.addClaim(CommonClaims.SETTINGS_ID, student.getSettingsId());
+        principal.addClaim(CommonClaims.EXPIRES, LocalDateTime.now().plusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli());
     }
 
     @Route(path = "logout")

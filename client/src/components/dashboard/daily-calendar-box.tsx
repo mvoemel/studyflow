@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+
 import {
   Card,
   CardContent,
@@ -10,34 +10,28 @@ import { cn } from "@/lib/utils";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useUserSettings } from "@/hooks/use-user-settings";
+import { Skeleton } from "../ui/skeleton";
+import { useEvents } from "@/hooks/use-events";
 
 type DailyCalendarBoxProps = {
   className?: string;
 };
 
 const DailyCalendarBox = ({ className }: DailyCalendarBoxProps) => {
-  const [events, setEvents] = useState([]);
-  const { settings } = useUserSettings();
+  const { events } = useEvents();
 
-  // TODO: Adjust in future for database data
-  useEffect(() => {
-    fetch(`/api/events`)
-      .then((response) => response.json())
-      .then((data) => setEvents(data))
-      .catch((error) => console.error("Error fetching events:", error));
-  }, [settings]);
+  if (!events) return <DailyCalendarBoxSkeleton className={className} />;
 
   return (
     <Card className={cn(className, "bg-muted/50")}>
       <CardHeader className="pb-3">
         <CardDescription>Schedule for Today</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="h-full">
         <FullCalendar
           plugins={[timeGridPlugin, interactionPlugin]}
           initialView={"timeGridDay"}
-          weekends={false}
+          weekends={true}
           nowIndicator={true}
           editable={false}
           events={events}
@@ -58,8 +52,23 @@ const DailyCalendarBox = ({ className }: DailyCalendarBoxProps) => {
             year: "numeric",
             day: "2-digit",
           }}
+          height="90%"
         />
       </CardContent>
+    </Card>
+  );
+};
+
+const DailyCalendarBoxSkeleton = ({
+  className,
+}: Pick<DailyCalendarBoxProps, "className">) => {
+  return (
+    <Card className={cn(className, "flex flex-col bg-muted/50 gap-4 p-4")}>
+      <div className="space-y-2">
+        <Skeleton className="h-3 w-[180px]" />
+        <Skeleton className="h-12 w-[250px] rounded-md" />
+      </div>
+      <Skeleton className="h-full w-full" />
     </Card>
   );
 };

@@ -7,7 +7,10 @@ type NewSemesterRequestBody = Pick<
 >;
 
 const newSemesterRequest = async (body: NewSemesterRequestBody) => {
-  return await tuam.post<void, NewSemesterRequestBody>("/api/semesters", body);
+  return await tuam.post<Semester, NewSemesterRequestBody>(
+    "/api/semesters",
+    body
+  );
 };
 
 export { type NewSemesterRequestBody, newSemesterRequest };
