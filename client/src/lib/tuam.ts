@@ -27,7 +27,7 @@ const tuam = {
 
     if (!response.ok) {
       const error = await response.text();
-      throw new Error(error);
+      throw new Error(error || "An error occurred");
     }
 
     try {
