@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {z} from "zod";
 import { toast } from "sonner";
 import {cn} from "@/lib/utils";
+import { Trash2 } from "lucide-react";
 
 const formsSchema = z.object({
     grades: z.array(
@@ -42,7 +43,7 @@ export function AddGradesForms({
         },
     });
 
-    const { fields, append } = useFieldArray({
+    const { fields, append, remove } = useFieldArray({
         name: "grades",
         control: form.control,
     })
@@ -128,6 +129,15 @@ export function AddGradesForms({
                                 </FormItem>
                             )}
                         />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="mt-2 text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
+                                    onClick={() => remove(index)}
+                                >
+                                    <Trash2></Trash2>
+                                </Button>
                             </div>
                     </div>
                     ))}
