@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.domain.curriculum.imps;
+package ch.zhaw.studyflow.domain.curriculum.impls;
 
 import ch.zhaw.studyflow.domain.curriculum.Semester;
 import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
@@ -6,7 +6,6 @@ import ch.zhaw.studyflow.services.persistence.SemesterDao;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class SemesterManagerImpl implements SemesterManager {
 

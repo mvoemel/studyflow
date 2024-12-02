@@ -1,4 +1,4 @@
-package ch.zhaw.studyflow.domain.curriculum.imps;
+package ch.zhaw.studyflow.domain.curriculum.impls;
 
 import ch.zhaw.studyflow.domain.curriculum.Degree;
 import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
