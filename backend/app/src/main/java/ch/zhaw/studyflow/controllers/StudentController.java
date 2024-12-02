@@ -175,7 +175,8 @@ public class StudentController {
                                 })
                                 .flatMap(studentManager::register)
                                 .ifPresentOrElse(student -> {
-                                            response.setStatusCode(HttpStatusCode.CREATED);
+                                            response.setResponseBody(JsonContent.writableOf("Successfully registered"))
+                                                    .setStatusCode(HttpStatusCode.CREATED);
                                         },
                                         () -> response.setStatusCode(HttpStatusCode.FORBIDDEN)
                                 );
@@ -199,7 +200,8 @@ public class StudentController {
                         .flatMap(loginRequest -> studentManager.login(loginRequest.getEmail(), loginRequest.getPassword()))
                         .ifPresentOrElse(student -> {
                                     setLoggedinPrincipalClaims(principal, student);
-                                    response.setStatusCode(HttpStatusCode.OK);
+                                    response.setResponseBody(JsonContent.writableOf("Successfully logged in"))
+                                            .setStatusCode(HttpStatusCode.OK);
                                 },
                                 () -> response.setStatusCode(HttpStatusCode.UNAUTHORIZED)
                         );

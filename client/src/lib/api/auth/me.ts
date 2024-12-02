@@ -7,7 +7,7 @@ type MeRequestResponseData = {
 };
 
 const meRequest = async () => {
-  return await tuam.get<MeRequestResponseData>("/api/auth/me");
+  return await tuam.get<MeRequestResponseData>("/api/student/me");
 };
 
 export { type MeRequestResponseData, meRequest };
