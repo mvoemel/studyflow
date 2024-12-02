@@ -19,7 +19,7 @@ import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 import java.util.List;
 import java.util.Optional;
 
-@Route(path="semesters")
+@Route(path="api/semesters")
 public class SemesterController {
 
     private final AuthenticationHandler authenticationHandler;
@@ -43,7 +43,6 @@ public class SemesterController {
             if(request.getRequestBody().isPresent()) {
                 Optional<SemesterDeo> semesterDeo = request.getRequestBody()
                         .flatMap(body -> body.tryRead(SemesterDeo.class));
-
                 if(semesterDeo.isPresent() && semesterDeo.get().isValid()) {
                     if(semesterManager.getSemesterById(semesterDeo.get().getId()).isPresent()) {
                         response.setStatusCode(HttpStatusCode.CONFLICT);
