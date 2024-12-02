@@ -56,7 +56,7 @@ public class DegreeManagerImpl implements DegreeManager {
     public void updateDegree(Degree degree) {
         Objects.requireNonNull(degree);
 
-        if (degree.getId() == 0) {
+        if (degree.getId() < 0) {
             throw new IllegalArgumentException("Degree should have an ID set before updating");
         }
 

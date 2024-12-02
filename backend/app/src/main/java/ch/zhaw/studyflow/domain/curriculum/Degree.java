@@ -14,12 +14,12 @@ public class Degree {
         this.id = -1;
     }
 
-    @JsonGetter
+    @JsonGetter("id")
     public long getId() {
         return id;
     }
 
-    @JsonSetter
+    @JsonSetter("id")
     public void setId(long id) {
         if (this.id != -1) {
             throw new IllegalStateException("ID already set");
@@ -27,42 +27,42 @@ public class Degree {
         this.id = id;
     }
 
-    @JsonGetter
+    @JsonGetter("owner")
     public long getOwnerId() {
         return ownerId;
     }
 
-    @JsonSetter
+    @JsonSetter("owner")
     public void setOwnerId(long ownerId) {
         this.ownerId = ownerId;
     }
 
-    @JsonGetter
+    @JsonGetter("name")
     public String getName() {
         return name;
     }
 
-    @JsonSetter
+    @JsonSetter("name")
     public void setName(String name) {
         this.name = name;
     }
 
-    @JsonSetter
+    @JsonSetter("activeSemesterId")
     public long getActiveSemesterId() {
         return activeSemesterId;
     }
 
-    @JsonSetter
+    @JsonSetter("activeSemesterId")
     public void setActiveSemesterId(long activeSemesterId) {
         this.activeSemesterId = activeSemesterId;
     }
 
-    @JsonGetter
+    @JsonGetter("description")
     public String getDescription() {
         return description;
     }
 
-    @JsonSetter
+    @JsonSetter("description")
     public void setDescription(String description) {
         this.description = description;
     }

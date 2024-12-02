@@ -27,7 +27,7 @@ public class InMemoryDegreeDao implements DegreeDao {
             throw new IllegalArgumentException("Expected id to be negative (unset)");
         }
 
-        degree.setId(idCounter.incrementAndGet());
+        degree.setId(idCounter.getAndIncrement());
         degrees.put(degree.getId(), degree);
     }
 
