@@ -18,12 +18,14 @@ const Register = () => (
           <div className="relative z-10">
             <div className="max-w-xl mx-auto text-center">
               <h2 className="text-3xl font-semibold sm:text-4xl">
-                Unleash the Power of AI with Email Marketing
+                Turn Your Goals into Achievements. Start Your Custom Study Plan
+                Today!
               </h2>
               <p className="mt-5 text-muted-foreground">
-                Mailgo is the perfect answer! Our AI-based email marketing
-                platform enables you to create highly targeted email campaigns
-                that are tailored to each individual subscriber.
+                Transform the way you study with a single, powerful app.
+                Generate custom study plans, track your grades, and visualize
+                your progress—all in one place. Say goodbye to stress and hello
+                to smarter studying.
               </p>
             </div>
             <div className="mt-5 flex justify-center font-medium text-sm">
