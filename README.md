@@ -1,56 +1,71 @@
 # StudyFlow
-
-StudyFlow is a web application designed to help students manage their academic schedules, track their grades, and organize their study materials.
+StudyFlow is a web application designed to help students manage their academic schedules, track their grades, and organize their study materials. It provides tools for creating and viewing schedules, tracking grades, and organizing study materials in one place. With a user-friendly interface and cross-platform accessibility, StudyFlow aims to simplify academic management for students.
 
 ## Table of Contents
-
-- [Features](#features)
 - [Installation](#installation)
-- [Usage](#usage)
+- [Backend Server with Docker](#backend-server-with-docker)
+   - [Backend](#backend)
+   - [Frontend](#frontend)
 - [Class Diagrams](#class-diagrams)
 - [License](#license)
 
-## Features
 
-- **User authentication and authorization**: Secure login and registration system to manage user access and permissions.
-- **Manage degrees, semesters, modules, and marks**: Comprehensive management of academic structures, including degrees, semesters, modules, and marks.
-- **Schedule management**: Tools to create, update, and manage academic schedules.
-- **Appointment management**: Functionality to schedule, view, and manage appointments.
-- **Rating system for modules**: System to rate and review modules based on complexity, understanding, and time required.
+## Backend Server with Docker
+This guide describes how to build and run the Docker image for the StudyFlow Java backend server locally.
 
-## Installation
+## Prerequisites
+- [Docker](https://www.docker.com/) must be installed.
+- The `Dockerfile` is already present in the `studyflow/backend` directory.
 
-To install and run the project locally, follow these steps:
 
-1. Clone the repository:
+### Backend
+
+1. Open a terminal and navigate to the backend directory:
     ```sh
-    git clone https://github.com/kryezleo/studyflow.git
-    cd studyflow
+    cd studyflow/backend
     ```
 
-2. Set up the database:
+2. Build the Docker image:
     ```sh
-    psql -f init.sql
+    docker build -t studyflow-backend .
+    ```
+   - `-t studyflow-backend`: Assigns a name to the Docker image.
+   - `.`: Refers to the current directory where the Dockerfile is located.
+
+3. Start the Docker container:
+    ```sh
+    docker run -d -p 8080:8080 --name studyflow-backend studyflow-backend
+    ```
+   - `-d`: Runs the container in the background.
+   - `-p 8080:8080`: Maps host port 8080 to container port 8080.
+   - `--name studyflow-backend`: Assigns the name `studyflow-backend` to the container.
+   - `studyflow-backend`: Refers to the created Docker image.
+
+4. The backend server is now accessible at `http://localhost:8080`.
+
+### Frontend
+
+1. Navigate to the frontend directory:
+    ```sh
+    cd studyflow/frontend
     ```
 
-3. Build the project using Gradle:
+2. Build the Docker image:
     ```sh
-    ./gradlew build
+    docker build -t studyflow-frontend .
     ```
 
-4. Run the application:
+3. Start the Docker container:
     ```sh
-    ./gradlew bootRun
+    docker run -d -p 3000:3000 --name studyflow-frontend studyflow-frontend
     ```
 
-## Usage
-
-Once the application is running, you can access it at `http://localhost:8080`.
-
+4. The frontend is now accessible at `http://localhost:3000`.
 
 ## Class Diagrams
 
 For detailed class diagrams, please refer to the [backend architecture documentation](https://github.com/mvoemel/studyflow/blob/dev/docs/backendArchitecture.md).
+
 
 ## License
 
