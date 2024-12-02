@@ -25,8 +25,11 @@ const ProfileSettingsPage = () => {
             <Input type="text" placeholder="Firstname" />
             <Input type="text" placeholder="Lastname" />
             <Input type="email" placeholder="Email" className="col-span-2" />
-            <Input type="password" placeholder="Old Password" />
-            <Input type="password" placeholder="New Password" />
+            <Input
+              type="password"
+              placeholder="Old Password"
+              className="col-span-2"
+            />
           </form>
         </CardContent>
         <CardFooter className="border-t px-6 py-4 flex justify-end">

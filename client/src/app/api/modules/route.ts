@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { mockModules } from "../_mockdata/modules";
+import { awaitTimeout } from "../_utils";
 
 export async function GET() {
+  await awaitTimeout(350);
+
   return NextResponse.json(mockModules);
 }
 
@@ -16,6 +19,8 @@ export async function POST(request: NextRequest) {
     semesterId,
     description,
   } = await request.json();
+
+  await awaitTimeout(1500);
 
   return NextResponse.json({
     id: "module-9",

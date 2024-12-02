@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+// import { jwtVerify } from "jose";
 
-const SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || "tmp-secret-key"
-);
+// const SECRET_KEY = new TextEncoder().encode(
+//   process.env.JWT_SECRET || "tmp-secret-key"
+// );
 
 export const middleware = async (request: NextRequest) => {
   const { nextUrl } = request;
@@ -27,17 +27,17 @@ export const middleware = async (request: NextRequest) => {
   }
 
   // TODO: remove this
-  try {
-    const { payload } = await jwtVerify(token.value, SECRET_KEY);
+  // try {
+  //   const { payload } = await jwtVerify(token.value, SECRET_KEY);
 
-    const response = NextResponse.next();
-    response.headers.set("x-user", JSON.stringify(payload));
+  //   const response = NextResponse.next();
+  //   response.headers.set("x-user", JSON.stringify(payload));
 
-    return response;
-  } catch (err) {
-    console.log("Failed to verify JWT:", err);
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+  //   return response;
+  // } catch (err) {
+  //   console.log("Failed to verify JWT:", err);
+  //   return NextResponse.redirect(new URL("/login", request.url));
+  // }
 };
 
 export const config = {
@@ -47,6 +47,7 @@ export const config = {
     "/dashboard",
     "/grades",
     "/schedule",
+    "/degree/:path*",
     "/settings/:path*",
   ],
 };

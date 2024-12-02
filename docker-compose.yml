@@ -7,15 +7,54 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
     volumes:
       - db:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    networks:
+      - shared-network
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  server:
+    build:
+      dockerfile: Dockerfile
+      context: ./backend
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - shared-network
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+
+  client:
+    build:
+      dockerfile: Dockerfile
+      context: ./client
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - shared-network
+      - external-network
+    depends_on:
+      - server
+    environment:
+      - NEXT_PUBLIC_SERVER_BASE_URL=http://server:8080
 
 volumes:
   db:
     driver: local
+
+networks:
+  shared-network:
+    internal: true
+  external-network:

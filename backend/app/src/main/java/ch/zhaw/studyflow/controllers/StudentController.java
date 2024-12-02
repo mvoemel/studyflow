@@ -179,7 +179,6 @@ public class StudentController {
                                 })
                                 .flatMap(studentManager::register)
                                 .ifPresentOrElse(student -> {
-                                            setLoggedinPrincipalClaims(principal, student);
                                             response.setStatusCode(HttpStatusCode.CREATED);
                                         },
                                         () -> response.setStatusCode(HttpStatusCode.FORBIDDEN)
@@ -217,6 +216,7 @@ public class StudentController {
         principal.addClaim(CommonClaims.USER_ID, student.getId());
         principal.addClaim(CommonClaims.EMAIL, student.getEmail());
         principal.addClaim(CommonClaims.SETTINGS_ID, student.getSettingsId());
+        principal.addClaim(CommonClaims.EXPIRES, LocalDateTime.now().plusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli());
     }
 
     @Route(path = "logout")

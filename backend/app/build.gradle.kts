@@ -40,3 +40,27 @@ java {
 tasks.named<Test>("test") {
     useJUnitPlatform()
 }
+
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "ch.zhaw.studyflow.Main"
+    }
+}
+
+tasks.distTar {
+    enabled=false
+}
+
+tasks.register<Copy>("distribute") {
+    group = "distribution"
+    description = "Distributes the app and its dependencies into a directory"
+
+    val outputDir = layout.buildDirectory.dir("distributions/app")
+    from(configurations.runtimeClasspath) {
+        into("deps")
+    }
+    from(tasks.named("jar")) {
+        into("libs")
+    }
+    into(outputDir)
+}

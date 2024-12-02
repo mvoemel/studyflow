@@ -7,6 +7,7 @@ const mockSemester: Semester[] = [
     description: "Cool Semester",
     degreeId: "degree-1",
     userId: "user-1",
+    calendarId: "calendar-2",
   },
   {
     id: "semester-12",
@@ -14,6 +15,7 @@ const mockSemester: Semester[] = [
     description: "Stupid Semester",
     degreeId: "degree-1",
     userId: "user-1",
+    calendarId: "calendar-3",
   },
   {
     id: "semester-13",
@@ -49,6 +51,7 @@ const mockSemester: Semester[] = [
     description: "Cool Semester",
     degreeId: "degree-2",
     userId: "user-1",
+    calendarId: "calendar-4",
   },
   {
     id: "semester-22",
