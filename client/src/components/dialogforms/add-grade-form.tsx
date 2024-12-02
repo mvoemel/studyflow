@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import {cn} from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 
+//TODO: fix error message not showing
 const formsSchema = z.object({
     grades: z.array(
         z.object({
