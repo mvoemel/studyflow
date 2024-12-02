@@ -11,6 +11,7 @@ import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
 import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
 import ch.zhaw.studyflow.domain.curriculum.impls.DegreeManagerImpl;
 import ch.zhaw.studyflow.domain.curriculum.impls.ModuleManagerImpl;
+import ch.zhaw.studyflow.domain.curriculum.imps.SemesterManagerImpl;
 import ch.zhaw.studyflow.services.persistence.*;
 import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
 import ch.zhaw.studyflow.services.persistence.memory.*;
@@ -115,6 +116,10 @@ public class Main {
 
             builder.register(DegreeManager.class, serviceCollection -> new DegreeManagerImpl(
                     serviceCollection.getRequiredService(DegreeDao.class)
+            ));
+
+            builder.register(SemesterManager.class, serviceCollection -> new SemesterManagerImpl(
+                    serviceCollection.getRequiredService(SemesterDao.class)
             ));
 
             // REGISTER AUTHENTICATION SERVICES
