@@ -30,7 +30,11 @@ const tuam = {
       throw new Error(error);
     }
 
-    return response.json() as Promise<TResponse>;
+    try {
+      return response.json() as Promise<TResponse>;
+    } catch {
+      return {} as TResponse;
+    }
   },
 
   async get<TResponse>(
