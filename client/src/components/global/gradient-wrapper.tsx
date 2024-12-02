@@ -17,7 +17,7 @@ const GradientWrapper = ({
           "linear-gradient(180deg, #1C4ED8 0%, rgba(65, 128, 246, 1) 0.01%, rgba(65, 128, 246, 0.2) 100%)",
       }}
     ></div>
-    <div className="relative px-20">{children}</div>
+    <div className="relative">{children}</div>
   </div>
 );
 

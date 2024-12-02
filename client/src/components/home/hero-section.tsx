@@ -19,20 +19,21 @@ const Hero = () => (
               className="text-4xl bg-clip-text text-transparent bg-gradient-to-r font-extrabold mx-auto sm:text-6xl"
               style={{
                 backgroundImage:
-                  "linear-gradient(179.1deg, #FFFFFF 0.77%, rgba(255, 255, 255, 0) 182.09%)",
+                  "linear-gradient(179.1deg, #FFFFFF 0.77%, rgba(65, 128, 246, 0.1) 182.09%)",
               }}
             >
-              Manage your study plan
+              Conquer Your Semester with Confidence – Join Thousands of
+              Successful Students.
             </h1>
             <p className="max-w-xl mx-auto text-gray-300">
-              Gain control of your study plan and let us create one for you.
+              Your Semester, Your Plan: Smarter Studyplans Tailored for You!
             </p>
             <div className="flex justify-center font-medium text-sm">
               <Link
-                href="/register"
+                href="/#features"
                 className={`py-2.5 px-4 text-center rounded-full duration-150 flex items-center text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700`}
               >
-                Get Started
+                Learn More
                 <ChevronRight />
               </Link>
             </div>
