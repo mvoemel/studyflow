@@ -20,4 +20,5 @@ public interface ModuleDao {
     Optional<Module> getModule(long moduleId);
 
     Optional<Module> getModuleByName(String name);
+    List<Module> readBySemesterId(long semesterId);
 }

@@ -8,7 +8,10 @@ import java.util.Optional;
 public interface SemesterDao {
     void createSemester(Semester semester, long degreeId, long userId);
     List<Semester> getSemestersForStudent(long userId);
+    List<Semester> getSemestersForDegree(long degreeId);
     Optional<Semester> getSemesterById(long semesterId);
     void updateSemester(Semester semester);
     void deleteSemester(long semesterId);
+    List<Semester> readByDegreeId(long degreeId);
+
 }

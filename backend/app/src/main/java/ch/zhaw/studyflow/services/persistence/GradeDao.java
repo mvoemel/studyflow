@@ -34,14 +34,6 @@ public interface GradeDao {
     List<Grade> readByModule(long moduleId);
 
     /**
-     * Reads grades by student ID.
-     *
-     * @param studentId the student ID.
-     * @return the list of grades.
-     */
-    List<Grade> readByStudent(long studentId);
-
-    /**
      * Reads grades by degree ID.
      *
      * @param degreeId the degree ID.

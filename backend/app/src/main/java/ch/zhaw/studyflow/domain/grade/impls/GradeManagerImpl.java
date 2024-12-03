@@ -1,5 +1,6 @@
 package ch.zhaw.studyflow.domain.grade.impls;
 
+import ch.zhaw.studyflow.domain.curriculum.ModuleManager;
 import ch.zhaw.studyflow.domain.grade.Grade;
 import ch.zhaw.studyflow.domain.grade.GradeManager;
 import ch.zhaw.studyflow.services.persistence.GradeDao;
@@ -38,17 +39,12 @@ public class GradeManagerImpl implements GradeManager {
     }
 
     @Override
-    public List<Grade> readByModule(long moduleId) {
+    public List<Grade> getGradesByModule(long moduleId) {
         return gradeDao.readByModule(moduleId);
     }
 
     @Override
-    public List<Grade> readByStudent(long studentId) {
-        return gradeDao.readByStudent(studentId);
-    }
-
-    @Override
-    public void updateByDegree(long degreeId, List<Grade> grades) {
+    public void updateGradesByModule(long degreeId, List<Grade> grades) {
         gradeDao.updateByDegree(degreeId, grades);
     }
 }

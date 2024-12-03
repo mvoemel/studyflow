@@ -70,23 +70,6 @@ public class SQLGradeDao implements GradeDao {
     }
 
     @Override
-    public List<Grade> readByStudent(long studentId) {
-        String sql = "SELECT * FROM grades WHERE student_id = ?";
-        List<Grade> grades = new ArrayList<>();
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, studentId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    grades.add(mapRowToGrade(rs));
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return grades;
-    }
-
-    @Override
     public List<Grade> readByDegree(long degreeId) {
         String sql = "SELECT * FROM grades WHERE degree_id = ?";
         List<Grade> grades = new ArrayList<>();
