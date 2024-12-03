@@ -7,6 +7,7 @@ import ch.zhaw.studyflow.domain.curriculum.Module;
 import ch.zhaw.studyflow.domain.grade.Grade;
 import ch.zhaw.studyflow.domain.grade.GradeManager;
 import ch.zhaw.studyflow.utils.LongUtils;
+import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
 import ch.zhaw.studyflow.webserver.annotations.Route;
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
@@ -131,9 +132,14 @@ public class GradeController {
 
             context.getUrlCaptures().get("degreeId").flatMap(LongUtils::tryParseLong)
                     .ifPresent(degreeId -> {
-                        List<Grade> grades = gradeManager.getGradesByModule(degreeId);
-                        double average = grades.stream().mapToDouble(Grade::getValue).average().orElse(0.0);
-                        response.setResponseBody(JsonContent.writableOf(Map.of("average", average)))
+                        final List<Grade> grades = gradeManager.getGradesByModule(degreeId);
+                        double denominator = 0;
+                        double numerator = 0;
+                        for (Grade grade : grades) {
+                            numerator += grade.getPercentage() * grade.getValue();
+                            denominator += grade.getPercentage();
+                        }
+                        response.setResponseBody(JsonContent.writableOf(Map.of("average", numerator / denominator)))
                                 .setStatusCode(HttpStatusCode.OK);
                     });
             return response;

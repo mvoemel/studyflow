@@ -121,7 +121,10 @@ class GradeControllerTest {
                 Map.of("degreeId", "1")
         );
 
-        final List<Grade> grades = List.of(new Grade(1L, "Test", 1.0, 100.0, 1L));
+        final List<Grade> grades = List.of(
+                new Grade(1L, "Test 1", 0.25, 6, 1L),
+                new Grade(1L, "Test 2", 0.75, 4.5, 1L)
+        );
         when(gradeManager.getGradesByModule(1L)).thenReturn(grades);
 
         final HttpResponse response = gradeController.getGradesAveragesByDegreeId(context);
@@ -137,7 +140,7 @@ class GradeControllerTest {
         final Map<?, ?> content = getContentField(capturedContent, Map.class);
         assertInstanceOf(Map.class, content);
 
-        final Map<String, Double> expected = Map.of("average", 100.0);
+        final Map<String, Double> expected = Map.of("average", 5.00);
         assertEquals(expected, content);
     }
 
@@ -166,7 +169,7 @@ class GradeControllerTest {
 
     @Test
     void testGetGradesByDegreeIdUnauthorized() {
-        AuthMockHelpers.configureFailingAuthHandler(authenticator);
+        configureFailingAuthHandler(authenticator);
         RequestContext context = makeRequestContext(
                 makeHttpRequest(),
                 Map.of("degreeId", "1")
@@ -174,6 +177,23 @@ class GradeControllerTest {
         final HttpResponse response = gradeController.getGradesByDegreeId(context);
 
         verify(response).setStatusCode(HttpStatusCode.UNAUTHORIZED);
+    }
+
+    @Test
+    void testInvalidWeightSum() {
+        configureSuccessfulAuthHandler(authenticator, getDefaultClaims());
+        ModuleGrade moduleGrade = new ModuleGrade(1L, "Module", List.of(
+                new Grade(1L, "Test 1", 0.5, 6, 1L),
+                new Grade(1L, "Test 2", 1.0, 4.5, 1L)
+        ));
+        final RequestContext context = makeRequestContext(
+                makeHttpRequest(makeJsonRequestBody(ModuleGrade.class, moduleGrade)),
+                Map.of("degreeId", "1")
+        );
+
+        final HttpResponse response = gradeController.patchGradesByDegreeId(context);
+
+        verify(response).setStatusCode(HttpStatusCode.BAD_REQUEST);
     }
 
     private static <T> T getContentField(WritableBodyContent content, Class<T> type) throws NoSuchFieldException, IllegalAccessException {
