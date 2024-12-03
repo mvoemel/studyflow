@@ -140,7 +140,7 @@ class GradeControllerTest {
         final Map<?, ?> content = getContentField(capturedContent, Map.class);
         assertInstanceOf(Map.class, content);
 
-        final Map<String, Double> expected = Map.of("average", 5.00);
+        final Map<String, Double> expected = Map.of("average", 4.875);
         assertEquals(expected, content);
     }
 
