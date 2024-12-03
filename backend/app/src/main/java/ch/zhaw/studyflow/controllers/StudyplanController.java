@@ -15,7 +15,6 @@ import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 public class StudyplanController {
     private static Logger LOGGER = Logger.getLogger(StudyplanController.class.getName());
 
-    private final AuthenticationHandler authenticator;
     private final StudyplanManager studyplanManager;
     private final PrincipalProvider principalProvider;
 
@@ -25,8 +24,7 @@ public class StudyplanController {
      * @param studyplanManager the studyplan manager
      * @param authenticator the authentication handler
      */
-    public StudyplanController(StudyplanManager studyplanManager, AuthenticationHandler authenticator, PrincipalProvider principalProvider) {
-        this.authenticator = authenticator;
+    public StudyplanController(StudyplanManager studyplanManager, PrincipalProvider principalProvider) {
         this.studyplanManager = studyplanManager;
         this.principalProvider = principalProvider;
     }

@@ -14,7 +14,7 @@ public class BasicStudyDay implements StudyDay {
     private LocalTime endTime;
     private int minutes;
     private List<Appointment> appointments;
-    private List<StudyAllocation> studyAllocations;
+    private List<StudyAllocation> studyAllocations; //oder direkt appointments?
 
     public BasicStudyDay(LocalDate date, LocalTime startTime, LocalTime endTime) {
         this.date = date;

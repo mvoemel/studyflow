@@ -13,6 +13,8 @@ public class Appointment {
     private LocalDateTime endTime;
     private long calendarId;
 
+    //TODO: add title and description
+
     /**
      * Default constructor.
      */

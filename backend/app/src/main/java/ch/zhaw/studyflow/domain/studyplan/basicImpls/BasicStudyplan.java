@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
 import ch.zhaw.studyflow.domain.curriculum.impls.ModuleManagerImpl;
@@ -17,10 +18,6 @@ import ch.zhaw.studyflow.domain.studyplan.Studyplan;
 
 public class BasicStudyplan implements Studyplan {
     private static final Logger LOGGER = Logger.getLogger(BasicStudyplan.class.getName());
-    private CalendarManagerImpl calendarManager;
-    private ModuleManagerImpl moduleManager;
-    private AppointmentManagerImpl appointmentManager;
-
     private long calendarId;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -28,8 +25,11 @@ public class BasicStudyplan implements Studyplan {
     private LocalTime startTime;
     private LocalTime endTime;
 
+    private List<Appointment> appointments;
+    private List<ch.zhaw.studyflow.domain.curriculum.Module> modules;
+
     private List<StudyDay> studyDays;
-    private Map<Module, List<StudyDay>> moduleStudyDays;
+    private Map<ch.zhaw.studyflow.domain.curriculum.Module, List<StudyDay>> moduleStudyDays;
 
     public BasicStudyplan(LocalDate startDate, LocalDate endDate, List<DayOfWeek> daysOfWeek, LocalTime startTime, LocalTime endTime, long calendarId) {
         this.calendarId = calendarId;
@@ -38,6 +38,7 @@ public class BasicStudyplan implements Studyplan {
         this.daysOfWeek = daysOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
+
         this.studyDays = new ArrayList<>();
         this.moduleStudyDays = new HashMap<>();
         
@@ -94,6 +95,26 @@ public class BasicStudyplan implements Studyplan {
     }
 
     @Override
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    @Override
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
+    }
+
+    @Override
+    public List<ch.zhaw.studyflow.domain.curriculum.Module> getModules() {
+        return modules;
+    }
+
+    @Override
+    public void setModules(List<ch.zhaw.studyflow.domain.curriculum.Module> modules) {
+        this.modules = modules;
+    }
+
+    @Override
     public List<DayOfWeek> getDaysOfWeek() {
         return daysOfWeek;
     }
@@ -104,11 +125,11 @@ public class BasicStudyplan implements Studyplan {
     }
 
     @Override
-    public Map<Module, List<StudyDay>> getModuleStudyDays() {
+    public Map<ch.zhaw.studyflow.domain.curriculum.Module, List<StudyDay>> getModuleStudyDays() {
         return moduleStudyDays;
     }
 
-    public void createStudyDays(){
+    private void createStudyDays(){
         LocalDate currentDate = startDate;
         
         while(currentDate.isBefore(endDate)){
@@ -116,13 +137,18 @@ public class BasicStudyplan implements Studyplan {
                 StudyDay studyDay = new BasicStudyDay(currentDate, startTime, endTime);
                 studyDays.add(studyDay);
 
-                //TODO: add appointments to studyDay
+                //add appointments to studyDay
+                for(Appointment appointment : appointments){
+                    if(appointment.getStartTime().toLocalDate().equals(currentDate)){
+                        studyDay.addAppointment(appointment);
+                    }
+                }
             }
             currentDate = currentDate.plusDays(1);
         }
     }
 
-    public int calculateTotalMinutes(){
+    private int calculateTotalMinutes(){
         int totalMinutes = 0;
         for(StudyDay studyDay : studyDays){
             studyDay.calculateMinutes();
@@ -130,5 +156,15 @@ public class BasicStudyplan implements Studyplan {
         }
         return totalMinutes;
     }
+
+    private void calculateModulePercentages(){
+        //calculate percentage from importance, understanding and time value
+    }
+
+    private void allocateModules(){
+        //allocate modules to studyDays
+    }
+
+
     
 }
