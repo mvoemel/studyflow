@@ -56,7 +56,8 @@ public class SemesterController {
                             return semester;
                         }).ifPresentOrElse(semester -> {
                             semesterManager.createSemester(semester, semester.getDegreeId(), semester.getUserId());
-                            response.setStatusCode(HttpStatusCode.CREATED);
+                            response.setResponseBody(JsonContent.writableOf(semester))
+                                    .setStatusCode(HttpStatusCode.CREATED);
                         }, () -> {
                             response.setStatusCode(HttpStatusCode.BAD_REQUEST);
                         });
