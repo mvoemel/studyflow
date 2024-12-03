@@ -8,15 +8,12 @@ import ch.zhaw.studyflow.domain.curriculum.Semester;
 import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
 import ch.zhaw.studyflow.domain.grade.Grade;
 import ch.zhaw.studyflow.domain.grade.GradeManager;
-import ch.zhaw.studyflow.webserver.http.CaptureContainer;
-import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
-import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -24,11 +21,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static ch.zhaw.studyflow.controllers.AuthMockHelpers.*;
+import static ch.zhaw.studyflow.controllers.HttpMockHelpers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -51,11 +49,12 @@ class GradeControllerTest {
 
     @Test
     void testGetGradesByDegreeIdSuccessful() throws NoSuchFieldException, IllegalAccessException {
-        configureSuccessfulAuth();
-        RequestContext context = HttpMockHelpers.makeRequestContext(HttpMockHelpers.makeHttpRequest());
-        CaptureContainer captureContainer = mock(CaptureContainer.class);
-        when(context.getUrlCaptures()).thenReturn(captureContainer);
-        when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
+        configureSuccessfulAuthHandler(authenticator, getDefaultClaims());
+
+        RequestContext context = makeRequestContext(
+                makeHttpRequest(),
+                Map.of("degreeId", "1")
+        );
 
         final List<Semester> semesters = List.of(
                 new Semester(1L, "Semester 1", "", 0L, 0)
@@ -96,13 +95,13 @@ class GradeControllerTest {
 
     @Test
     void testPatchGradesByDegreeIdSuccessful() {
-        configureSuccessfulAuth();
+        configureSuccessfulAuthHandler(authenticator, getDefaultClaims());
 
-        final RequestContext context = HttpMockHelpers.makeRequestContext(HttpMockHelpers.makeHttpRequest());
-        final CaptureContainer captureContainer = mock(CaptureContainer.class);
-        when(context.getUrlCaptures()).thenReturn(captureContainer);
-        when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
         final ModuleGrade moduleGrade = new ModuleGrade(1L, "Module", List.of(new Grade(1L, "Test", 1.0, 100.0, 1L)));
+        final RequestContext context = makeRequestContext(
+                makeHttpRequest(makeJsonRequestBody(ModuleGrade.class, moduleGrade)),
+                Map.of("degreeId", "1")
+        );
 
         final ReadableBodyContent bodyContent = mock(ReadableBodyContent.class);
         when(bodyContent.tryRead(ModuleGrade.class)).thenReturn(Optional.of(moduleGrade));
@@ -115,12 +114,12 @@ class GradeControllerTest {
 
     @Test
     void testGetGradesAveragesByDegreeIdSuccessful() throws NoSuchFieldException, IllegalAccessException {
-        configureSuccessfulAuth();
+        configureSuccessfulAuthHandler(authenticator, getDefaultClaims());
 
-        final RequestContext context = HttpMockHelpers.makeRequestContext(HttpMockHelpers.makeHttpRequest());
-        final CaptureContainer captureContainer = mock(CaptureContainer.class);
-        when(context.getUrlCaptures()).thenReturn(captureContainer);
-        when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
+        final RequestContext context = makeRequestContext(
+                makeHttpRequest(),
+                Map.of("degreeId", "1")
+        );
 
         final List<Grade> grades = List.of(new Grade(1L, "Test", 1.0, 100.0, 1L));
         when(gradeManager.getGradesByModule(1L)).thenReturn(grades);
@@ -144,10 +143,8 @@ class GradeControllerTest {
 
     @Test
     void testGetGradesByDegreeIdMissingDegreeId() {
-        configureSuccessfulAuth();
-        RequestContext context = HttpMockHelpers.makeRequestContext(HttpMockHelpers.makeHttpRequest());
-        CaptureContainer captureContainer = mock(CaptureContainer.class);
-        when(context.getUrlCaptures()).thenReturn(captureContainer);
+        configureSuccessfulAuthHandler(authenticator, getDefaultClaims());
+        RequestContext context = makeRequestContext(makeHttpRequest());
 
         final HttpResponse response = gradeController.getGradesByDegreeId(context);
 
@@ -156,26 +153,24 @@ class GradeControllerTest {
 
     @Test
     void testPatchGradesByDegreeIdInvalidBody() {
-        configureSuccessfulAuth();
-        RequestContext context = HttpMockHelpers.makeRequestContext(HttpMockHelpers.makeHttpRequest());
-        CaptureContainer captureContainer = mock(CaptureContainer.class);
-        when(context.getUrlCaptures()).thenReturn(captureContainer);
-        when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
+        configureSuccessfulAuthHandler(authenticator, getDefaultClaims());
+        RequestContext context = makeRequestContext(
+                makeHttpRequest(),
+                Map.of("degreeId", "1")
+        );
 
         final HttpResponse response = gradeController.patchGradesByDegreeId(context);
 
         verify(response).setStatusCode(HttpStatusCode.BAD_REQUEST);
     }
 
-
     @Test
     void testGetGradesByDegreeIdUnauthorized() {
-        configureFailingAuth();
-        RequestContext context = HttpMockHelpers.makeRequestContext(HttpMockHelpers.makeHttpRequest());
-        CaptureContainer captureContainer = mock(CaptureContainer.class);
-        when(context.getUrlCaptures()).thenReturn(captureContainer);
-        when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
-
+        AuthMockHelpers.configureFailingAuthHandler(authenticator);
+        RequestContext context = makeRequestContext(
+                makeHttpRequest(),
+                Map.of("degreeId", "1")
+        );
         final HttpResponse response = gradeController.getGradesByDegreeId(context);
 
         verify(response).setStatusCode(HttpStatusCode.UNAUTHORIZED);
@@ -185,16 +180,6 @@ class GradeControllerTest {
         var contentField = content.getClass().getDeclaredField("content");
         contentField.setAccessible(true);
         return type.cast(contentField.get(content));
-    }
-
-    private void configureSuccessfulAuth() {
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1L
-        ));
-    }
-
-    private void configureFailingAuth() {
-        AuthMockHelpers.configureFailingAuthHandler(authenticator);
     }
 
     private void assertSemesterGradesEqual(List<SemesterGrade> expected, List<SemesterGrade> actual) {
