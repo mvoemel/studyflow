@@ -6,12 +6,24 @@ type MeRequestResponseData = {
   settings: Settings;
 };
 
+// TODO: fix type
 const meRequest = async () => {
   const response = await tuam.get<{
     student: UserWithoutPassword;
-    settings: Settings;
+    settings: { id: number; activeDegree: number; globalCalendar: number };
   }>("/api/student/me");
-  return { user: response.student, settings: response.settings };
+  return {
+    user: {
+      ...response.student,
+      id: response.student.id.toString(),
+      settingsId: response.settings.id.toString(),
+    },
+    settings: {
+      id: response.settings.id.toString(),
+      activeDegreeId: response.settings.activeDegree.toString(),
+      globalCalendarId: response.settings.globalCalendar.toString(),
+    },
+  };
 };
 
 export { type MeRequestResponseData, meRequest };

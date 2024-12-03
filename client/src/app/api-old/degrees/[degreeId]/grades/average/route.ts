@@ -1,4 +1,4 @@
-import { awaitTimeout } from "@/app/api/_utils";
+import { awaitTimeout } from "@/app/api-old/_utils";
 import { NextResponse } from "next/server";
 
 export async function GET() {

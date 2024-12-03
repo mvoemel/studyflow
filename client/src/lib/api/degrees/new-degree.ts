@@ -3,8 +3,13 @@ import { Degree } from "@/types";
 
 type NewDegreeRequestBody = Pick<Degree, "name" | "description">;
 
+// TODO: fix type
 const newDegreeRequest = async (body: NewDegreeRequestBody) => {
-  return await tuam.post<Degree, NewDegreeRequestBody>("/api/degrees", body);
+  const response = await tuam.post<Degree, NewDegreeRequestBody>(
+    "/api/degrees",
+    body
+  );
+  return { ...response, id: response.id.toString() };
 };
 
 export { type NewDegreeRequestBody, newDegreeRequest };
