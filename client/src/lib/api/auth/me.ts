@@ -7,7 +7,11 @@ type MeRequestResponseData = {
 };
 
 const meRequest = async () => {
-  return await tuam.get<MeRequestResponseData>("/api/student/me");
+  const response = await tuam.get<{
+    student: UserWithoutPassword;
+    settings: Settings;
+  }>("/api/student/me");
+  return { user: response.student, settings: response.settings };
 };
 
 export { type MeRequestResponseData, meRequest };
