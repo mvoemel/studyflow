@@ -14,10 +14,10 @@ public class InMemorySemesterDao implements SemesterDao {
 
 
     public InMemorySemesterDao() {
-        this.semesters = new HashMap<>();
-        this.semestersToDegree = new HashMap<>();
-        this.degreeToUser = new HashMap<>();
-        this.idCounter = new AtomicInteger();
+        this.semesters          = new HashMap<>();
+        this.semestersToDegree  = new HashMap<>();
+        this.degreeToUser       = new HashMap<>();
+        this.idCounter          = new AtomicInteger();
     }
 
     @Override
