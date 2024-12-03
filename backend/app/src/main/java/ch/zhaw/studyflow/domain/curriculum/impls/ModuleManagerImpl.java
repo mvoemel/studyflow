@@ -81,6 +81,11 @@ public class ModuleManagerImpl implements ModuleManager {
         return moduleDao.getModuleByName(name);
     }
 
+    @Override
+    public List<Module> getModulesBySemester(long semesterId) {
+        return moduleDao.readBySemesterId(semesterId);
+    }
+
     /**
      * Updates a module.
      *

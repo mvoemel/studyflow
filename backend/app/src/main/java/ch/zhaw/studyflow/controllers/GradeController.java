@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Controller for handling grade-related requests.
@@ -42,10 +41,10 @@ public class GradeController {
      * @param authenticator   the AuthenticationHandler to use for authentication.
      */
     public GradeController(SemesterManager semesterManager, ModuleManager moduleManager, GradeManager gradeManager, AuthenticationHandler authenticator) {
-        this.semesterManager = semesterManager;
-        this.moduleManager = moduleManager;
-        this.gradeManager = gradeManager;
-        this.authenticator = authenticator;
+        this.semesterManager    = semesterManager;
+        this.moduleManager      = moduleManager;
+        this.gradeManager       = gradeManager;
+        this.authenticator      = authenticator;
     }
 
     /**
@@ -69,7 +68,7 @@ public class GradeController {
                 final List<SemesterGrade> semesterGrades = semesters.stream().map(semester -> {
                     final List<Module> modules = moduleManager.getModulesBySemester(semester.getId());
                     final List<ModuleGrade> moduleGrades = modules.stream().map(module -> {
-                        final List<Grade> grades = gradeManager.readByModule(module.getId());
+                        final List<Grade> grades = gradeManager.getGradesByModule(module.getId());
                         return new ModuleGrade(module.getId(), module.getName(), grades);
                     }).toList();
                     return new SemesterGrade(semester.getId(), semester.getName(), moduleGrades);
@@ -106,7 +105,7 @@ public class GradeController {
                             .ifPresent(moduleGrade -> {
                                 final List<Grade> newGrades = moduleGrade.getGrades();
                                 if (moduleGrade.getId() == degreeId && validateGrades(newGrades)) {
-                                    gradeManager.updateByModule(moduleGrade.getId(), newGrades);
+                                    gradeManager.updateGradesByModule(moduleGrade.getId(), newGrades);
                                     response.setStatusCode(HttpStatusCode.OK);
                                 }
                             })
@@ -132,7 +131,7 @@ public class GradeController {
 
             context.getUrlCaptures().get("degreeId").flatMap(LongUtils::tryParseLong)
                     .ifPresent(degreeId -> {
-                        List<Grade> grades = gradeManager.readByModule(degreeId);
+                        List<Grade> grades = gradeManager.getGradesByModule(degreeId);
                         double average = grades.stream().mapToDouble(Grade::getValue).average().orElse(0.0);
                         response.setResponseBody(JsonContent.writableOf(Map.of("average", average)))
                                 .setStatusCode(HttpStatusCode.OK);

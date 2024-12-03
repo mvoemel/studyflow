@@ -3,11 +3,11 @@ package ch.zhaw.studyflow.controllers;
 import ch.zhaw.studyflow.controllers.deo.ModuleGrade;
 import ch.zhaw.studyflow.controllers.deo.SemesterGrade;
 import ch.zhaw.studyflow.domain.curriculum.Module;
+import ch.zhaw.studyflow.domain.curriculum.ModuleManager;
 import ch.zhaw.studyflow.domain.curriculum.Semester;
+import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
 import ch.zhaw.studyflow.domain.grade.Grade;
-import ch.zhaw.studyflow.services.persistence.GradeDao;
-import ch.zhaw.studyflow.services.persistence.ModuleDao;
-import ch.zhaw.studyflow.services.persistence.SemesterDao;
+import ch.zhaw.studyflow.domain.grade.GradeManager;
 import ch.zhaw.studyflow.webserver.http.CaptureContainer;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
@@ -32,14 +32,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
-public class GradeControllerTest {
-
+class GradeControllerTest {
     @Mock
-    private GradeDao gradeDao;
+    private SemesterManager semesterManager;
     @Mock
-    private SemesterDao semesterDao;
+    private GradeManager gradeManager;
     @Mock
-    private ModuleDao moduleDao;
+    private ModuleManager moduleManager;
     @Mock
     private AuthenticationHandler authenticator;
     @InjectMocks
@@ -86,21 +85,21 @@ public class GradeControllerTest {
         semester.setId(1L);
         semester.setName("Semester 1");
         List<Semester> semesters = List.of(semester);
-        when(semesterDao.readByDegreeId(1L)).thenReturn(semesters);
+        when(semesterManager.getSemestersForDegree(1L)).thenReturn(semesters);
 
         Module module = new Module(1L, "Module 1");
         List<Module> modules = List.of(module);
-        when(moduleDao.readBySemesterId(1L)).thenReturn(modules);
+        when(moduleManager.getModulesBySemester(1L)).thenReturn(modules);
 
         Grade grade = new Grade();
         List<Grade> grades = List.of(grade);
-        when(gradeDao.readByModule(1L)).thenReturn(grades);
+        when(gradeManager.getGradesByModule(1L)).thenReturn(grades);
 
         HttpResponse actualResponse = gradeController.getGradesByDegreeId(context);
 
-        verify(semesterDao).readByDegreeId(1L);
-        verify(moduleDao).readBySemesterId(1L);
-        verify(gradeDao).readByModule(1L);
+        verify(semesterManager).getSemestersForDegree(1L);
+        verify(moduleManager).getModulesBySemester(1L);
+        verify(gradeManager).getGradesByModule(1L);
         verify(response).setStatusCode(HttpStatusCode.OK);
 
         ArgumentCaptor<WritableBodyContent> argumentCaptor = ArgumentCaptor.forClass(WritableBodyContent.class);
@@ -153,7 +152,7 @@ public class GradeControllerTest {
 
         HttpResponse actualResponse = gradeController.patchGradesByDegreeId(context);
 
-        verify(gradeDao).updateByDegree(eq(1L), anyList());
+        verify(gradeManager).updateGradesByModule(eq(1L), anyList());
         verify(response).setStatusCode(HttpStatusCode.OK);
     }
 
@@ -165,11 +164,11 @@ public class GradeControllerTest {
         when(context.getUrlCaptures()).thenReturn(captureContainer);
         when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
         List<Grade> grades = List.of(new Grade(1L, "Test", 1.0, 100.0, 1L));
-        when(gradeDao.readByDegree(1)).thenReturn(grades);
+        when(gradeManager.getGradesByModule(1L)).thenReturn(grades);
 
         HttpResponse actualResponse = gradeController.getGradesAveragesByDegreeId(context);
 
-        verify(gradeDao).readByDegree(1);
+        verify(gradeManager).getGradesByModule(1);
         verify(response).setStatusCode(HttpStatusCode.OK);
 
         ArgumentCaptor<WritableBodyContent> argumentCaptor = ArgumentCaptor.forClass(WritableBodyContent.class);

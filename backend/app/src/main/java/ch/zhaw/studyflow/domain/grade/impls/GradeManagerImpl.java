@@ -13,7 +13,7 @@ import java.util.List;
 public class GradeManagerImpl implements GradeManager {
     private final GradeDao gradeDao;
 
-    public GradeManagerImpl(ModuleManager moduleManager, GradeDao gradeDao) {
+    public GradeManagerImpl(GradeDao gradeDao) {
         this.gradeDao = gradeDao;
     }
 
@@ -39,12 +39,12 @@ public class GradeManagerImpl implements GradeManager {
     }
 
     @Override
-    public List<Grade> readByModule(long moduleId) {
+    public List<Grade> getGradesByModule(long moduleId) {
         return gradeDao.readByModule(moduleId);
     }
 
     @Override
-    public void updateByModule(long degreeId, List<Grade> grades) {
+    public void updateGradesByModule(long degreeId, List<Grade> grades) {
         gradeDao.updateByDegree(degreeId, grades);
     }
 }

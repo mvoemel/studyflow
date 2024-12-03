@@ -43,7 +43,7 @@ public interface GradeManager {
      * @param moduleId the module ID.
      * @return the list of grades.
      */
-    List<Grade> readByModule(long moduleId);
+    List<Grade> getGradesByModule(long moduleId);
 
     /**
      * Updates grades by degree ID.
@@ -51,5 +51,5 @@ public interface GradeManager {
      * @param degreeId the degree ID.
      * @param grades the list of grades to update.
      */
-    void updateByModule(long degreeId, List<Grade> grades);
+    void updateGradesByModule(long degreeId, List<Grade> grades);
 }
