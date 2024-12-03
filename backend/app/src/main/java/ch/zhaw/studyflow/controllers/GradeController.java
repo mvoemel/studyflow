@@ -1,15 +1,12 @@
 package ch.zhaw.studyflow.controllers;
 
-import ch.zhaw.studyflow.controllers.deo.ModuleDeo;
 import ch.zhaw.studyflow.controllers.deo.ModuleGrade;
-import ch.zhaw.studyflow.controllers.deo.SemesterDeo;
 import ch.zhaw.studyflow.controllers.deo.SemesterGrade;
+import ch.zhaw.studyflow.domain.curriculum.*;
 import ch.zhaw.studyflow.domain.curriculum.Module;
-import ch.zhaw.studyflow.domain.curriculum.Semester;
 import ch.zhaw.studyflow.domain.grade.Grade;
-import ch.zhaw.studyflow.services.persistence.GradeDao;
-import ch.zhaw.studyflow.services.persistence.ModuleDao;
-import ch.zhaw.studyflow.services.persistence.SemesterDao;
+import ch.zhaw.studyflow.domain.grade.GradeManager;
+import ch.zhaw.studyflow.utils.LongUtils;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
 import ch.zhaw.studyflow.webserver.annotations.Route;
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
@@ -31,22 +28,23 @@ import java.util.stream.Collectors;
  */
 @Route(path = "api/degrees")
 public class GradeController {
-    private static final Logger logger = Logger.getLogger(GradeController.class.getName());
-    private final GradeDao gradeDao;
-    private final SemesterDao semesterDao;
-    private final ModuleDao moduleDao;
+    private static final Logger LOGGER = Logger.getLogger(GradeController.class.getName());
+    private final SemesterManager semesterManager;
+    private final ModuleManager moduleManager;
+    private final GradeManager gradeManager;
     private final AuthenticationHandler authenticator;
 
     /**
      * Constructs a GradeController with the specified GradeDao and AuthenticationHandler.
      *
-     * @param gradeDao the GradeDao to use for data access.
-     * @param authenticator the AuthenticationHandler to use for authentication.
+     * @param semesterManager the DegreeManager to use for degree-related operations.
+     * @param moduleManager   the ModuleManager to use for module-related operations.
+     * @param authenticator   the AuthenticationHandler to use for authentication.
      */
-    public GradeController(GradeDao gradeDao,SemesterDao semesterDao, ModuleDao moduleDao, AuthenticationHandler authenticator) {
-        this.gradeDao = gradeDao;
-        this.semesterDao = semesterDao;
-        this.moduleDao = moduleDao;
+    public GradeController(SemesterManager semesterManager, ModuleManager moduleManager, GradeManager gradeManager, AuthenticationHandler authenticator) {
+        this.semesterManager = semesterManager;
+        this.moduleManager = moduleManager;
+        this.gradeManager = gradeManager;
         this.authenticator = authenticator;
     }
 
@@ -60,20 +58,22 @@ public class GradeController {
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getGradesByDegreeId(RequestContext context) {
         final HttpRequest request = context.getRequest();
-        HttpResponse response = request.createResponse();
+
         return authenticator.handleIfAuthenticated(request, principal -> {
-            Optional<String> degreeIdOpt = context.getUrlCaptures().get("degreeId");
+            final HttpResponse response = request.createResponse();
+
+            final Optional<String> degreeIdOpt = context.getUrlCaptures().get("degreeId");
             if (degreeIdOpt.isPresent()) {
                 long degreeId = Long.parseLong(degreeIdOpt.get());
-                List<Semester> semesters = semesterDao.readByDegreeId(degreeId);
-                List<SemesterGrade> semesterGrades = semesters.stream().map(semester -> {
-                    List<Module> modules = moduleDao.readBySemesterId(semester.getId());
-                    List<ModuleGrade> moduleGrades = modules.stream().map(module -> {
-                        List<Grade> grades = gradeDao.readByModule(module.getId());
+                final List<Semester> semesters = semesterManager.getSemestersForDegree(degreeId);
+                final List<SemesterGrade> semesterGrades = semesters.stream().map(semester -> {
+                    final List<Module> modules = moduleManager.getModulesBySemester(semester.getId());
+                    final List<ModuleGrade> moduleGrades = modules.stream().map(module -> {
+                        final List<Grade> grades = gradeManager.readByModule(module.getId());
                         return new ModuleGrade(module.getId(), module.getName(), grades);
-                    }).collect(Collectors.toList());
+                    }).toList();
                     return new SemesterGrade(semester.getId(), semester.getName(), moduleGrades);
-                }).collect(Collectors.toList());
+                }).toList();
 
                 response.setResponseBody(JsonContent.writableOf(semesterGrades))
                         .setStatusCode(HttpStatusCode.OK);
@@ -94,30 +94,23 @@ public class GradeController {
     @Endpoint(method = HttpMethod.PATCH)
     public HttpResponse patchGradesByDegreeId(RequestContext context) {
         final HttpRequest request = context.getRequest();
-        HttpResponse response = request.createResponse();
+
         return authenticator.handleIfAuthenticated(request, principal -> {
-            Optional<String> degreeIdOpt = context.getUrlCaptures().get("degreeId");
-            if (degreeIdOpt.isPresent()) {
-                long degreeId = Long.parseLong(degreeIdOpt.get());
-                request.getRequestBody()
-                        .flatMap(body -> body.tryRead(ModuleGrade.class))
-                        .ifPresentOrElse(
-                                moduleGrade -> {
-                                    List<Grade> grades = moduleGrade.getGrades();
-                                    if (validateGrades(grades)) {
-                                        gradeDao.updateByDegree(degreeId, grades);
-                                        response.setStatusCode(HttpStatusCode.OK);
-                                    } else {
-                                        response.setStatusCode(HttpStatusCode.BAD_REQUEST);
-                                    }
-                                },
-                                () -> {
-                                    response.setStatusCode(HttpStatusCode.BAD_REQUEST);
+            final HttpResponse response = request.createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
+            Optional<Long> degreeIdOpt = context.getUrlCaptures().get("degreeId").flatMap(LongUtils::tryParseLong);
+            degreeIdOpt.ifPresent(degreeId ->
+                    request.getRequestBody()
+                            .flatMap(body -> body.tryRead(ModuleGrade.class))
+                            .ifPresent(moduleGrade -> {
+                                final List<Grade> newGrades = moduleGrade.getGrades();
+                                if (moduleGrade.getId() == degreeId && validateGrades(newGrades)) {
+                                    gradeManager.updateByModule(moduleGrade.getId(), newGrades);
+                                    response.setStatusCode(HttpStatusCode.OK);
                                 }
-                        );
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
-            }
+                            })
+            );
             return response;
         });
     }
@@ -132,18 +125,18 @@ public class GradeController {
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getGradesAveragesByDegreeId(RequestContext context) {
         final HttpRequest request = context.getRequest();
-        HttpResponse response = request.createResponse();
+
         return authenticator.handleIfAuthenticated(request, principal -> {
-            Optional<String> degreeIdOpt = context.getUrlCaptures().get("degreeId");
-            if (degreeIdOpt.isPresent()) {
-                long degreeId = Long.parseLong(degreeIdOpt.get());
-                List<Grade> grades = gradeDao.readByDegree(degreeId);
-                double average = grades.stream().mapToDouble(Grade::getValue).average().orElse(0.0);
-                response.setResponseBody(JsonContent.writableOf(Map.of("average", average)))
-                        .setStatusCode(HttpStatusCode.OK);
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
-            }
+            final HttpResponse response = request.createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
+            context.getUrlCaptures().get("degreeId").flatMap(LongUtils::tryParseLong)
+                    .ifPresent(degreeId -> {
+                        List<Grade> grades = gradeManager.readByModule(degreeId);
+                        double average = grades.stream().mapToDouble(Grade::getValue).average().orElse(0.0);
+                        response.setResponseBody(JsonContent.writableOf(Map.of("average", average)))
+                                .setStatusCode(HttpStatusCode.OK);
+                    });
             return response;
         });
     }

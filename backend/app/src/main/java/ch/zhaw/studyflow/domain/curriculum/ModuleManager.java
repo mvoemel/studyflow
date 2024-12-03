@@ -16,5 +16,7 @@ public interface ModuleManager {
 
     Optional<Module> getModuleByName(String name);
 
+    List<Module> getModulesBySemester(long semesterId);
+
     void update(Module module);
 }

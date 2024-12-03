@@ -9,35 +9,40 @@ import java.util.Optional;
 
 public class SemesterManagerImpl implements SemesterManager {
 
-    private final SemesterDao SemesterDao;
+    private final SemesterDao semesterDao;
 
     public SemesterManagerImpl(SemesterDao semesterDao) {
-        this.SemesterDao = semesterDao;
+        this.semesterDao = semesterDao;
     }
 
     @Override
     public void createSemester(Semester semester, long degreeId, long userId) {
-        SemesterDao.createSemester(semester, degreeId, userId);
+        semesterDao.createSemester(semester, degreeId, userId);
     }
 
     @Override
     public List<Semester> getSemestersForStudent(long userId) {
-        return SemesterDao.getSemestersForStudent(userId);
+        return semesterDao.getSemestersForStudent(userId);
+    }
+
+    @Override
+    public List<Semester> getSemestersForDegree(long degreeId) {
+        return semesterDao.getSemestersForStudent(degreeId);
     }
 
     @Override
     public Optional<Semester> getSemesterById(long semesterId) {
-        return SemesterDao.getSemesterById(semesterId);
+        return semesterDao.getSemesterById(semesterId);
     }
 
     @Override
     public void updateSemester(Semester semester) {
-        SemesterDao.updateSemester(semester);
+        semesterDao.updateSemester(semester);
     }
 
     @Override
     public void deleteSemester(long semesterId) {
-        SemesterDao.deleteSemester(semesterId);
+        semesterDao.deleteSemester(semesterId);
     }
 
 }

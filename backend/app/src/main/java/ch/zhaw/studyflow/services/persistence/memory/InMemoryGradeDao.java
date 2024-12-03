@@ -7,30 +7,30 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * In-memory implementation of GradeDao.
  */
 public class InMemoryGradeDao implements GradeDao {
-    private final Map<Long, Grade> grades = new HashMap<>();
-    private final Map<Long, List<Grade>> degrees = new HashMap<>();
+    private final Map<Long, Grade> persistedGrades = new HashMap<>();
     private long currentId = 1;
 
     @Override
     public void create(Grade grade) {
         grade.setId(currentId++);
-        grades.put(grade.getId(), grade);
+        persistedGrades.put(grade.getId(), grade);
     }
 
     @Override
     public Grade read(long gradeId) {
-        return grades.get(gradeId);
+        return persistedGrades.get(gradeId);
     }
 
     @Override
     public List<Grade> readByModule(long moduleId) {
         List<Grade> result = new ArrayList<>();
-        for (Grade grade : grades.values()) {
+        for (Grade grade : persistedGrades.values()) {
             if (grade.getBelongsTo() == moduleId) {
                 result.add(grade);
             }
@@ -39,33 +39,33 @@ public class InMemoryGradeDao implements GradeDao {
     }
 
     @Override
-    public List<Grade> readByStudent(long studentId) {
-        List<Grade> result = new ArrayList<>();
-        for (Grade grade : grades.values()) {
-            if (grade.getBelongsTo() == studentId) {
-                result.add(grade);
-            }
-        }
-        return result;
-    }
-
-    @Override
     public List<Grade> readByDegree(long degreeId) {
-        return degrees.get(degreeId);
+        return persistedGrades.values().stream()
+                .filter(e -> e.getBelongsTo() == degreeId)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void update(Grade grade) {
-        grades.put(grade.getId(), grade);
+        persistedGrades.put(grade.getId(), grade);
     }
 
     @Override
     public void updateByDegree(long degreeId, List<Grade> grades) {
-        degrees.put(degreeId, grades);
+        List<Grade> oldGrades = readByDegree(degreeId);
+        for (Grade grade : grades) {
+            persistedGrades.put(grade.getId(), grade);
+            if (persistedGrades.containsKey(grade.getId())) {
+                oldGrades.removeIf(e -> e.getId() == grade.getId());
+            }
+        }
+        for (Grade grade : oldGrades) {
+            persistedGrades.remove(grade.getId());
+        }
     }
 
     @Override
     public void delete(long gradeId) {
-        grades.remove(gradeId);
+        persistedGrades.remove(gradeId);
     }
 }
