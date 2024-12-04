@@ -10,7 +10,7 @@ import java.util.Optional;
  *
  */
 public final class Cookie {
-    private static final String DATE_FORMAT = "E, dd MMM yyyy HH:mm:ss 'GMT'";
+    private static final String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss 'GMT'";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
     private final String name;
