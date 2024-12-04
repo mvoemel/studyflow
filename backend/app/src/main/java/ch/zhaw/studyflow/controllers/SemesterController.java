@@ -90,7 +90,7 @@ public class SemesterController {
     }
 
     @Route(path="{id}")
-    @Endpoint(method= HttpMethod.PATCH)
+    @Endpoint(method= HttpMethod.POST)
     public HttpResponse updateSemester(RequestContext context) {
         final HttpRequest request = context.getRequest();
 

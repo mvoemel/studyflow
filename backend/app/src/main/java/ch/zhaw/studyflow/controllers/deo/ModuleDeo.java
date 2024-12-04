@@ -105,7 +105,7 @@ public class ModuleDeo {
     }
 
     public boolean isValid() {
-        return name != null && !name.isEmpty() && description != null && !description.isEmpty() && understanding >= 0 && time >= 0 && complexity >= 0;
+        return name != null && !name.isEmpty() && ects >= 0 && understanding >= 0 && time >= 0 && complexity >= 0;
     }
 
 }

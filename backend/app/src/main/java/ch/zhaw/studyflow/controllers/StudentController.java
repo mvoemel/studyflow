@@ -45,7 +45,7 @@ public class StudentController {
 
 
     @Route(path = "{id}")
-    @Endpoint(method = HttpMethod.PATCH)
+    @Endpoint(method = HttpMethod.POST)
     public HttpResponse updateStudent(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
 
