@@ -6,11 +6,14 @@ type UpdateActiveDegreeRequestBody = {
 };
 
 const updateActiveDegreeRequest = async (
+  settingsId: string,
   body: UpdateActiveDegreeRequestBody
 ) => {
-  return await tuam.patch<void, UpdateActiveDegreeRequestBody>(
-    "/api/auth/settings",
-    body
+  const newBody = { activeDegree: body.activeDegreeId };
+
+  return await tuam.post<void, { activeDegree: string }>(
+    `/api/student/settings/${settingsId}`,
+    newBody
   );
 };
 

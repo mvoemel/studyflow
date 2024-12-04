@@ -9,10 +9,11 @@ public class Module {
     private String name;
     private String description;
     private long ECTS;
-    private long understandingValue;
-    private long timeValue;
-    private long importanceValue;
+    private long understanding;
+    private long time;
+    private long complexity;
     private long semesterId;
+    private long degreeId;
 
     /**
      * Default constructor.
@@ -115,17 +116,17 @@ public class Module {
      *
      * @return the understanding value of the module
      */
-    public long getUnderstandingValue() {
-        return understandingValue;
+    public long getUnderstanding() {
+        return understanding;
     }
 
     /**
      * Sets the understanding value of the module.
      *
-     * @param understandingValue the new understanding value of the module
+     * @param understanding the new understanding value of the module
      */
-    public void setUnderstandingValue(long understandingValue) {
-        this.understandingValue = understandingValue;
+    public void setUnderstanding(long understanding) {
+        this.understanding = understanding;
     }
 
     /**
@@ -133,17 +134,17 @@ public class Module {
      *
      * @return the time value of the module
      */
-    public long getTimeValue() {
-        return timeValue;
+    public long getTime() {
+        return time;
     }
 
     /**
      * Sets the time value of the module.
      *
-     * @param timeValue the new time value of the module
+     * @param time the new time value of the module
      */
-    public void setTimeValue(long timeValue) {
-        this.timeValue = timeValue;
+    public void setTime(long time) {
+        this.time = time;
     }
 
     /**
@@ -151,17 +152,17 @@ public class Module {
      *
      * @return the importance value of the module
      */
-    public long getImportanceValue() {
-        return importanceValue;
+    public long getComplexity() {
+        return complexity;
     }
 
     /**
      * Sets the importance value of the module.
      *
-     * @param importanceValue the new importance value of the module
+     * @param complexity the new importance value of the module
      */
-    public void setImportanceValue(long importanceValue) {
-        this.importanceValue = importanceValue;
+    public void setComplexity(long complexity) {
+        this.complexity = complexity;
     }
 
     /**
@@ -171,6 +172,24 @@ public class Module {
      */
     public long getSemesterId() {
         return semesterId;
+    }
+
+    /**
+     * Gets the degree ID of the module.
+     *
+     * @return the degree ID of the module
+     */
+    public long getDegreeId() {
+        return degreeId;
+    }
+
+    /**
+     * Sets the degree ID of the module.
+     *
+     * @param degreeId the new degree ID of the module
+     */
+    public void setDegreeId(long degreeId) {
+        this.degreeId = degreeId;
     }
 
     /**

@@ -5,7 +5,28 @@ type AllSemestersResponseData = Semester[];
 
 // TODO: add optional degreeId query parameters
 const getAllSemestersRequest = async () => {
-  return await tuam.get<AllSemestersResponseData>(`/api/semesters`);
+  const response = await tuam.get<
+    {
+      id: number;
+      name: string;
+      degreeId: number;
+      userId: number;
+      calendarId?: number;
+      description?: string;
+    }[]
+  >("/api/semesters");
+
+  const allSemestersResponseData: AllSemestersResponseData = response.map(
+    (s) => ({
+      ...s,
+      id: s.id.toString(),
+      degreeId: s.degreeId.toString(),
+      userId: s.userId.toString(),
+      calendarId: s.calendarId?.toString(),
+    })
+  );
+
+  return allSemestersResponseData;
 };
 
 export { type AllSemestersResponseData, getAllSemestersRequest };

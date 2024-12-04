@@ -1,3 +1,4 @@
+import { awaitTimeout } from "@/app/api-old/_utils";
 import {
   AllSemestersResponseData,
   deleteSemesterRequest,

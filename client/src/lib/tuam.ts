@@ -27,10 +27,16 @@ const tuam = {
 
     if (!response.ok) {
       const error = await response.text();
-      throw new Error(error);
+      throw new Error(error || "An error occurred");
     }
 
-    return response.json() as Promise<TResponse>;
+    // TODO: check if await response.json() would be enough
+    const contentType = response.headers.get("Content-Type");
+    if (contentType && contentType.includes("application/json")) {
+      return response.json() as Promise<TResponse>;
+    } else {
+      return {} as TResponse;
+    }
   },
 
   async get<TResponse>(

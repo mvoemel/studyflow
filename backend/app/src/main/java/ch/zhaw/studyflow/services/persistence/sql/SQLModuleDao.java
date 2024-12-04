@@ -18,14 +18,14 @@ public class SQLModuleDao {
     }
 
     public void create(Module module) {
-        String sql = "INSERT INTO modules (name, description, ECTS, understandingValue, timeValue, importanceValue) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO modules (name, description, ECTS, understanding, time, complexity) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, module.getName());
             stmt.setString(2, module.getDescription());
             stmt.setLong(3, module.getECTS());
-            stmt.setLong(4, module.getUnderstandingValue());
-            stmt.setLong(5, module.getTimeValue());
-            stmt.setLong(6, module.getImportanceValue());
+            stmt.setLong(4, module.getUnderstanding());
+            stmt.setLong(5, module.getTime());
+            stmt.setLong(6, module.getComplexity());
             stmt.executeUpdate();
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
@@ -49,9 +49,9 @@ public class SQLModuleDao {
                     module.setName(rs.getString("name"));
                     module.setDescription(rs.getString("description"));
                     module.setECTS(rs.getLong("ECTS"));
-                    module.setUnderstandingValue(rs.getLong("understandingValue"));
-                    module.setTimeValue(rs.getLong("timeValue"));
-                    module.setImportanceValue(rs.getLong("importanceValue"));
+                    module.setUnderstanding(rs.getLong("understanding"));
+                    module.setTime(rs.getLong("time"));
+                    module.setComplexity(rs.getLong("complexity"));
                     return module;
                 }
             }
@@ -72,14 +72,14 @@ public class SQLModuleDao {
     }
 
     public Module update(Module module) {
-        String sql = "UPDATE modules SET name = ?, description = ?, ECTS = ?, understandingValue = ?, timeValue = ?, importanceValue = ? WHERE id = ?";
+        String sql = "UPDATE modules SET name = ?, description = ?, ECTS = ?, understanding = ?, time = ?, complexity = ? WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, module.getName());
             stmt.setString(2, module.getDescription());
             stmt.setLong(3, module.getECTS());
-            stmt.setLong(4, module.getUnderstandingValue());
-            stmt.setLong(5, module.getTimeValue());
-            stmt.setLong(6, module.getImportanceValue());
+            stmt.setLong(4, module.getUnderstanding());
+            stmt.setLong(5, module.getTime());
+            stmt.setLong(6, module.getComplexity());
             stmt.setLong(7, module.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -99,9 +99,9 @@ public class SQLModuleDao {
                     module.setName(rs.getString("name"));
                     module.setDescription(rs.getString("description"));
                     module.setECTS(rs.getLong("ECTS"));
-                    module.setUnderstandingValue(rs.getLong("understandingValue"));
-                    module.setTimeValue(rs.getLong("timeValue"));
-                    module.setImportanceValue(rs.getLong("importanceValue"));
+                    module.setUnderstanding(rs.getLong("understanding"));
+                    module.setTime(rs.getLong("time"));
+                    module.setComplexity(rs.getLong("complexity"));
                     return module;
                 }
             }
@@ -123,9 +123,9 @@ public class SQLModuleDao {
                     module.setName(rs.getString("name"));
                     module.setDescription(rs.getString("description"));
                     module.setECTS(rs.getLong("ECTS"));
-                    module.setUnderstandingValue(rs.getLong("understandingValue"));
-                    module.setTimeValue(rs.getLong("timeValue"));
-                    module.setImportanceValue(rs.getLong("importanceValue"));
+                    module.setUnderstanding(rs.getLong("understanding"));
+                    module.setTime(rs.getLong("time"));
+                    module.setComplexity(rs.getLong("complexity"));
                     modules.add(module);
                 }
             }
