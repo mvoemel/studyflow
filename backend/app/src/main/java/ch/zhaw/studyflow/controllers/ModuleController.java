@@ -148,7 +148,7 @@ public class ModuleController {
      * @return the HTTP response
      */
     @Route(path = "{id}")
-    @Endpoint(method = HttpMethod.PATCH)
+    @Endpoint(method = HttpMethod.POST)
     public HttpResponse updateModule(RequestContext context) {
         final HttpRequest request = context.getRequest();
         return authenticator.handleIfAuthenticated(request, principal -> {
@@ -161,7 +161,6 @@ public class ModuleController {
                                     module.setName(moduleDeo.getName());
                                     module.setDescription(moduleDeo.getDescription());
                                     module.setECTS(moduleDeo.getEcts());
-                                    module.setSemesterId(moduleDeo.getSemesterId());
                                     module.setComplexity(moduleDeo.getComplexity());
                                     module.setTime(moduleDeo.getTime());
                                     module.setUnderstanding(moduleDeo.getUnderstanding());

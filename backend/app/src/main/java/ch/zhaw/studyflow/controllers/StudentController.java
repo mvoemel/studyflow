@@ -127,7 +127,7 @@ public class StudentController {
     }
 
     @Route(path = "settings/{settingsId}")
-    @Endpoint(method = HttpMethod.PATCH)
+    @Endpoint(method = HttpMethod.POST)
     public HttpResponse updateSettings(RequestContext requestContext) {
         return authenticator.handleIfAuthenticated(requestContext.getRequest(), principal -> {
             final HttpResponse response = requestContext.getRequest().createResponse()
