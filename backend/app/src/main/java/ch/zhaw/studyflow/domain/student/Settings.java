@@ -7,7 +7,6 @@ public class Settings {
     private long settingsId;
     private long globalCalendarId;
     private long activeDegree;
-    private long activeSemester;
 
     @JsonGetter("id")
     public long getId() {
@@ -37,15 +36,5 @@ public class Settings {
     @JsonSetter("activeDegree")
     public void setActiveDegree(long activeDegree) {
         this.activeDegree = activeDegree;
-    }
-
-    @JsonGetter("activeSemester")
-    public long getActiveSemester() {
-        return activeSemester;
-    }
-
-    @JsonSetter("activeSemester")
-    public void setActiveSemester(long activeSemester) {
-        this.activeSemester = activeSemester;
     }
 }

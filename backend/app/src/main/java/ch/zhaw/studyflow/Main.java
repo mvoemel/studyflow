@@ -60,8 +60,7 @@ public class Main {
                     ModuleController.class,
                     serviceCollection -> new ModuleController(
                             serviceCollection.getRequiredService(ModuleManagerImpl.class),
-                            serviceCollection.getRequiredService(AuthenticationHandler.class),
-                            serviceCollection.getRequiredService(PrincipalProvider.class)
+                            serviceCollection.getRequiredService(AuthenticationHandler.class)
 
                     ));
             controllerRegistry.register(
