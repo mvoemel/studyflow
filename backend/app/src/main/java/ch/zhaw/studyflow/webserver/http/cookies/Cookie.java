@@ -2,6 +2,7 @@ package ch.zhaw.studyflow.webserver.http.cookies;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -11,7 +12,7 @@ import java.util.Optional;
  */
 public final class Cookie {
     private static final String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss 'GMT'";
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT, Locale.ENGLISH)
 
     private final String name;
     private final String value;
