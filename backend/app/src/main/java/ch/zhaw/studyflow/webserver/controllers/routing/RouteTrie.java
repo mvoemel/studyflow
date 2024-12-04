@@ -35,7 +35,11 @@ public class RouteTrie {
 
             if (!foundMatch) {
                 final RouteTrieNode newNode = new RouteTrieNode(segment);
-                children.add(newNode);
+                if (segment.is(SegmentType.CAPTURE)) {
+                    children.addLast(newNode);
+                } else {
+                    children.addFirst(newNode);
+                }
                 current = newNode;
             }
         }
