@@ -15,9 +15,11 @@ const useUserSettings = () => {
   );
 
   const updateUser = async (body: UpdateUserRequestBody) => {
+    if (!data?.user) return;
+
     await mutate(
       async () => {
-        await updateUserRequest(body);
+        await updateUserRequest(data?.user.id, body);
         return data
           ? {
               settings: data.settings,
