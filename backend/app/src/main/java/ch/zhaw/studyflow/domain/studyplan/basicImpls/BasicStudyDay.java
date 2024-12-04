@@ -47,15 +47,17 @@ public class BasicStudyDay implements StudyDay {
 
     @Override
     public List<Appointment> getAppointments() {
-        return null;
+        return appointments;
     }
 
     @Override
-    public void addAppointment(Appointment appointment) {
+    public void addAppointment(Appointment appointment) { //maybe unnecessary
+        appointments.add(appointment);
     }
 
     @Override
-    public void removeAppointment(Appointment appointment) {
+    public void removeAppointment(Appointment appointment) { //maybe unnecessary
+        appointments.remove(appointment);
     }
 
     @Override
@@ -71,6 +73,14 @@ public class BasicStudyDay implements StudyDay {
     @Override
     public void removeStudyAllocation(StudyAllocation studyAllocation) {
         studyAllocations.remove(studyAllocation);
+    }
+
+    @Override
+    public void calculateStudyAllocations() { 
+        //TODO create time blocks of ?? hours/minutes based on available time in between start and end time
+        //also take breaks and appointments into account
+        //question: do we give the user the option to set the length of the study blocks? and length of breaks?
+        //idea: otherwise figure out some way of adding optimal breaks (I have an idea)
     }
 
 

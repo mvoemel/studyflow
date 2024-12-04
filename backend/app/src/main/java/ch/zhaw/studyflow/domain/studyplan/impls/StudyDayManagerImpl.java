@@ -18,4 +18,6 @@ public class StudyDayManagerImpl implements StudyDayManager {
     public void deleteStudyDay(long id) {
     
     }
+
+    
 }

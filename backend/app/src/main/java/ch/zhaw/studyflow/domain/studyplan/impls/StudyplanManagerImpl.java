@@ -37,18 +37,24 @@ public class StudyplanManagerImpl implements StudyplanManager {
         studyplans.add(new BasicStudyplan(startDate, endDate, daysOfWeek, startTime, endTime, calendarId));
         studyplans.getLast().setAppointments(appointmentManager.readAllBy(calendarId, startDate, endDate));
         studyplans.getLast().setModules(moduleManager.getModules(userId));
-
+        //hier frage wie wir am besten die Daten von Modules und Appointments weitergeben, so ist es irgendwie etwas unschön
+        //plus check ii ned ganz wie da mitm controller funktioniert det wirds ja anders instanziiert und joa?
         
         
     }
 
     @Override
     public void updateStudyplan(LocalDate startDate, LocalDate endDate, List<DayOfWeek> daysOfWeek, LocalTime startTime, LocalTime endTime, long calendarId, long userId){
-
+        //Info: wollte das hier eigentlich beim Interface so drin haben damit wir eben im Bericht bei den Results argumentieren können, dass wir diese Funktionalität noch einbauen wollen
+        //Wir sagen nämlich überall dass die Lernpläne dynamisch sind und wir sie anpassen können, aber das ist noch nicht implementiert
+        //daher auch die List<Studyplan> studyplans; oben, die wir noch nicht verwenden, soo könnte der User auch auf vorherige Lernpläne wieder zugreifen oder verschiedene Arten von Lernplänen generieren
     }
 
     @Override
     public void deleteStudyplan(long id){
-
+        
     }
+
+    //TODO: actually return a usable studyplan for frontend, aka create a new calendar?? or just return the appointments and modules?
+    // I really need someone to explain to me how the frontend works with the backend, because I don't know how to return the data in a way that the frontend can use it
 }

@@ -17,4 +17,5 @@ public interface StudyDay {
     public List<StudyAllocation> getStudyAllocations();
     public void addStudyAllocation(StudyAllocation studyAllocation);
     public void removeStudyAllocation(StudyAllocation studyAllocation);
+    public void calculateStudyAllocations();
 }
