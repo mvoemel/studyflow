@@ -7,7 +7,7 @@ const updateSemesterRequest = async (
   body: UpdateSemesterRequestBody,
   semesterId: string
 ) => {
-  return await tuam.patch<void, UpdateSemesterRequestBody>(
+  return await tuam.post<void, UpdateSemesterRequestBody>(
     `/api/semesters/${semesterId}`,
     body
   );
