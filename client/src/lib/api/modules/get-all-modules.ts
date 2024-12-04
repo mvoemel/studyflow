@@ -4,7 +4,6 @@ import { Module } from "@/types";
 type AllModulesResponseData = Module[];
 
 // TODO: add optional degreeId and semesterId query parameters
-// TODO: fix type
 const getAllModulesRequest = async () => {
   const response = await tuam.get<
     {
@@ -20,13 +19,16 @@ const getAllModulesRequest = async () => {
       description?: string;
     }[]
   >(`/api/modules`);
-  return response.map((m) => ({
+
+  const allModulesResponseData: AllModulesResponseData = response.map((m) => ({
     ...m,
     id: m.id.toString(),
     semesterId: m.semesterId.toString(),
     degreeId: m.degreeId.toString(),
-    userId: m.userId.toString(),
+    userId: m.userId?.toString(),
   }));
+
+  return allModulesResponseData;
 };
 
 export { type AllModulesResponseData, getAllModulesRequest };

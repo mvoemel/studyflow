@@ -6,19 +6,28 @@ type NewSemesterRequestBody = Pick<
   "name" | "description" | "degreeId"
 >;
 
-// TODO: fix type
 const newSemesterRequest = async (body: NewSemesterRequestBody) => {
-  const response = await tuam.post<Semester, NewSemesterRequestBody>(
-    "/api/semesters",
-    body
-  );
-  return {
+  const response = await tuam.post<
+    {
+      id: number;
+      name: string;
+      degreeId: number;
+      userId: number;
+      calendarId?: number;
+      description?: string;
+    },
+    NewSemesterRequestBody
+  >("/api/semesters", body);
+
+  const newSemesterResponseData: Semester = {
     ...response,
     id: response.id.toString(),
     degreeId: response.degreeId.toString(),
-    userId: response.userId.toString(),
+    userId: response.userId?.toString(),
     calendarId: response.calendarId?.toString(),
   };
+
+  return newSemesterResponseData;
 };
 
 export { type NewSemesterRequestBody, newSemesterRequest };

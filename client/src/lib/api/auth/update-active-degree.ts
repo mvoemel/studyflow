@@ -5,7 +5,6 @@ type UpdateActiveDegreeRequestBody = {
   activeDegreeId: Degree["id"];
 };
 
-// TODO: fix type
 const updateActiveDegreeRequest = async (
   settingsId: string,
   body: UpdateActiveDegreeRequestBody
