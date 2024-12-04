@@ -6,7 +6,7 @@ type LoginRequestBody = {
 };
 
 const loginRequest = async (body: LoginRequestBody) => {
-  return await tuam.post<void, LoginRequestBody>("/api/auth/login", body);
+  return await tuam.post<void, LoginRequestBody>("/api/student/login", body);
 };
 
 export { type LoginRequestBody, loginRequest };

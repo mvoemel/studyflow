@@ -91,7 +91,7 @@ public class GradeController {
      * @return the HTTP response.
      */
     @Route(path = "degrees/{degreeId}/grades")
-    @Endpoint(method = HttpMethod.PATCH)
+    @Endpoint(method = HttpMethod.POST)
     public HttpResponse patchGradesByDegreeId(RequestContext context) {
         final HttpRequest request = context.getRequest();
 

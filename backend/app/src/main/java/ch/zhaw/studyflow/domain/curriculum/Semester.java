@@ -5,18 +5,21 @@ public class Semester {
     private String name;
     private long degreeId;
     private long userId;
+    private long calendarId;
     private String description;
+
 
     public Semester() {
         this.id = -1;
     }
 
-    public Semester(long id, String name, String description, long degreeId, long userId) {
+    public Semester(long id, String name, String description, long degreeId, long userId, long calendarId) {
         this.id = id;
         this.name = name;
         this.degreeId = degreeId;
         this.userId = userId;
         this.description = description;
+        this.calendarId = calendarId;
     }
 
     public long getId() {
@@ -52,6 +55,14 @@ public class Semester {
 
     public void setUserId(long userId) {
         this.userId = userId;
+    }
+
+    public long getCalendarId() {
+        return calendarId;
+    }
+
+    public void setCalendarId(long calendarId) {
+        this.calendarId = calendarId;
     }
 
     public String getDescription() {

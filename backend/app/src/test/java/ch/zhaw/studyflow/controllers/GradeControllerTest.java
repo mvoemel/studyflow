@@ -57,7 +57,7 @@ class GradeControllerTest {
         );
 
         final List<Semester> semesters = List.of(
-                new Semester(1L, "Semester 1", "", 0L, 0)
+                new Semester(1L, "Semester 1", "", 0L, 0, -1L)
         );
         when(semesterManager.getSemestersForDegree(1L)).thenReturn(semesters);
 

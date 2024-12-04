@@ -10,9 +10,9 @@ public class ModuleDeo {
     private long degreeId;
     private long semesterId;
     private long ects;
-    private long understandingValue;
-    private long timeValue;
-    private long importanceValue;
+    private long understanding;
+    private long time;
+    private long complexity;
 
     @JsonGetter("id")
     public long getId() {
@@ -74,38 +74,38 @@ public class ModuleDeo {
         this.ects = ects;
     }
 
-    @JsonGetter("understandingValue")
-    public long getUnderstandingValue() {
-        return understandingValue;
+    @JsonGetter("understanding")
+    public long getUnderstanding() {
+        return understanding;
     }
 
-    @JsonSetter("understandingValue")
-    public void setUnderstandingValue(long understandingValue) {
-        this.understandingValue = understandingValue;
+    @JsonSetter("understanding")
+    public void setUnderstanding(long understanding) {
+        this.understanding = understanding;
     }
 
-    @JsonGetter("timeValue")
-    public long getTimeValue() {
-        return timeValue;
+    @JsonGetter("time")
+    public long getTime() {
+        return time;
     }
 
-    @JsonSetter("timeValue")
-    public void setTimeValue(long timeValue) {
-        this.timeValue = timeValue;
+    @JsonSetter("time")
+    public void setTime(long time) {
+        this.time = time;
     }
 
-    @JsonGetter("importanceValue")
-    public long getImportanceValue() {
-        return importanceValue;
+    @JsonGetter("complexity")
+    public long getComplexity() {
+        return complexity;
     }
 
-    @JsonSetter("importanceValue")
-    public void setImportanceValue(long importanceValue) {
-        this.importanceValue = importanceValue;
+    @JsonSetter("complexity")
+    public void setComplexity(long complexity) {
+        this.complexity = complexity;
     }
 
     public boolean isValid() {
-        return name != null && !name.isEmpty() && description != null && !description.isEmpty() && understandingValue >= 0 && timeValue >= 0 && importanceValue >= 0;
+        return name != null && !name.isEmpty() && ects >= 0 && understanding >= 0 && time >= 0 && complexity >= 0;
     }
 
 }

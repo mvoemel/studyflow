@@ -2,8 +2,6 @@ package ch.zhaw.studyflow.controllers;
 
 import ch.zhaw.studyflow.controllers.deo.ModuleDeo;
 import ch.zhaw.studyflow.domain.curriculum.ModuleManager;
-import ch.zhaw.studyflow.domain.curriculum.impls.ModuleManagerImpl;
-import ch.zhaw.studyflow.services.persistence.ModuleDao;
 import ch.zhaw.studyflow.utils.LongUtils;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
 import ch.zhaw.studyflow.webserver.annotations.Route;
@@ -16,7 +14,6 @@ import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.domain.curriculum.Module;
-import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 
 import java.util.List;
@@ -73,13 +70,15 @@ public class ModuleController {
                             module.setDescription(obj.getDescription());
                             module.setECTS(obj.getEcts());
                             module.setSemesterId(obj.getSemesterId());
-                            module.setImportanceValue(obj.getImportanceValue());
-                            module.setTimeValue(obj.getTimeValue());
-                            module.setUnderstandingValue(obj.getUnderstandingValue());
+                            module.setDegreeId(obj.getDegreeId());
+                            module.setComplexity(obj.getComplexity());
+                            module.setTime(obj.getTime());
+                            module.setUnderstanding(obj.getUnderstanding());
                             return module;
                         }).ifPresent(module -> {
                                     moduleManager.create(module, optionalModuleDeo.get().getSemesterId(), optionalModuleDeo.get().getDegreeId(), principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf).orElseThrow());
-                                    response.setStatusCode(HttpStatusCode.CREATED);
+                                    response.setResponseBody(JsonContent.writableOf(module))
+                                            .setStatusCode(HttpStatusCode.CREATED);
                                 });
                     }
                 }
@@ -144,7 +143,7 @@ public class ModuleController {
      * @return the HTTP response
      */
     @Route(path = "{id}")
-    @Endpoint(method = HttpMethod.PATCH)
+    @Endpoint(method = HttpMethod.POST)
     public HttpResponse updateModule(RequestContext context) {
         final HttpRequest request = context.getRequest();
         return authenticator.handleIfAuthenticated(request, principal -> {
@@ -159,10 +158,9 @@ public class ModuleController {
                                     module.setName(moduleDeo.getName());
                                     module.setDescription(moduleDeo.getDescription());
                                     module.setECTS(moduleDeo.getEcts());
-                                    module.setSemesterId(moduleDeo.getSemesterId());
-                                    module.setImportanceValue(moduleDeo.getImportanceValue());
-                                    module.setTimeValue(moduleDeo.getTimeValue());
-                                    module.setUnderstandingValue(moduleDeo.getUnderstandingValue());
+                                    module.setComplexity(moduleDeo.getComplexity());
+                                    module.setTime(moduleDeo.getTime());
+                                    module.setUnderstanding(moduleDeo.getUnderstanding());
                                     moduleManager.update(module);
                                     response.setResponseBody(JsonContent.writableOf(module))
                                             .setStatusCode(HttpStatusCode.OK);

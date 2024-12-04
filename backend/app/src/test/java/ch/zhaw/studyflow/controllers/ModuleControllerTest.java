@@ -58,9 +58,9 @@ public class ModuleControllerTest {
         module.setSemesterId(1);
         module.setDescription("Test");
         module.setSemesterId(1);
-        module.setImportanceValue(4);
-        module.setUnderstandingValue(4);
-        module.setTimeValue(4);
+        module.setTime(4);
+        module.setUnderstanding(4);
+        module.setComplexity(4);
 
         final HttpRequest request = makeHttpRequest(makeJsonRequestBody(ModuleDeo.class, module));
         final RequestContext context = makeRequestContext(request);
@@ -85,9 +85,9 @@ public class ModuleControllerTest {
         module.setSemesterId(1);
         module.setDescription("Test");
         module.setSemesterId(1);
-        module.setImportanceValue(4);
-        module.setUnderstandingValue(4);
-        module.setTimeValue(4);
+        module.setComplexity(4);
+        module.setUnderstanding(4);
+        module.setTime(4);
 
         when(moduleManager.getModuleByName(module.getName())).thenReturn(Optional.of(new Module()));
 
@@ -163,9 +163,9 @@ public class ModuleControllerTest {
         moduleDeo.setDegreeId(1L);
         moduleDeo.setDescription("Test");
         moduleDeo.setEcts(1);
-        moduleDeo.setUnderstandingValue(1);
-        moduleDeo.setImportanceValue(1);
-        moduleDeo.setTimeValue(1);
+        moduleDeo.setUnderstanding(1);
+        moduleDeo.setComplexity(1);
+        moduleDeo.setTime(1);
 
         final Module module = testModule();
 
@@ -219,9 +219,9 @@ public class ModuleControllerTest {
         module.setName("Test");
         module.setSemesterId(1);
         module.setDescription("Test");
-        module.setUnderstandingValue(1);
-        module.setImportanceValue(1);
-        module.setTimeValue(1);
+        module.setUnderstanding(1);
+        module.setComplexity(1);
+        module.setTime(1);
         return module;
     }
 }

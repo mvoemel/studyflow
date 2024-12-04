@@ -10,7 +10,7 @@ const updateDegreeRequest = async (
   body: UpdateDegreeRequestBody,
   degreeId: string
 ) => {
-  return await tuam.patch<void, UpdateDegreeRequestBody>(
+  return await tuam.post<void, UpdateDegreeRequestBody>(
     `/api/degrees/${degreeId}`,
     body
   );

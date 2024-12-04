@@ -46,9 +46,11 @@ const useUserSettings = () => {
   };
 
   const updateActiveDegree = async (body: UpdateActiveDegreeRequestBody) => {
+    if (!data?.settings) return;
+
     await mutate(
       async () => {
-        await updateActiveDegreeRequest(body);
+        await updateActiveDegreeRequest(data?.settings.id, body);
         return data
           ? {
               settings: {

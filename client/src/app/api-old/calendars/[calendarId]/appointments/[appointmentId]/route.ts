@@ -1,4 +1,4 @@
-import { awaitTimeout } from "@/app/api/_utils";
+import { awaitTimeout } from "@/app/api-old/_utils";
 import { NextRequest, NextResponse } from "next/server";
 
 type Params = {
