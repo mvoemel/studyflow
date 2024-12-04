@@ -14,7 +14,7 @@ const newModuleRequest = async (body: NewModuleRequestBody) => {
     id: response.id.toString(),
     semesterId: response.semesterId.toString(),
     degreeId: response.degreeId.toString(),
-    userId: response.userId.toString(),
+    userId: response.userId?.toString(),
   };
 };
 

@@ -43,6 +43,7 @@ public class SemesterController {
             if(request.getRequestBody().isPresent()) {
                 Optional<SemesterDeo> semesterDeo = request.getRequestBody()
                         .flatMap(body -> body.tryRead(SemesterDeo.class));
+                Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
                 if(semesterDeo.isPresent() && semesterDeo.get().isValid()) {
                     if(semesterManager.getSemesterById(semesterDeo.get().getId()).isPresent()) {
                         response.setStatusCode(HttpStatusCode.CONFLICT);
@@ -52,7 +53,8 @@ public class SemesterController {
                             semester.setName(obj.getName());
                             semester.setDescription(obj.getDescription());
                             semester.setDegreeId(obj.getDegreeId());
-                            semester.setUserId(obj.getUserId());
+                            semester.setUserId(userId.get());
+                            semester.setCalendarId(obj.getCalendarId());
                             return semester;
                         }).ifPresentOrElse(semester -> {
                             semesterManager.createSemester(semester, semester.getDegreeId(), semester.getUserId());

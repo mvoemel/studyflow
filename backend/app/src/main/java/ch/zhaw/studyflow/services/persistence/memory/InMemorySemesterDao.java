@@ -10,6 +10,7 @@ public class InMemorySemesterDao implements SemesterDao {
     private final HashMap<Long, Semester> semesters;
     private final HashMap<Long, Long> semestersToDegree;
     private final HashMap<Long, Long> degreeToUser;
+    private final HashMap<Long, Long> calendarToSemester;
     private AtomicInteger idCounter;
 
 
@@ -17,6 +18,7 @@ public class InMemorySemesterDao implements SemesterDao {
         this.semesters = new HashMap<>();
         this.semestersToDegree = new HashMap<>();
         this.degreeToUser = new HashMap<>();
+        this.calendarToSemester = new HashMap<>();
         this.idCounter = new AtomicInteger();
     }
 
@@ -30,6 +32,7 @@ public class InMemorySemesterDao implements SemesterDao {
         semesters.put(semester.getId(), semester);
         semestersToDegree.put(semester.getId(), degreeId);
         degreeToUser.put(degreeId, userId);
+        calendarToSemester.put(semester.getCalendarId(), semester.getId());
     }
 
     @Override
