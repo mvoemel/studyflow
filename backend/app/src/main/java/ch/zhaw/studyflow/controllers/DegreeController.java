@@ -94,7 +94,7 @@ public class DegreeController {
     }
 
     @Route(path = "{degreeId}")
-    @Endpoint(method = HttpMethod.PATCH)
+    @Endpoint(method = HttpMethod.POST)
     public HttpResponse updateDegree(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
 

@@ -6,6 +6,6 @@ export async function POST() {
 
   await awaitTimeout(500);
 
-  response.cookies.delete("token");
+  response.cookies.delete("secret");
   return response;
 }

@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const middleware = async (request: NextRequest) => {
   const { nextUrl } = request;
 
-  const token = request.cookies.get("token");
+  const token = request.cookies.get("secret");
 
   if (
     !token &&

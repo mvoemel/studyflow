@@ -95,7 +95,7 @@ const AppSidebar = () => {
 
   const handleSelectSemester = (semester: Semester) => {
     if (!settings?.activeDegreeId) return;
-
+    console.log(semester);
     router.push(
       `/degree/${settings?.activeDegreeId}/semester/${semester.id}/curriculum`
     );

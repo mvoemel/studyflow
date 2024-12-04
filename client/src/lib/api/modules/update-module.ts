@@ -10,7 +10,7 @@ const updateModuleRequest = async (
   body: UpdateModuleRequestBody,
   moduleId: string
 ) => {
-  return await tuam.patch<void, UpdateModuleRequestBody>(
+  return await tuam.post<void, UpdateModuleRequestBody>(
     `/api/modules/${moduleId}`,
     body
   );

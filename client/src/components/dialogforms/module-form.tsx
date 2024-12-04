@@ -118,6 +118,7 @@ const ModuleForm = ({
 
       toast.success(`Successfully ${isEdit ? "updated" : "added"}  module!`);
     } catch (err) {
+        console.log(err);
       toast.error(`Failed to ${isEdit ? "update" : "add"} module.`);
     }
   };

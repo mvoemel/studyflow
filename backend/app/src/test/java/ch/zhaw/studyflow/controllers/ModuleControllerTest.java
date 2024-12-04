@@ -111,9 +111,9 @@ public class ModuleControllerTest {
         moduleDeo.setDegreeId(1L);
         moduleDeo.setDescription("Test");
         moduleDeo.setEcts(1);
-        moduleDeo.setUnderstandingValue(1);
-        moduleDeo.setImportanceValue(1);
-        moduleDeo.setTimeValue(1);
+        moduleDeo.setUnderstanding(1);
+        moduleDeo.setComplexity(1);
+        moduleDeo.setTime(1);
 
         final Module module = testModule();
 
@@ -167,9 +167,9 @@ public class ModuleControllerTest {
         module.setName("Test");
         module.setSemesterId(1);
         module.setDescription("Test");
-        module.setUnderstandingValue(1);
-        module.setImportanceValue(1);
-        module.setTimeValue(1);
+        module.setUnderstanding(1);
+        module.setComplexity(1);
+        module.setTime(1);
         return module;
     }
 }
