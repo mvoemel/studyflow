@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingSpinner } from "@/components/global/loading-spinner";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -36,7 +37,6 @@ const profileFormSchema = z.object({
     .optional(),
 });
 
-// BUG: if you reload page data is not loaded into form (because data was not fetched yet but form already rendered)
 const ProfileSettingsPage = () => {
   const { user, updateUser } = useUserSettings();
 
@@ -59,6 +59,14 @@ const ProfileSettingsPage = () => {
       toast.error("Failed to update profile!");
     }
   };
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
