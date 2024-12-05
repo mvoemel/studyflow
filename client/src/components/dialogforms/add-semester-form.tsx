@@ -30,14 +30,18 @@ const formsSchema = z.object({
 type AddSemesterFormsProps = {
   defaultValues?: Partial<z.infer<typeof formsSchema>>;
   onClose: () => void;
+  isEdit: boolean;
+  semesterId?: string;
 };
 
 export function AddSemesterForm({
   defaultValues,
   onClose,
+  isEdit,
+  semesterId,
 }: AddSemesterFormsProps) {
   const { settings } = useUserSettings();
-  const { addNewSemester } = useSemesters();
+  const { addNewSemester, updateSemester } = useSemesters();
 
   const form = useForm<z.infer<typeof formsSchema>>({
     resolver: zodResolver(formsSchema),
@@ -51,18 +55,29 @@ export function AddSemesterForm({
     onClose();
 
     try {
-      if (!settings?.activeDegreeId) throw new Error("No active degree");
+        if (!settings?.activeDegreeId) throw new Error("No active degree");
 
-      await addNewSemester({
-        name: values.semesterName,
-        description: values.semesterDescription,
-        degreeId: settings.activeDegreeId,
-      });
+            if (isEdit) {
+                await updateSemester(
+                    {
+                        name: values.semesterName,
+                        description: values.semesterDescription,
+                    },
+                    semesterId as string
+                );
 
-      toast.success("Successfully added new semester!");
-    } catch (err) {
-      toast.error("Failed to add new semester.");
-    }
+            } else {
+                await addNewSemester({
+                    name: values.semesterName,
+                    description: values.semesterDescription,
+                    degreeId: settings.activeDegreeId,
+                });
+            }
+
+            toast.success(`Successfully ${isEdit ? "updated" : "added"} semester.`);
+        } catch (err) {
+            toast.error(`Failed to ${isEdit ? "update" : "add"} semester.`);
+        }
   };
 
   return (
@@ -99,7 +114,13 @@ export function AddSemesterForm({
           )}
         />
         <Button type="submit">Add</Button>
-        <Button variant="ghost" onClick={onClose}>
+        <Button
+            variant="ghost"
+            onClick={(event) => {
+                event.preventDefault();
+                onClose();
+            }}
+        >
           Cancel
         </Button>
       </form>
