@@ -29,7 +29,6 @@ public class ModuleController {
 
     private final AuthenticationHandler authenticator;
     private final ModuleManager moduleManager;
-    private final PrincipalProvider principalProvider;
 
     /**
      * Constructs a ModuleController with the specified dependencies.
@@ -37,10 +36,9 @@ public class ModuleController {
      * @param moduleManager the module manager
      * @param authenticator the authentication handler
      */
-    public ModuleController(ModuleManager moduleManager, AuthenticationHandler authenticator, PrincipalProvider principalProvider) {
+    public ModuleController(ModuleManager moduleManager, AuthenticationHandler authenticator) {
         this.authenticator = authenticator;
         this.moduleManager = moduleManager;
-        this.principalProvider = principalProvider;
     }
 
     /**
@@ -77,13 +75,10 @@ public class ModuleController {
                             module.setTime(obj.getTime());
                             module.setUnderstanding(obj.getUnderstanding());
                             return module;
-                        }).ifPresentOrElse(module -> {
+                        }).ifPresent(module -> {
                                     moduleManager.create(module, optionalModuleDeo.get().getSemesterId(), optionalModuleDeo.get().getDegreeId(), principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf).orElseThrow());
                                     response.setResponseBody(JsonContent.writableOf(module))
                                             .setStatusCode(HttpStatusCode.CREATED);
-                                },
-                                () -> {
-                                    response.setStatusCode(HttpStatusCode.BAD_REQUEST);
                                 });
                     }
                 }
@@ -102,14 +97,14 @@ public class ModuleController {
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getModules(RequestContext context) {
         return authenticator.handleIfAuthenticated(context.getRequest(), principal -> {
-            HttpResponse response = context.getRequest().createResponse();
+            HttpResponse response = context.getRequest().createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
             Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
                     List<Module> modules = moduleManager.getModules(userId.get());
                     response.setResponseBody(JsonContent.writableOf(modules))
                             .setStatusCode(HttpStatusCode.OK);
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
             }
             return response;
         });
@@ -125,8 +120,10 @@ public class ModuleController {
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getModule(RequestContext context) {
         final HttpRequest request = context.getRequest();
-        HttpResponse response = context.getRequest().createResponse();
         return authenticator.handleIfAuthenticated(request, principal -> {
+            final HttpResponse response = context.getRequest().createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
             Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
                     context.getUrlCaptures().get("moduleId").flatMap(LongUtils::tryParseLong).ifPresent(moduleId -> {
@@ -134,8 +131,6 @@ public class ModuleController {
                         response.setResponseBody(JsonContent.writableOf(module))
                                 .setStatusCode(HttpStatusCode.OK);
                     });
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
             }
             return response;
         });
@@ -152,7 +147,9 @@ public class ModuleController {
     public HttpResponse updateModule(RequestContext context) {
         final HttpRequest request = context.getRequest();
         return authenticator.handleIfAuthenticated(request, principal -> {
-            HttpResponse response = context.getRequest().createResponse().setStatusCode(HttpStatusCode.BAD_REQUEST);
+            final HttpResponse response = context.getRequest().createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
             context.getUrlCaptures().get("id").flatMap(LongUtils::tryParseLong).ifPresent(moduleId -> {
                 request.getRequestBody().flatMap(body -> body.tryRead(ModuleDeo.class))
                         .ifPresent(moduleDeo -> {
@@ -170,9 +167,8 @@ public class ModuleController {
                                 }, () -> response.setStatusCode(HttpStatusCode.NOT_FOUND));
                             }
                         });
-            }
-            );
-        return response;
+            });
+            return response;
         });
 
     }
@@ -187,8 +183,11 @@ public class ModuleController {
     @Endpoint(method = HttpMethod.DELETE)
     public HttpResponse deleteModule(RequestContext context) {
         final HttpRequest request = context.getRequest();
-        HttpResponse response = context.getRequest().createResponse();
+
         return authenticator.handleIfAuthenticated(request, principal -> {
+            final HttpResponse response = context.getRequest().createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
             Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
                 Optional<Long> moduleId = context.getUrlCaptures().get("moduleId").map(Long::valueOf);
@@ -196,11 +195,7 @@ public class ModuleController {
                 if (moduleId.isPresent()) {
                     moduleManager.delete(moduleId.get());
                     response.setStatusCode(HttpStatusCode.NO_CONTENT);
-                } else {
-                    response.setStatusCode(HttpStatusCode.BAD_REQUEST);
                 }
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
             }
             return response;
         });
