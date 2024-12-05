@@ -81,7 +81,6 @@ class StudentControllerTest {
         final Settings settings = new Settings();
         settings.setId(1L);
         settings.setGlobalCalendarId(4);
-        settings.setActiveSemester(4);
         settings.setActiveDegree(5);
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
@@ -110,7 +109,6 @@ class StudentControllerTest {
 
             assertEquals(1L, result.getSettings().getId());
             assertEquals(4, result.getSettings().getGlobalCalendarId());
-            assertEquals(4, result.getSettings().getActiveSemester());
             assertEquals(5, result.getSettings().getActiveDegree());
         });
     }

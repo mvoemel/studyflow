@@ -52,18 +52,21 @@ import { logoutRequest } from "@/lib/api";
 import { toast } from "sonner";
 import { Badge } from "../ui/badge";
 import { useSWRConfig } from "swr";
+import { AddGradeDialog } from "@/components/dialogs/add-grade";
 
 // TODO: refactor entire sidebar, split into smaller components also check documentation on how to use SidebarItems and SidebarMenus
 
 const AppSidebar = () => {
   const { mutate } = useSWRConfig();
 
+  const [selectedSemester, setSelectedSemester] = useState<Semester | undefined>(undefined);
+
   const router = useRouter();
   const basePath = useBasePath();
 
   const { user, settings, updateActiveDegree } = useUserSettings();
   const { degrees, updateDegree } = useDegrees();
-  const { semesters, deleteSemester } = useSemesters();
+  const { semesters, deleteSemester, updateSemester } = useSemesters();
 
   const activeSemesterId = useMemo(() => {
     if (!degrees || !semesters) return undefined;
@@ -80,6 +83,7 @@ const AppSidebar = () => {
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState<boolean>(true);
   const [isAddDegreeDialogOpen, setIsAddDegreeDialogOpen] = useState(false);
   const [isAddSemesterDialogOpen, setIsAddSemesterDialogOpen] = useState(false);
+  const [isEditSemesterDialogOpen, setIsEditSemesterDialogOpen] = useState(false);
 
   const handleSelectDegree = async (degree: Degree) => {
     if (settings?.activeDegreeId === degree.id) return;
@@ -109,7 +113,13 @@ const AppSidebar = () => {
 
   const handleEditSemester = (semester: Semester) => {
     // TODO: open dialog with edit semester form
+    setSelectedSemester(semester);
+    setIsEditSemesterDialogOpen(true);
   };
+
+  const handleAddSemester = () => {
+    setIsAddSemesterDialogOpen(true);
+  }
 
   const handleDeleteSemester = async (semester: Semester) => {
     try {
@@ -318,7 +328,7 @@ const AppSidebar = () => {
                     <Button
                       variant="ghost"
                       className="gap-2 p-2 w-full justify-start"
-                      onClick={() => setIsAddSemesterDialogOpen(true)}
+                      onClick={() => handleAddSemester()}
                     >
                       <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                         <PlusIcon className="size-4" />
@@ -352,8 +362,15 @@ const AppSidebar = () => {
       />
 
       <AddSemesterDialog
-        isOpen={isAddSemesterDialogOpen}
-        onClose={() => setIsAddSemesterDialogOpen(false)}
+          isOpen={isAddSemesterDialogOpen && !isEditSemesterDialogOpen}
+          onClose={() => setIsAddSemesterDialogOpen(false)}
+          isEdit={false}
+      />
+      <AddSemesterDialog
+          isOpen={isEditSemesterDialogOpen}
+          onClose={() => setIsEditSemesterDialogOpen(false)}
+          isEdit={true}
+          semester={selectedSemester}
       />
     </Sidebar>
   );

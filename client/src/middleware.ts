@@ -48,6 +48,6 @@ export const config = {
     "/grades",
     "/schedule",
     "/degree/:path*",
-    "/settings/:path*",
+    "/profile",
   ],
 };

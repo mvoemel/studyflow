@@ -45,9 +45,6 @@ public class SemesterController {
                         .flatMap(body -> body.tryRead(SemesterDeo.class));
                 Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
                 if(semesterDeo.isPresent() && semesterDeo.get().isValid()) {
-                    if(semesterManager.getSemesterById(semesterDeo.get().getId()).isPresent()) {
-                        response.setStatusCode(HttpStatusCode.CONFLICT);
-                    } else {
                         semesterDeo.map(obj -> {
                             Semester semester = new Semester();
                             semester.setName(obj.getName());
@@ -63,7 +60,6 @@ public class SemesterController {
                         }, () -> {
                             response.setStatusCode(HttpStatusCode.BAD_REQUEST);
                         });
-                    }
                 }
             }
             return response;
