@@ -27,6 +27,8 @@ import { toast } from "sonner";
 import { z } from "zod";
 import {useDegrees} from "@/hooks/use-degree";
 import {useParams} from "next/navigation";
+import {awaitTimeout} from "@/app/api-old/_utils";
+import {deleteDegreeRequest} from "@/lib/api";
 
 const degreePanelSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters long"),
@@ -38,7 +40,18 @@ const DegreePanel = () => {
 
 
   const { user, settings } = useUserSettings();
-  const { degrees, updateDegree } = useDegrees();
+  const { degrees, updateDegree, deleteDegree } = useDegrees();
+
+  const handleDeleteDegree = async() => {
+      if(!currDegree?.id) return;
+
+      try {
+          await deleteDegree(currDegree?.id);
+            toast.success("Successfully deleted degree!");
+      } catch (err) {
+          toast.error("Failed to delete degree!");
+      }
+  }
 
   const currDegree = degrees?.find((degree) => degree.id === settings?.activeDegreeId)
 
@@ -111,8 +124,12 @@ const DegreePanel = () => {
                     )}
                 />
               </CardContent>
-              <CardFooter className="border-t px-6 py-4 flex justify-end">
-                <Button type="submit">Save</Button>
+              <CardFooter className="border-t px-6 py-4 flex justify-end gap-4">
+                  <Button variant="destructive" onClick={(event) => {
+                      event.preventDefault();
+                      handleDeleteDegree();
+                  }} >Delete</Button>
+                  <Button type="submit">Save</Button>
               </CardFooter>
             </Card>
           </form>
