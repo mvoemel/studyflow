@@ -24,6 +24,7 @@ public class InvokeByRequestContextEndpointInvoker implements RequestProcessor {
         this.serviceCollection = serviceCollection;
     }
 
+
     @Override
     public HttpResponse process(RequestContext context) {
         HttpResponse response = null;
@@ -36,7 +37,7 @@ public class InvokeByRequestContextEndpointInvoker implements RequestProcessor {
             LOGGER.log(
                     Level.SEVERE,
                     "An exception occurred while invoking the endpoint '%s'".formatted(target.endpoint().getName()),
-                    e.getCause()
+                    e
             );
         } catch (IllegalAccessException e) {
             LOGGER.log(
