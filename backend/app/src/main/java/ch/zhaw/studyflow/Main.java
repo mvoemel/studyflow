@@ -51,7 +51,7 @@ public class Main {
                     CalendarController.class,
                     serviceCollection -> new CalendarController(
                             serviceCollection.getRequiredService(AuthenticationHandler.class),
-                            serviceCollection.getRequiredService(CalendarManagerImpl.class),
+                            serviceCollection.getRequiredService(CalendarManager.class),
                             serviceCollection.getRequiredService(AppointmentManager.class)
                     ));
             controllerRegistry.register(
