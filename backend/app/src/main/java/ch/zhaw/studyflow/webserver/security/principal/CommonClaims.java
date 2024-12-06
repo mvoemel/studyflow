@@ -16,7 +16,7 @@ public final class CommonClaims {
     public static final Claim<Long> USER_ID = new Claim<>("id", Long.class);
 
     /**
-     * The email claim is used to store the email..
+     * The email claim is used to store the email.
      */
     public static final Claim<String> EMAIL = new Claim<>("email", String.class);
 

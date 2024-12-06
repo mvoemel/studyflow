@@ -19,6 +19,11 @@ public abstract class PrincipalProvider {
     }
 
 
+    /**
+     * Returns the list of known claims of the provider.
+     * The known claims are the claims that the provider can extract from a request.
+     * @return The list of known claims of the provider.
+     */
     public List<Claim<?>> getKnownClaims() {
         return knownClaims;
     }
@@ -38,5 +43,11 @@ public abstract class PrincipalProvider {
      */
     public abstract void setPrincipal(HttpResponse response, Principal principal);
 
+    /**
+     * Clears the principal in a response.
+     * The clear method should remove any principal that was previously set in the response.
+     * If possible, the method should also remove any cookies that were set by the provider.
+     * @param response The response to clear the principal in.
+     */
     public abstract void clearPrincipal(HttpResponse response);
 }

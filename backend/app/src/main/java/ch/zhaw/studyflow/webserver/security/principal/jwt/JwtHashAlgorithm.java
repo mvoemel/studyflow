@@ -19,10 +19,19 @@ public enum JwtHashAlgorithm {
     }
 
 
+    /**
+     * Gets the name of the algorithm as used in the JWT.
+     * @return The name of the algorithm as used in the JWT
+     */
     public String getJwtName() {
         return jwtName;
     }
 
+    /**
+     * Gets the name of the algorithm as used in Java.
+     * The Mac name is used to create the Mac instance that is used to sign the JWT.
+     * @return The name of the algorithm as used in Java.
+     */
     public String getMacName() {
         return javaName;
     }

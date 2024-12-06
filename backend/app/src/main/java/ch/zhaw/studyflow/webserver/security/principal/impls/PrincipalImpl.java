@@ -3,12 +3,30 @@ package ch.zhaw.studyflow.webserver.security.principal.impls;
 import ch.zhaw.studyflow.webserver.security.principal.Claim;
 import ch.zhaw.studyflow.webserver.security.principal.Principal;
 
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
+/***
+ * A generic principal implementation that stores claims in a map.
+ */
 public class PrincipalImpl implements Principal {
-    private HashMap<Claim<?>, Object> claims = new HashMap<>();
+    private final HashMap<Claim<?>, Object> claims;
+
+    /**
+     * Creates a new principal with no claims.
+     */
+    public PrincipalImpl() {
+        this(Collections.emptyMap());
+    }
+
+    /**
+     * Creates a new principal with the given claims.
+     * The constructor creates a *copy* of the passed map.
+     * @param claims the claims to add to the principal
+     */
+    public PrincipalImpl(Map<Claim<?>, Object> claims) {
+        this.claims = new HashMap<>(claims);
+    }
+
 
     @Override
     public Set<Claim<?>> getClaims() {

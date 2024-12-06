@@ -3,14 +3,12 @@ package ch.zhaw.studyflow.webserver.sun;
 import ch.zhaw.studyflow.webserver.controllers.EndpointMetadata;
 import ch.zhaw.studyflow.webserver.http.CaptureContainer;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
-import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 
 public class SunHttpRequestContext implements RequestContext {
     private final EndpointMetadata target;
     private final HttpRequest request;
     private final CaptureContainer captureContainer;
-    private HttpResponse response;
 
     public SunHttpRequestContext(EndpointMetadata metadata, HttpRequest request, CaptureContainer captureContainer) {
         this.target             = metadata;

@@ -4,7 +4,6 @@ import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.cookies.CookieContainer;
 import ch.zhaw.studyflow.webserver.http.query.QueryParameters;
 
-import java.nio.charset.Charset;
 import java.util.Optional;
 
 /**

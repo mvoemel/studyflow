@@ -14,7 +14,6 @@ import java.util.*;
 public class SunHttpRequest implements HttpRequest {
     private final HttpExchange exchange;
     private final CookieContainer cookieContainer;
-    private Charset requestCharset;
     private ReadableBodyContent requestBody;
 
     public SunHttpRequest(final HttpExchange exchange, final ReadableBodyContent requestBody, final CookieContainer cookieContainer) {
