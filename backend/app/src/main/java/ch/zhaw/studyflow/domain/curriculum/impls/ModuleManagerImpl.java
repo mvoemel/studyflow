@@ -39,16 +39,22 @@ public class ModuleManagerImpl implements ModuleManager {
      * @return the module
      */
     public Module read(long moduleId) {
-        return moduleDao.read(moduleId);
+        if (moduleId < 0) {
+            throw new IllegalArgumentException("Module ID must be greater than 0.");
+        }
+        return moduleDao.readById(moduleId).orElse(null);
     }
 
     /**
      * Deletes a module by user ID and module ID.
      *
-     * @param id the ID of the module
+     * @param moduleId the ID of the module
      */
-    public void delete(long id) {
-        moduleDao.delete(id);
+    public void delete(long moduleId) {
+        if (moduleId < 0) {
+            throw new IllegalArgumentException("Module ID must be greater than 0.");
+        }
+        moduleDao.delete(moduleId);
     }
 
     /**
@@ -58,7 +64,7 @@ public class ModuleManagerImpl implements ModuleManager {
      * @return the list of modules
      */
     public List<Module> getModules(long userId) {
-        return moduleDao.getModules(userId);
+        return moduleDao.readAllByStudent(userId);
     }
 
     /**
@@ -68,7 +74,7 @@ public class ModuleManagerImpl implements ModuleManager {
      * @return the module
      */
     public Optional<Module> getModule(long moduleId) {
-        return moduleDao.getModule(moduleId);
+        return moduleDao.readById(moduleId);
     }
 
     /**
@@ -78,12 +84,12 @@ public class ModuleManagerImpl implements ModuleManager {
      * @return the module
      */
     public Optional<Module> getModuleByName(String name) {
-        return moduleDao.getModuleByName(name);
+        return moduleDao.readByName(name);
     }
 
     @Override
     public List<Module> getModulesBySemester(long semesterId) {
-        return moduleDao.readBySemesterId(semesterId);
+        return moduleDao.readAllBySemester(semesterId);
     }
 
     /**

@@ -17,27 +17,27 @@ public class SemesterManagerImpl implements SemesterManager {
 
     @Override
     public void createSemester(Semester semester, long degreeId, long userId) {
-        semesterDao.createSemester(semester, degreeId, userId);
+        semesterDao.create(semester, degreeId, userId);
     }
 
     @Override
     public List<Semester> getSemestersForStudent(long userId) {
-        return semesterDao.getSemestersForStudent(userId);
+        return semesterDao.readAllByStudent(userId);
     }
 
     @Override
     public List<Semester> getSemestersForDegree(long degreeId) {
-        return semesterDao.getSemestersForStudent(degreeId);
+        return semesterDao.readAllByStudent(degreeId);
     }
 
     @Override
     public Optional<Semester> getSemesterById(long semesterId) {
-        return semesterDao.getSemesterById(semesterId);
+        return semesterDao.readSemesterById(semesterId);
     }
 
     @Override
     public void updateSemester(Semester semester) {
-        semesterDao.updateSemester(semester);
+        semesterDao.update(semester);
     }
 
     @Override

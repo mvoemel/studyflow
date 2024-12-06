@@ -74,6 +74,6 @@ public class CalendarManagerImpl implements CalendarManager {
      */
     @Override
     public List<Calendar> getCalendarsByUserId(long userId) {
-        return calendarDao.getAllByUserId(userId);
+        return calendarDao.readAllByUserId(userId);
     }
 }

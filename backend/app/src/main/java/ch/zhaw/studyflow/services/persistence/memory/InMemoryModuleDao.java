@@ -33,28 +33,22 @@ public class InMemoryModuleDao implements ModuleDao {
     }
 
     @Override
-    public Module read(long moduleId) {
-        return modules.get(moduleId);
-    }
-
-    @Override
     public void delete(long id) {
         modules.remove(id);
         moduleToSemester.remove(id);
     }
 
     @Override
-    public Module update(Module module) {
+    public void update(Module module) {
         Objects.requireNonNull(module, "Module cannot be null");
         modules.put(module.getId(), module);
-        return module;
     }
 
     @Override
-    public List<Module> getModules(long userId) {
+    public List<Module> readAllByStudent(long studentId) {
         List<Module> userModules = new ArrayList<>();
         degreeToUser.forEach((degreeId, id) -> {
-            if (id == userId) {
+            if (id == studentId) {
                 semesterToDegree.forEach((semesterId, dId) -> {
                     if (Objects.equals(dId, degreeId)) {
                         moduleToSemester.forEach((moduleId, sId) -> {
@@ -70,19 +64,19 @@ public class InMemoryModuleDao implements ModuleDao {
     }
 
     @Override
-    public Optional<Module> getModule(long moduleId) {
+    public Optional<Module> readById(long moduleId) {
         return Optional.ofNullable(modules.get(moduleId));
     }
 
     @Override
-    public Optional<Module> getModuleByName(String name) {
+    public Optional<Module> readByName(String name) {
         return modules.values().stream()
                 .filter(module -> module.getName().equals(name))
                 .findFirst();
     }
 
     @Override
-    public List<Module> readBySemesterId(long semesterId) {
+    public List<Module> readAllBySemester(long semesterId) {
         List<Module> modulesForSemester = new ArrayList<>();
         moduleToSemester.forEach((moduleId, sId) -> {
             if(sId == semesterId) {

@@ -47,5 +47,5 @@ public interface CalendarDao {
      * @param userId the ID of the user
      * @return a list of calendars for the user
      */
-    List<Calendar> getAllByUserId(long userId);
+    List<Calendar> readAllByUserId(long userId);
 }

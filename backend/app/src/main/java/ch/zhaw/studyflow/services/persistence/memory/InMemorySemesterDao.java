@@ -23,7 +23,7 @@ public class InMemorySemesterDao implements SemesterDao {
     }
 
     @Override
-    public void createSemester(Semester semester, long degreeId, long userId) {
+    public void create(Semester semester, long degreeId, long userId) {
         Objects.requireNonNull(semester);
         if(semester.getId() >= 0) {
             throw new IllegalStateException("The id can only be set once.");
@@ -36,10 +36,10 @@ public class InMemorySemesterDao implements SemesterDao {
     }
 
     @Override
-    public List<Semester> getSemestersForStudent(long userId) {
+    public List<Semester> readAllByStudent(long studentId) {
         List<Semester> semestersForStudent = new ArrayList<>();
         degreeToUser.forEach((degreeId, sId) -> {
-            if(sId == userId) {
+            if(sId == studentId) {
                 semestersToDegree.forEach((semesterId, dId) -> {
                     if(Objects.equals(degreeId, dId)) {
                         semestersForStudent.add(semesters.get(semesterId));
@@ -51,7 +51,7 @@ public class InMemorySemesterDao implements SemesterDao {
     }
 
     @Override
-    public List<Semester> getSemestersForDegree(long degreeId) {
+    public List<Semester> readAllByDegree(long degreeId) {
         return semestersToDegree.entrySet().stream()
                 .filter(entry -> Objects.equals(entry.getValue(), degreeId))
                 .map(entry -> semesters.get(entry.getKey()))
@@ -59,12 +59,12 @@ public class InMemorySemesterDao implements SemesterDao {
     }
 
     @Override
-    public Optional<Semester> getSemesterById(long semesterId) {
+    public Optional<Semester> readSemesterById(long semesterId) {
         return Optional.ofNullable(semesters.get(semesterId));
     }
 
     @Override
-    public void updateSemester(Semester semester) {
+    public void update(Semester semester) {
         Objects.requireNonNull(semester);
         if(semester.getId() < 0) {
             throw new IllegalStateException("The id must be set.");
@@ -76,16 +76,5 @@ public class InMemorySemesterDao implements SemesterDao {
     public void deleteSemester(long semesterId) {
         semesters.remove(semesterId);
         semestersToDegree.remove(semesterId);
-    }
-
-    @Override
-    public List<Semester> readByDegreeId(long degreeId) {
-        List<Semester> semestersForDegree = new ArrayList<>();
-        semestersToDegree.forEach((semesterId, dId) -> {
-            if(dId == degreeId) {
-                semestersForDegree.add(semesters.get(semesterId));
-            }
-        });
-        return semestersForDegree;
     }
 }
