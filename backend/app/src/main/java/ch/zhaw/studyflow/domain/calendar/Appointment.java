@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class Appointment {
     private long id;
     private String title;
+    private String description;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private long calendarId;
@@ -58,7 +59,7 @@ public class Appointment {
 
     /**
      * Gets the title of the appointment.
-     *
+
      * @return the title of the appointment
      */
     @JsonGetter("title")
@@ -77,8 +78,27 @@ public class Appointment {
     }
 
     /**
-     * Gets the start time of the appointment.
+     * Gets the description of the appointment.
      *
+     * @return the description of the appointment
+     */
+    @JsonGetter("description")
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Sets the description of the appointment.
+     * 
+     * @param description the new description of the appointment
+     */
+    @JsonSetter("description")
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * Gets the start time of the appointment.
      * @return the start time of the appointment
      */
     @JsonGetter("startTime")
