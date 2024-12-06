@@ -54,7 +54,7 @@ public class GradeController {
      * @param context the request context.
      * @return the HTTP response.
      */
-    @Route(path = "degrees/{degreeId}/grades")
+    @Route(path = "{degreeId}/grades")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getGradesByDegreeId(RequestContext context) {
         final HttpRequest request = context.getRequest();
@@ -90,7 +90,7 @@ public class GradeController {
      * @param context the request context.
      * @return the HTTP response.
      */
-    @Route(path = "degrees/{degreeId}/grades")
+    @Route(path = "{degreeId}/grades")
     @Endpoint(method = HttpMethod.POST)
     public HttpResponse patchGradesByDegreeId(RequestContext context) {
         final HttpRequest request = context.getRequest();
@@ -121,7 +121,7 @@ public class GradeController {
      * @param context the request context.
      * @return the HTTP response.
      */
-    @Route(path = "degrees/{degreeId}/grades/average")
+    @Route(path = "{degreeId}/grades/average")
     @Endpoint(method = HttpMethod.GET)
     public HttpResponse getGradesAveragesByDegreeId(RequestContext context) {
         final HttpRequest request = context.getRequest();
