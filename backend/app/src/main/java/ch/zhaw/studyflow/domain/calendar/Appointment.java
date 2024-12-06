@@ -18,7 +18,9 @@ public class Appointment {
     /**
      * Default constructor.
      */
-    public Appointment() {}
+    public Appointment() {
+        this.id = -1;
+    }
 
     /**
      * Constructs an appointment with the specified details.
