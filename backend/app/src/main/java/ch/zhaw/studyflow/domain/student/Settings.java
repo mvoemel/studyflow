@@ -8,6 +8,10 @@ public class Settings {
     private long globalCalendarId;
     private long activeDegree;
 
+    public Settings() {
+        this.activeDegree = -1;
+    }
+
     @JsonGetter("id")
     public long getId() {
         return settingsId;
