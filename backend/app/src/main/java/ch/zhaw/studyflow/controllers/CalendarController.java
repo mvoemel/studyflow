@@ -27,7 +27,7 @@ import java.util.Optional;
  * Controller for handling calendar-related HTTP requests.
  * Provides endpoints for creating, reading, updating, and deleting calendars and appointments.
  */
-@Route(path = "api/calendar")
+@Route(path = "api/calendars")
 public class CalendarController {
     private final CalendarManager calendarManager;
     private final AppointmentManager appointmentManager;
