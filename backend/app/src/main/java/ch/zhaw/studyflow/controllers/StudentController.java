@@ -218,7 +218,7 @@ public class StudentController {
     }
 
     @Route(path = "logout")
-    @Endpoint(method = HttpMethod.GET)
+    @Endpoint(method = HttpMethod.POST)
     public HttpResponse logout(RequestContext requestContext) {
         return authenticator.handleIfAuthenticated(requestContext.getRequest(), principal -> {
             HttpResponse response = requestContext.getRequest().createResponse();

@@ -42,6 +42,7 @@ public class JwtBasedAuthenticationHandler implements AuthenticationHandler {
         } else {
             response = request.createResponse()
                     .setStatusCode(HttpStatusCode.UNAUTHORIZED);
+            principal.clearClaims();
             principalProvider.clearPrincipal(response);
         }
         final Optional<Long> expires = principal.getClaim(CommonClaims.EXPIRES);
