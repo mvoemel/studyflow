@@ -54,6 +54,7 @@ public class RouteTrie {
         RouteTrieNode current = getHttpMethodRoot(method);
         final List<String> captures = new ArrayList<>();
 
+        int processedCounter = 0;
         boolean foundMatch;
         Iterator<String> iterator = routeSegments.iterator();
         while (iterator.hasNext()) {
@@ -78,10 +79,12 @@ public class RouteTrie {
             if (!foundMatch) {
                 break;
             }
+            processedCounter++;
         }
 
+
         Optional<Tuple<EndpointMetadata, List<String>>> result;
-        if (current.getEndpoint() == null || iterator.hasNext()) {
+        if (current.getEndpoint() == null || processedCounter != routeSegments.size()) {
             result = Optional.empty();
         } else {
             result = Optional.of(Tuple.of(current.getEndpoint(), captures));
