@@ -7,13 +7,26 @@ import ch.zhaw.studyflow.webserver.controllers.EndpointMetadata;
 import java.util.*;
 import java.util.function.BiPredicate;
 
+/**
+ * A trie data structure for storing and retrieving routes.
+ * The trie is used during routing to find the correct endpoint for a given route.
+ */
 public class RouteTrie {
     private final RouteTrieNode root;
 
+    /**
+     * Creates a new route trie.
+     */
     public RouteTrie() {
         this.root   = new RouteTrieNode(null);
     }
 
+    /**
+     * Inserts a new endpoint into the trie.
+     * The endpoint is inserted into the trie based on the route and the http method. If an endpoint already exists for
+     * the given route and http method, the new endpoint replaces the old one.
+     * @param endpoint The endpoint to insert.
+     */
     public void insert(EndpointMetadata endpoint) {
         Objects.requireNonNull(endpoint);
 
@@ -47,6 +60,12 @@ public class RouteTrie {
         current.setEndpoint(endpoint);
     }
 
+    /**
+     * Retrieves the endpoint for the given route and http method.
+     * @param method The http method of the route.
+     * @param routeSegments The segments of the route.
+     * @return An optional containing the endpoint and the captures if the route was found, an empty optional otherwise.
+     */
     public Optional<Tuple<EndpointMetadata, List<String>>> retrieve(HttpMethod method, List<String> routeSegments) {
         Objects.requireNonNull(method);
         Objects.requireNonNull(routeSegments);
@@ -97,8 +116,15 @@ public class RouteTrie {
     }
 
 
+    /**
+     * Retrieves the root node for the given http method.
+     * @param method The http method.
+     * @return The root node for the given http method. If the node does not exist, it is created.
+     */
     private RouteTrieNode getHttpMethodRoot(HttpMethod method) {
-        return root.children.stream().filter(e -> e.getSegment().value().equalsIgnoreCase(method.methodName())).findFirst()
+        return root.children.stream()
+                .filter(e -> e.getSegment().value().equalsIgnoreCase(method.methodName()))
+                .findFirst()
                 .orElseGet(() -> {
                     final RouteTrieNode newNode = new RouteTrieNode(new RouteSegment(SegmentType.STATIC, method.methodName()));
                     root.getChildren().add(newNode);
@@ -106,14 +132,30 @@ public class RouteTrie {
                 });
     }
 
+    /**
+     * Checks if the current segment is a capture segment.
+     * @param current The current segment.
+     * @param toInsert The segment to insert.
+     * @return true if the current segment is a capture segment and the toInsert segment is a static segment, false otherwise.
+     */
     private static boolean captureSegmentMatch(RouteSegment current, RouteSegment toInsert) {
         return current.is(SegmentType.CAPTURE);
     }
 
+    /**
+     * Checks if the current segment is a static segment and the toInsert segment has the same value.
+     * @param current The current segment.
+     * @param toInsert The segment to insert.
+     * @return true if the current segment is a static segment and the toInsert segment has the same value, false otherwise.
+     */
     private static boolean staticSegmentMatch(RouteSegment current, RouteSegment toInsert) {
         return current.is(SegmentType.STATIC) && current.value().equalsIgnoreCase(toInsert.value());
     }
 
+    /**
+     * Represents a node in the route trie.
+     * A node contains the segment it represents, a list of children and an endpoint (optional).
+     */
     private static final class RouteTrieNode {
         private final RouteSegment segment;
         private final List<RouteTrieNode> children;
@@ -125,18 +167,34 @@ public class RouteTrie {
             this.children   = new ArrayList<>();
         }
 
+        /**
+         * Gets the segment of the node.
+         * @return The segment of the node.
+         */
         public RouteSegment getSegment() {
             return segment;
         }
 
+        /**
+         * Gets the children of the node.
+         * @return The children of the node.
+         */
         public List<RouteTrieNode> getChildren() {
             return children;
         }
 
+        /**
+         * Gets the endpoint of the node.
+         * @return The endpoint of the node.
+         */
         public EndpointMetadata getEndpoint() {
             return endpoint;
         }
 
+        /**
+         * Sets the endpoint of the node.
+         * @param endpoint The endpoint to set.
+         */
         public void setEndpoint(EndpointMetadata endpoint) {
             if (this.endpoint != null) {
                 throw new UnsupportedOperationException("After an endpoint is set, it cannot be changed.");

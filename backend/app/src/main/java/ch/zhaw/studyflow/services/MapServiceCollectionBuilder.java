@@ -6,6 +6,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+/**
+ * An implementation of the {@link ServiceCollectionBuilder} that uses a map to store the services.
+ */
 public class MapServiceCollectionBuilder implements ServiceCollectionBuilder {
     private static final Logger LOGGER = Logger.getLogger(MapServiceCollectionBuilder.class.getName());
 

@@ -3,6 +3,9 @@ package ch.zhaw.studyflow.webserver.controllers;
 import java.util.*;
 
 
+/**
+ * A simple controller registry that stores the registered controllers in a list.
+ */
 public class SimpleControllerRegistry implements ControllerRegistry {
     private final List<ControllerMetadata<?>> registeredControllers;
 

@@ -5,6 +5,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * A {@link ServiceCollection} implementation that is backed by a map.
+ */
 public class MapServiceCollection implements ServiceCollection {
     private final Map<Class<?>, Function<ServiceCollection,?>> services;
 

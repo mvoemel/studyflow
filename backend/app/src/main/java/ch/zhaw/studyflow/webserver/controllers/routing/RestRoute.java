@@ -6,11 +6,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Represents a route in a REST API.
+ * A route consists of segments that are either static or capture segments. Capture segments are used to capture parts
+ * of the route. Static segments are fixed parts of the route.
+ */
 public record RestRoute(List<RouteSegment> segments) {
     public RestRoute {
         segments = Collections.unmodifiableList(segments);
     }
 
+    /**
+     * Parses the passed route into a REST route.
+     * Routes consist of segments that are either static or capture segments.
+     * Capture segments are enclosed in curly braces and are used to capture a part of the route.
+     * Static segments are fixed parts of the route.
+     *
+     * @param route The route string to parse.
+     * @return The parsed REST route.
+     */
     public static RestRoute of(String route) {
         final char[] routeChars = route.toCharArray();
 

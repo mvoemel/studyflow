@@ -2,6 +2,9 @@ package ch.zhaw.studyflow.services;
 
 import java.util.Optional;
 
+/**
+ * Represents a collection of services and provides methods to get services by their class.
+ */
 public interface ServiceCollection {
     /**
      * Get a service by its class
