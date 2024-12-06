@@ -6,6 +6,9 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * A simple {@link ReadableBodyContent} implementation which is backed by a map of {@see ReadableBodyContentInstanceFactory}.
+ */
 public class MapReadableBodyContentFactory implements ReadableBodyContentFactory {
     private final ServiceCollection services;
     private final Map<String, ReadableBodyContentInstanceFactory> factories;

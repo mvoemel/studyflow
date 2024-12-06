@@ -2,13 +2,20 @@ package ch.zhaw.studyflow.webserver.http.cookies;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
-public class HashMapCookieContainer implements CookieContainer {
-    private final HashMap<String, Cookie> cookies;
+/**
+ * A {@link CookieContainer} implementation that is backed by a map.
+ */
+public class MapCookieContainer implements CookieContainer {
+    private final Map<String, Cookie> cookies;
 
 
-    public HashMapCookieContainer() {
+    /**
+     * Creates a new cookie container with no cookies.
+     */
+    public MapCookieContainer() {
         this.cookies = new HashMap<>();
     }
 

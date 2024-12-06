@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Represents a JSON content in an HTTP request or response.
+ */
 public class JsonContent implements BodyContent {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     public static final String MIME_TYPE_JSON = "application/json";

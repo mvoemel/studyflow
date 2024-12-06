@@ -13,7 +13,7 @@ import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContentFactory;
 import ch.zhaw.studyflow.webserver.http.cookies.Cookie;
 import ch.zhaw.studyflow.webserver.http.cookies.CookieContainer;
-import ch.zhaw.studyflow.webserver.http.cookies.HashMapCookieContainer;
+import ch.zhaw.studyflow.webserver.http.cookies.MapCookieContainer;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestProcessor;
 import com.sun.net.httpserver.HttpExchange;
@@ -200,7 +200,7 @@ public class SunRootHttpHandler implements HttpHandler {
      * @return The cookie container.
      */
     private CookieContainer createCookieContainer(HttpExchange exchange) {
-        HashMapCookieContainer cookieContainer = new HashMapCookieContainer();
+        MapCookieContainer cookieContainer = new MapCookieContainer();
         List<String> rawCookies = exchange.getRequestHeaders().get("Cookie");
         if (rawCookies != null) {
             for (String rawCookie : rawCookies) {

@@ -4,7 +4,7 @@ import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.cookies.CookieContainer;
-import ch.zhaw.studyflow.webserver.http.cookies.HashMapCookieContainer;
+import ch.zhaw.studyflow.webserver.http.cookies.MapCookieContainer;
 
 public class SunHttpResponse implements HttpResponse {
     private final SunHttpRequest request;
@@ -19,7 +19,7 @@ public class SunHttpResponse implements HttpResponse {
     @Override
     public CookieContainer getCookies() {
         if (cookieContainer == null) {
-            cookieContainer = new HashMapCookieContainer();
+            cookieContainer = new MapCookieContainer();
         }
         return cookieContainer;
     }
