@@ -4,23 +4,24 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class Settings {
-    private long settingsId;
+    private long id;
     private long globalCalendarId;
     private long activeDegree;
 
     public Settings() {
+        this.id                 = -1;
         this.globalCalendarId   = -1;
         this.activeDegree       = -1;
     }
 
     @JsonGetter("id")
     public long getId() {
-        return settingsId;
+        return id;
     }
 
     @JsonSetter("id")
-    public void setId(long settingsId) {
-        this.settingsId = settingsId;
+    public void setId(long id) {
+        this.id = id;
     }
 
     @JsonGetter("globalCalendar")

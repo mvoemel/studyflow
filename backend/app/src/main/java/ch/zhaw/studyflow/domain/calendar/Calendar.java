@@ -14,7 +14,9 @@ public class Calendar {
     /**
      * Default constructor.
      */
-    public Calendar() {}
+    public Calendar() {
+        this.id = -1;
+    }
 
     /**
      * Constructs a calendar with the specified ID, name, and owner ID.
