@@ -13,6 +13,31 @@ import static org.junit.jupiter.api.Assertions.*;
 class RouteTrieTest {
 
     @Test
+    void testUnfinishedRouteMatch() {
+        RouteTrie routeTrie = new RouteTrie();
+        final EndpointMetadata endpointA = createEndpoint(HttpMethod.GET, "/api/v1/user/{test}");
+
+        routeTrie.insert(endpointA);
+        Optional<Tuple<EndpointMetadata, List<String>>> result = routeTrie.retrieve(HttpMethod.GET, List.of("api", "v1", "user", "1234", "degrees"));
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testCorrectRouteMatch() {
+        RouteTrie routeTrie = new RouteTrie();
+        final EndpointMetadata incorrectEndpoint = createEndpoint(HttpMethod.GET, "/api/v1/user/{test}");
+        final EndpointMetadata correctEndpoint = createEndpoint(HttpMethod.GET, "/api/v1/user/{test}/degrees");
+
+        routeTrie.insert(incorrectEndpoint);
+        routeTrie.insert(correctEndpoint);
+        Optional<Tuple<EndpointMetadata, List<String>>> result = routeTrie.retrieve(HttpMethod.GET, List.of("api", "v1", "user", "1234", "degrees"));
+        assertTrue(result.isPresent());
+        final Tuple<EndpointMetadata, List<String>> endpoint = result.get();
+        assertEquals(correctEndpoint, endpoint.value1());
+        assertEquals("degrees", endpoint.value1().route().segments().getLast().value());
+    }
+
+    @Test
     void testInsertAndRetrieveStaticRoute() {
         final EndpointMetadata endpoint = createEndpoint(HttpMethod.GET, "/api/v1/user/current");
 
