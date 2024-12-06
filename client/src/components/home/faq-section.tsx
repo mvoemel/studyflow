@@ -4,7 +4,7 @@ import { faqsList } from "./data";
 const FAQ = () => (
   <section className="mt-12">
     <div id="faq" className="custom-screen">
-      <div className="max-w-xl text-center xl:mx-auto">
+      <div className="max-w-xl text-center mx-auto">
         <h2 className="text-4xl font-bold">Your Questions, Answered</h2>
         <p className="mt-3 text-muted-foreground">
           Everything you need to know about making the most of our platform, all
