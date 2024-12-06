@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
  */
 public class Appointment {
     private long id;
+    private String title;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private long calendarId;
@@ -16,7 +17,9 @@ public class Appointment {
     /**
      * Default constructor.
      */
-    public Appointment() {}
+    public Appointment() {
+        this.id = -1;
+    }
 
     /**
      * Constructs an appointment with the specified details.
@@ -51,6 +54,26 @@ public class Appointment {
     @JsonSetter("id")
     public void setId(long id) {
         this.id = id;
+    }
+
+    /**
+     * Gets the title of the appointment.
+     *
+     * @return the title of the appointment
+     */
+    @JsonGetter("title")
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Sets the title of the appointment.
+     *
+     * @param title the new title of the appointment
+     */
+    @JsonSetter("title")
+    public void setTitle(String title) {
+        this.title  = title;
     }
 
     /**
