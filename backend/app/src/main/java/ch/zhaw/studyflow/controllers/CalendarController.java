@@ -177,19 +177,11 @@ public class CalendarController {
             final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             final Optional<Long> calendarId = context.getUrlCaptures().get("calendarId").flatMap(LongUtils::tryParseLong);
             if (userId.isPresent() && calendarId.isPresent()) {
-                final Optional<Tuple<LocalDate, LocalDate>> optionalDateRange
-                        = extractDateRangeQuery(request.getQueryParameters());
-                if (optionalDateRange.isPresent()) {
-                    Tuple<LocalDate, LocalDate> dateRange = optionalDateRange.get();
                     final List<Appointment> appointments = appointmentManager.readAllBy(
-                            calendarId.get(),
-                            dateRange.value1(),
-                            dateRange.value2()
+                            calendarId.get()
                     );
                     response.setResponseBody(JsonContent.writableOf(appointments))
                             .setStatusCode(HttpStatusCode.OK);
-                }
-
             }
             return response;
         });

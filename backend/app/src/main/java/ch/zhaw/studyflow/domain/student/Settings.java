@@ -9,7 +9,6 @@ public class Settings {
     private long activeDegree;
 
     public Settings() {
-        this.globalCalendarId   = -1;
         this.activeDegree       = -1;
     }
 

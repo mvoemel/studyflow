@@ -33,8 +33,8 @@ public class AppointmentManagerImpl implements AppointmentManager {
     }
 
     @Override
-    public List<Appointment> readAllBy(long calendarId, LocalDate from, LocalDate to) {
-        return appointmentDao.readAllBy(calendarId, from, to);
+    public List<Appointment> readAllBy(long calendarId) {
+        return appointmentDao.readAllBy(calendarId);
     }
 
     @Override
