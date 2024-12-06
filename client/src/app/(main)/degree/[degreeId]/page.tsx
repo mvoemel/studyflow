@@ -55,6 +55,26 @@ const DegreePanel = () => {
 
   const currDegree = degrees?.find((degree) => degree.id === settings?.activeDegreeId)
 
+    if (!user) {
+        return (
+            <div className="flex flex-col items-center justify-center">
+                <LoadingSpinner />
+            </div>
+        );
+    }
+
+    if (settings?.activeDegreeId === "-1") {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen">
+                <Card>
+                    <CardHeader>
+                        You first need to select or activate a degree in order to view and edit it.
+                    </CardHeader>
+                </Card>
+            </div>
+        );
+    }
+
   const form = useForm<z.infer<typeof degreePanelSchema>>({
     resolver: zodResolver(degreePanelSchema),
     defaultValues: {
@@ -69,9 +89,9 @@ const DegreePanel = () => {
       const body = {...values, id: currDegree?.id};
       await updateDegree(body, currDegree?.id);
 
-      toast.success("Successfully updated profile!");
+      toast.success("Successfully updated degree!");
     } catch (err) {
-      toast.error("Failed to update profile!");
+      toast.error("Failed to update degree!");
     }
   };
 
