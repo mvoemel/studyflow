@@ -51,7 +51,6 @@ public class SemesterController {
                             semester.setDescription(obj.getDescription());
                             semester.setDegreeId(obj.getDegreeId());
                             semester.setUserId(userId.get());
-                            semester.setCalendarId(obj.getCalendarId());
                             return semester;
                         }).ifPresentOrElse(semester -> {
                             semesterManager.createSemester(semester, semester.getDegreeId(), semester.getUserId());

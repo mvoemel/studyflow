@@ -1,5 +1,6 @@
 package ch.zhaw.studyflow.controllers.deo;
 
+import ch.zhaw.studyflow.domain.curriculum.Semester;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
@@ -11,6 +12,12 @@ public class SemesterDeo {
     private long degreeId;
     private long userId;
     private long calendarId;
+
+
+    public SemesterDeo() {
+        this.id         = -1;
+        this.calendarId = -1;
+    }
 
     @JsonGetter("id")
     public long getId() {
