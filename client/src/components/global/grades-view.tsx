@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, PenIcon, CirclePlus } from "lucide-react";
+import { ChevronDown, CirclePlus } from "lucide-react";
 import clsx from "clsx";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -150,6 +150,7 @@ const ModuleSection = ({ module }: { module: GradesViewModule }) => {
           isOpen={isGradeDialogOpen}
           onClose={() => setIsGradeDialogOpen(false)}
           grades={module.grades}
+          moduleId={module.moduleId}
         />
       </span>
     </div>

@@ -62,10 +62,9 @@ public class GradeController {
         return authenticator.handleIfAuthenticated(request, principal -> {
             final HttpResponse response = request.createResponse();
 
-            final Optional<String> degreeIdOpt = context.getUrlCaptures().get("degreeId");
+            final Optional<Long> degreeIdOpt = context.getUrlCaptures().get("degreeId").flatMap(LongUtils::tryParseLong);
             if (degreeIdOpt.isPresent()) {
-                long degreeId = Long.parseLong(degreeIdOpt.get());
-                final List<Semester> semesters = semesterManager.getSemestersForDegree(degreeId);
+                final List<Semester> semesters = semesterManager.getSemestersForDegree(degreeIdOpt.get());
                 final List<SemesterGrade> semesterGrades = semesters.stream().map(semester -> {
                     final List<Module> modules = moduleManager.getModulesBySemester(semester.getId());
                     final List<ModuleGrade> moduleGrades = modules.stream().map(module -> {
@@ -105,7 +104,7 @@ public class GradeController {
                             .flatMap(body -> body.tryRead(ModuleGrade.class))
                             .ifPresent(moduleGrade -> {
                                 final List<Grade> newGrades = moduleGrade.getGrades();
-                                if (moduleGrade.getId() == degreeId && validateGrades(newGrades)) {
+                                if (validateGrades(newGrades)) {
                                     gradeManager.updateGradesByModule(moduleGrade.getId(), newGrades);
                                     response.setStatusCode(HttpStatusCode.OK);
                                 }
@@ -154,6 +153,6 @@ public class GradeController {
      */
     private boolean validateGrades(List<Grade> grades) {
         double totalPercentage = grades.stream().mapToDouble(Grade::getPercentage).sum();
-        return totalPercentage == 1.0;
+        return totalPercentage <= 1.0;
     }
 }

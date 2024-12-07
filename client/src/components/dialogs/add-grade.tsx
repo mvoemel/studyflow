@@ -11,10 +11,12 @@ import { Grade } from "@/types";
 export function AddGradeDialog({
   isOpen,
   onClose,
+  moduleId,
   grades,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  moduleId: string;
   grades: Omit<Grade, "moduleId">[];
 }) {
   return (
@@ -24,7 +26,11 @@ export function AddGradeDialog({
           <DialogTitle>Add a Grade to the module</DialogTitle>
           <DialogDescription>Add a new Grade to the module.</DialogDescription>
         </DialogHeader>
-        <AddGradesForms defaultValues={{ grades }} onClose={onClose} />
+        <AddGradesForms
+          defaultValues={{ grades }}
+          moduleId={moduleId}
+          onClose={onClose}
+        />
       </DialogContent>
     </Dialog>
   );

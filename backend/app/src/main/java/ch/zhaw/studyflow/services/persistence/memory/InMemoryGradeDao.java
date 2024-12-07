@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -44,28 +45,21 @@ public class InMemoryGradeDao implements GradeDao {
     }
 
     @Override
-    public List<Grade> readByDegree(long degreeId) {
-        return persistedGrades.values().stream()
-                .filter(e -> e.getBelongsTo() == degreeId)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public void update(Grade grade) {
         persistedGrades.put(grade.getId(), grade);
     }
 
     @Override
-    public void updateByDegree(long degreeId, List<Grade> grades) {
-        List<Grade> oldGrades = readByDegree(degreeId);
+    public void updateByModule(long degreeId, List<Grade> grades) {
+        Map<Long, Grade> oldGrades = readByModule(degreeId).stream().collect(Collectors.toMap(Grade::getId, Function.identity()));
 
         for (Grade grade : grades) {
-            if (persistedGrades.containsKey(grade.getId())) {
+            if (oldGrades.containsKey(grade.getId())) {
                 Grade existingGrade = persistedGrades.get(grade.getId());
                 existingGrade.setName(grade.getName());
                 existingGrade.setPercentage(grade.getPercentage());
                 existingGrade.setValue(grade.getValue());
-                oldGrades.removeIf(e -> e.getId() == grade.getId());
+                oldGrades.remove(grade.getId());
             } else {
                 grade.setId(idCounter.getAndIncrement());
                 grade.setBelongsTo(degreeId);
@@ -73,7 +67,7 @@ public class InMemoryGradeDao implements GradeDao {
             }
         }
 
-        for (Grade grade : oldGrades) {
+        for (Grade grade : oldGrades.values()) {
             persistedGrades.remove(grade.getId());
         }
     }

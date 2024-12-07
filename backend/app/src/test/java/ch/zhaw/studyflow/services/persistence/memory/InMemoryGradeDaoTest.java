@@ -40,7 +40,7 @@ class InMemoryGradeDaoTest {
         newGrades.add(updatedMathGrade);
         newGrades.add(scienceGrade);
 
-        gradeDao.updateByDegree(1, newGrades);
+        gradeDao.updateByModule(1, newGrades);
 
         Grade updatedGrade1 = gradeDao.read(mathGrade.getId());
         assertEquals("Mathematics", updatedGrade1.getName());
@@ -64,7 +64,7 @@ class InMemoryGradeDaoTest {
         updateGrades.add(additionalGrade);
         updateGrades.add(exsitingGrade);
 
-        gradeDao.updateByDegree(1, updateGrades);
+        gradeDao.updateByModule(1, updateGrades);
 
         List<Grade> gradesFromDatabase = gradeDao.readByModule(1);
 
@@ -93,7 +93,7 @@ class InMemoryGradeDaoTest {
         List<Grade> newGrades = new ArrayList<>();
         newGrades.add(updatedMathGrade);
 
-        gradeDao.updateByDegree(1, newGrades);
+        gradeDao.updateByModule(1, newGrades);
 
         Grade deletedScienceGrade = gradeDao.read(existingScienceGrade.getId());
         assertNull(deletedScienceGrade);
