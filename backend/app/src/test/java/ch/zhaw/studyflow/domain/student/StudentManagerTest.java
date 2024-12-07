@@ -39,7 +39,7 @@ class StudentManagerTest {
         }).when(studentDao).create(any(Student.class));
 
         doAnswer(invocation -> {
-            final Settings settings = invocation.getArgument(1);
+            final Settings settings = invocation.getArgument(0);
             settings.setId(1L);
             return settings;
         }).when(settingsDao).create(any(Settings.class));
