@@ -20,7 +20,7 @@ public class InMemorySettingsDao implements SettingsDao {
     @Override
     public void create(Settings studentSettings) {
         studentSettings.setId(idCounter.getAndIncrement());
-        settingsById.put(idCounter.getAndIncrement(), studentSettings);
+        settingsById.put(studentSettings.getId(), studentSettings);
     }
 
     @Override
