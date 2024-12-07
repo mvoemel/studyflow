@@ -30,49 +30,76 @@ class InMemoryGradeDaoTest {
 
     @Test
     void testUpdateExistingGrade() {
-        gradeDao.create(createGrade(1, "Math", 90, 4.0, 1));
+        Grade mathGrade = createGrade(-1, "Math", 85, 3.5, 1);
+        gradeDao.create(mathGrade);
+        Grade scienceGrade = createGrade(-1, "Science", 85, 3.5, 1);
+        gradeDao.create(scienceGrade);
 
-        Grade newGrade1 = createGrade(1, "Mathematics", 95, 4.5, 1);
+        Grade updatedMathGrade = createGrade(mathGrade.getId(), "Mathematics", 95, 4.5, 1);
         List<Grade> newGrades = new ArrayList<>();
-        newGrades.add(newGrade1);
+        newGrades.add(updatedMathGrade);
+        newGrades.add(scienceGrade);
 
         gradeDao.updateByDegree(1, newGrades);
 
-        Grade updatedGrade1 = gradeDao.read(1);
+        Grade updatedGrade1 = gradeDao.read(mathGrade.getId());
         assertEquals("Mathematics", updatedGrade1.getName());
         assertEquals(95, updatedGrade1.getPercentage());
         assertEquals(4.5, updatedGrade1.getValue());
+
+        Grade existingGrade2 = gradeDao.read(scienceGrade.getId());
+        assertNotNull(existingGrade2);
+        assertEquals("Science", existingGrade2.getName());
+        assertEquals(85, existingGrade2.getPercentage());
+        assertEquals(3.5, existingGrade2.getValue());
     }
 
     @Test
     void testAddNewGrade() {
-        gradeDao.create(createGrade(1, "Math", 90, 4.0, 1));
+        Grade exsitingGrade = createGrade(-1, "Math", 90, 4.0, 1);
+        Grade additionalGrade = createGrade(-1, "History", 80, 3.0, 1);
+        gradeDao.create(exsitingGrade);
 
-        Grade newGrade2 = createGrade(0, "History", 80, 3.0, 1);
-        List<Grade> newGrades = new ArrayList<>();
-        newGrades.add(newGrade2);
+        List<Grade> updateGrades = new ArrayList<>();
+        updateGrades.add(additionalGrade);
+        updateGrades.add(exsitingGrade);
 
-        gradeDao.updateByDegree(1, newGrades);
+        gradeDao.updateByDegree(1, updateGrades);
 
-        Grade updatedGrade2 = gradeDao.read(newGrade2.getId());
-        assertNotNull(updatedGrade2);
-        assertEquals("History", updatedGrade2.getName());
-        assertEquals(80, updatedGrade2.getPercentage());
-        assertEquals(3.0, updatedGrade2.getValue());
+        List<Grade> gradesFromDatabase = gradeDao.readByModule(1);
+
+        assertEquals(2, gradesFromDatabase.size());
+        Grade updatedExistingGrade = gradesFromDatabase.stream().filter(e -> e.getId()==exsitingGrade.getId()).findFirst().orElse(null);
+        assertNotNull(updatedExistingGrade);
+        assertEquals("Math", updatedExistingGrade.getName());
+        assertEquals(90, updatedExistingGrade.getPercentage());
+        assertEquals(4.0, updatedExistingGrade.getValue());
+
+        Grade addedGrade = gradesFromDatabase.stream().filter(e -> e.getId()==additionalGrade.getId()).findFirst().orElse(null);
+        assertNotNull(addedGrade);
+        assertEquals("History", addedGrade.getName());
+        assertEquals(80, addedGrade.getPercentage());
+        assertEquals(3.0, addedGrade.getValue());
     }
 
     @Test
-    void testRemoveOldGrade() {
-        gradeDao.create(createGrade(1, "Math", 90, 4.0, 1));
-        gradeDao.create(createGrade(2, "Science", 85, 3.5, 1));
+    void updateAndRemoveOldGrades() {
+        Grade existingMathGrade = createGrade(-1, "Math", 90, 4.0, 1);
+        Grade existingScienceGrade = createGrade(-1, "Science", 85, 3.5, 1);
+        gradeDao.create(existingMathGrade);
+        gradeDao.create(existingScienceGrade);
 
-        Grade newGrade1 = createGrade(1, "Mathematics", 95, 4.5, 1);
+        Grade updatedMathGrade = createGrade(existingMathGrade.getId(), "Mathematics", 95, 4.5, 1);
         List<Grade> newGrades = new ArrayList<>();
-        newGrades.add(newGrade1);
+        newGrades.add(updatedMathGrade);
 
         gradeDao.updateByDegree(1, newGrades);
 
-        Grade deletedGrade2 = gradeDao.read(2);
-        assertNull(deletedGrade2);
+        Grade deletedScienceGrade = gradeDao.read(existingScienceGrade.getId());
+        assertNull(deletedScienceGrade);
+
+        List<Grade> remainingGrades = gradeDao.readByModule(1);
+        assertEquals(1, remainingGrades.size());
+        assertEquals("Mathematics", remainingGrades.get(0).getName());
     }
 }

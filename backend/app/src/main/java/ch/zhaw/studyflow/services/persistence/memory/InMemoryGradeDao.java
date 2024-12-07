@@ -67,7 +67,8 @@ public class InMemoryGradeDao implements GradeDao {
                 existingGrade.setValue(grade.getValue());
                 oldGrades.removeIf(e -> e.getId() == grade.getId());
             } else {
-                grade.setId(generateNewId());
+                grade.setId(idCounter.getAndIncrement());
+                grade.setBelongsTo(degreeId);
                 persistedGrades.put(grade.getId(), grade);
             }
         }
@@ -75,10 +76,6 @@ public class InMemoryGradeDao implements GradeDao {
         for (Grade grade : oldGrades) {
             persistedGrades.remove(grade.getId());
         }
-    }
-
-    private long generateNewId() {
-        return idCounter.getAndIncrement();
     }
 
     @Override
