@@ -53,15 +53,27 @@ public class InMemoryGradeDao implements GradeDao {
     @Override
     public void updateByDegree(long degreeId, List<Grade> grades) {
         List<Grade> oldGrades = readByDegree(degreeId);
+
         for (Grade grade : grades) {
-            persistedGrades.put(grade.getId(), grade);
             if (persistedGrades.containsKey(grade.getId())) {
+                Grade existingGrade = persistedGrades.get(grade.getId());
+                existingGrade.setName(grade.getName());
+                existingGrade.setPercentage(grade.getPercentage());
+                existingGrade.setValue(grade.getValue());
                 oldGrades.removeIf(e -> e.getId() == grade.getId());
+            } else {
+                grade.setId(generateNewId());
+                persistedGrades.put(grade.getId(), grade);
             }
         }
+
         for (Grade grade : oldGrades) {
             persistedGrades.remove(grade.getId());
         }
+    }
+
+    private long generateNewId() {
+        return currentId++;
     }
 
     @Override
