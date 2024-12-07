@@ -1,7 +1,9 @@
 package ch.zhaw.studyflow.domain.curriculum.impls;
 
+import ch.zhaw.studyflow.domain.curriculum.Module;
 import ch.zhaw.studyflow.domain.curriculum.Semester;
 import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
+import ch.zhaw.studyflow.services.persistence.ModuleDao;
 import ch.zhaw.studyflow.services.persistence.SemesterDao;
 
 import java.util.List;
@@ -10,9 +12,11 @@ import java.util.Optional;
 public class SemesterManagerImpl implements SemesterManager {
 
     private final SemesterDao semesterDao;
+    private final ModuleDao moduleDao;
 
-    public SemesterManagerImpl(SemesterDao semesterDao) {
+    public SemesterManagerImpl(SemesterDao semesterDao, ModuleDao moduleDao) {
         this.semesterDao = semesterDao;
+        this.moduleDao = moduleDao;
     }
 
     @Override
@@ -43,6 +47,7 @@ public class SemesterManagerImpl implements SemesterManager {
     @Override
     public void deleteSemester(long semesterId) {
         semesterDao.deleteSemester(semesterId);
+        moduleDao.readBySemesterId(semesterId).forEach(module -> moduleDao.delete(module.getId()));
     }
 
 }

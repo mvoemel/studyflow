@@ -3,6 +3,7 @@ package ch.zhaw.studyflow.domain.curriculum.impls;
 import ch.zhaw.studyflow.domain.curriculum.Degree;
 import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
 import ch.zhaw.studyflow.services.persistence.DegreeDao;
+import ch.zhaw.studyflow.services.persistence.SemesterDao;
 import ch.zhaw.studyflow.utils.Validation;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.Principal;
@@ -11,11 +12,14 @@ import java.util.List;
 import java.util.Objects;
 
 public class DegreeManagerImpl implements DegreeManager {
+
     private final DegreeDao degreeDao;
+    private final SemesterDao semesterDao;
 
 
-    public DegreeManagerImpl(DegreeDao degreeDao) {
+    public DegreeManagerImpl(DegreeDao degreeDao, SemesterDao semesterDao) {
         this.degreeDao  = degreeDao;
+        this.semesterDao = semesterDao;
     }
 
     @Override
@@ -72,6 +76,7 @@ public class DegreeManagerImpl implements DegreeManager {
         if (degreeId < 0) {
             throw new IllegalArgumentException("Degree ID must be positive");
         }
+        semesterDao.getSemestersForDegree(degreeId).forEach(semester -> semesterDao.deleteSemester(semester.getId()));
         degreeDao.delete(degreeId);
     }
 }
