@@ -1,6 +1,5 @@
 package ch.zhaw.studyflow.controllers.deo;
 
-import ch.zhaw.studyflow.domain.curriculum.Semester;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
