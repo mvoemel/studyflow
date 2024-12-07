@@ -8,10 +8,9 @@ import ch.zhaw.studyflow.domain.student.Settings;
 public interface SettingsDao {
     /**
      * Creates a new settings for a student.
-     * @param userId The id of the student
      * @param studentSettings The settings to create
      */
-    void create(long userId, Settings studentSettings);
+    void create(Settings studentSettings);
 
     /**
      * Updates the settings for a student.
@@ -25,13 +24,6 @@ public interface SettingsDao {
      * @return the settings, or null if not found
      */
     Settings read(long settingsId);
-
-    /**
-     * Reads the settings for a user.
-     * @param userId The id of the user
-     * @return the settings, or null if not found
-     */
-    Settings readByUserId(long userId);
 
     /**
      * Deletes a specific settings for a student.

@@ -80,7 +80,7 @@ public class StudentManagerImpl implements StudentManager {
 
             Settings settings = new Settings();
             settings.setGlobalCalendarId(calendar.getCalendarId());
-            settingsDao.create(student.getId(), settings);
+            settingsDao.create(settings);
             result = Optional.of(student);
         }
         return result;

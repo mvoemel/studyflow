@@ -42,7 +42,7 @@ class StudentManagerTest {
             final Settings settings = invocation.getArgument(1);
             settings.setId(1L);
             return settings;
-        }).when(settingsDao).create(anyLong(), any(Settings.class));
+        }).when(settingsDao).create(any(Settings.class));
 
         doAnswer(invocation -> {
             final Calendar calendar = invocation.getArgument(0);
@@ -53,7 +53,7 @@ class StudentManagerTest {
         final Optional<Student> register = studentManager.register(student);
 
         verify(studentDao).create(student);
-        verify(settingsDao).create(eq(1L), any(Settings.class));
+        verify(settingsDao).create(any(Settings.class));
         verify(calendarManager).create(any(Calendar.class));
     }
 
