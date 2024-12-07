@@ -62,10 +62,9 @@ public class GradeController {
         return authenticator.handleIfAuthenticated(request, principal -> {
             final HttpResponse response = request.createResponse();
 
-            final Optional<String> degreeIdOpt = context.getUrlCaptures().get("degreeId");
+            final Optional<Long> degreeIdOpt = context.getUrlCaptures().get("degreeId").flatMap(LongUtils::tryParseLong);
             if (degreeIdOpt.isPresent()) {
-                long degreeId = Long.parseLong(degreeIdOpt.get());
-                final List<Semester> semesters = semesterManager.getSemestersForDegree(degreeId);
+                final List<Semester> semesters = semesterManager.getSemestersForDegree(degreeIdOpt.get());
                 final List<SemesterGrade> semesterGrades = semesters.stream().map(semester -> {
                     final List<Module> modules = moduleManager.getModulesBySemester(semester.getId());
                     final List<ModuleGrade> moduleGrades = modules.stream().map(module -> {

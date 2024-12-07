@@ -190,7 +190,7 @@ public class ModuleController {
 
             Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             if (userId.isPresent()) {
-                Optional<Long> moduleId = context.getUrlCaptures().get("moduleId").map(Long::valueOf);
+                Optional<Long> moduleId = context.getUrlCaptures().get("moduleId").flatMap(LongUtils::tryParseLong);
 
                 if (moduleId.isPresent()) {
                     moduleManager.delete(moduleId.get());
