@@ -9,13 +9,17 @@ public class ModuleGrade {
     private long id;
     private String name;
     private List<Grade> grades;
-
-    public ModuleGrade() {}
+    private int ects;
 
     public ModuleGrade(long id, String name, List<Grade> grades) {
+        this(id, name, grades, 0);
+    }
+
+    public ModuleGrade(long id, String name, List<Grade> grades, int ects) {
         this.id = id;
         this.name = name;
         this.grades = grades;
+        this.ects = ects;
     }
 
     @JsonGetter("id")
@@ -46,5 +50,15 @@ public class ModuleGrade {
     @JsonSetter("grades")
     public void setGrades(List<Grade> grades) {
         this.grades = grades;
+    }
+
+    @JsonGetter("ects")
+    public int getEtcs() {
+        return ects;
+    }
+
+    @JsonSetter("ects")
+    public void setEtcs(int etcs) {
+        this.ects = etcs;
     }
 }

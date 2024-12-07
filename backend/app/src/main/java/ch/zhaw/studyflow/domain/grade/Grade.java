@@ -16,7 +16,9 @@ public class Grade {
     /**
      * Default constructor.
      */
-    public Grade() {}
+    public Grade() {
+        this.id = -1;
+    }
 
     /**
      * Constructs a grade with the specified ID, name, percentage, value, and module ID.

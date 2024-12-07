@@ -26,7 +26,7 @@ class AppointmentManagerTest {
 
     @Test
     void testCreate() {
-        Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L);
+        Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L, "Test", "Test");
         doNothing().when(appointmentDao).create(appointment);
 
         appointmentManager.create(appointment);
@@ -35,7 +35,7 @@ class AppointmentManagerTest {
 
     @Test
     void testRead() {
-        Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L);
+        Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L, "Test", "Test");
         when(appointmentDao.read(1L, 1L)).thenReturn(appointment);
 
         Appointment readAppointment = appointmentManager.read(1L, 1L);
@@ -45,17 +45,15 @@ class AppointmentManagerTest {
 
     @Test
     void testReadAllBy() {
-        Appointment appointment1 = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L);
-        Appointment appointment2 = new Appointment(2, LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(3), 1L);
-        LocalDate from = LocalDate.now();
-        LocalDate to = LocalDate.now();
-        when(appointmentDao.readAllBy(1L, from, to)).thenReturn(List.of(appointment1, appointment2));
+        Appointment appointment1 = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L, "Test", "Test");
+        Appointment appointment2 = new Appointment(2, LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(3), 1L, "Test", "Test");
+        when(appointmentDao.readAllBy(1L)).thenReturn(List.of(appointment1, appointment2));
 
-        List<Appointment> appointments = appointmentManager.readAllBy(1L, from, to);
+        List<Appointment> appointments = appointmentManager.readAllBy(1L);
         assertEquals(2, appointments.size());
         assertTrue(appointments.contains(appointment1));
         assertTrue(appointments.contains(appointment2));
-        verify(appointmentDao).readAllBy(1L, from, to);
+        verify(appointmentDao).readAllBy(1L);
     }
 
     @Test
@@ -68,7 +66,7 @@ class AppointmentManagerTest {
 
     @Test
     void testUpdate() {
-        Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L);
+        Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L, "Test", "Test");
         doNothing().when(appointmentDao).update(appointment);
 
         appointmentManager.update(appointment);

@@ -1,17 +1,19 @@
 package ch.zhaw.studyflow;
 
-import ch.zhaw.studyflow.controllers.CalendarController;
-import ch.zhaw.studyflow.controllers.ModuleController;
-import ch.zhaw.studyflow.controllers.SemesterController;
+import ch.zhaw.studyflow.controllers.*;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
 import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
+import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
+import ch.zhaw.studyflow.domain.curriculum.impls.DegreeManagerImpl;
 import ch.zhaw.studyflow.domain.curriculum.impls.ModuleManagerImpl;
+import ch.zhaw.studyflow.domain.curriculum.impls.SemesterManagerImpl;
+import ch.zhaw.studyflow.domain.grade.GradeManager;
+import ch.zhaw.studyflow.domain.grade.impls.GradeManagerImpl;
 import ch.zhaw.studyflow.services.persistence.*;
 import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
 import ch.zhaw.studyflow.services.persistence.memory.*;
-import ch.zhaw.studyflow.controllers.StudentController;
 import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.domain.student.impls.StudentManagerImpl;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
@@ -49,15 +51,14 @@ public class Main {
                     CalendarController.class,
                     serviceCollection -> new CalendarController(
                             serviceCollection.getRequiredService(AuthenticationHandler.class),
-                            serviceCollection.getRequiredService(CalendarManagerImpl.class),
+                            serviceCollection.getRequiredService(CalendarManager.class),
                             serviceCollection.getRequiredService(AppointmentManager.class)
                     ));
             controllerRegistry.register(
                     ModuleController.class,
                     serviceCollection -> new ModuleController(
                             serviceCollection.getRequiredService(ModuleManagerImpl.class),
-                            serviceCollection.getRequiredService(AuthenticationHandler.class),
-                            serviceCollection.getRequiredService(PrincipalProvider.class)
+                            serviceCollection.getRequiredService(AuthenticationHandler.class)
 
                     ));
             controllerRegistry.register(
@@ -74,6 +75,22 @@ public class Main {
                             serviceCollection.getRequiredService(SemesterManager.class),
                             serviceCollection.getRequiredService(PrincipalProvider.class)
                     ));
+            controllerRegistry.register(
+                    DegreeController.class,
+                    serviceCollection -> new DegreeController(
+                            serviceCollection.getRequiredService(AuthenticationHandler.class),
+                            serviceCollection.getRequiredService(DegreeManager.class)
+                    )
+            );
+            controllerRegistry.register(
+                    GradeController.class,
+                    serviceCollection -> new GradeController(
+                            serviceCollection.getRequiredService(SemesterManager.class),
+                            serviceCollection.getRequiredService(ModuleManagerImpl.class),
+                            serviceCollection.getRequiredService(GradeManager.class),
+                            serviceCollection.getRequiredService(AuthenticationHandler.class)
+                    )
+            );
         });
         webServerBuilder.configureServices(builder -> {
             // REGISTER DAO'S
@@ -83,6 +100,8 @@ public class Main {
             builder.registerSingelton(SettingsDao.class, serviceCollection -> new InMemorySettingsDao());
             builder.registerSingelton(SemesterDao.class, serviceCollection -> new InMemorySemesterDao());
             builder.registerSingelton(ModuleDao.class, serviceCollection -> new InMemoryModuleDao());
+            builder.registerSingelton(DegreeDao.class, serviceCollection -> new InMemoryDegreeDao());
+            builder.registerSingelton(GradeDao.class, serviceCollection -> new InMemoryGradeDao());
 
             // REGISTER MANAGERS
             builder.register(CalendarManager.class, serviceCollection -> new CalendarManagerImpl(
@@ -100,6 +119,18 @@ public class Main {
             ));
             builder.register(ModuleManagerImpl.class, serviceCollection -> new ModuleManagerImpl(
                     serviceCollection.getRequiredService(ModuleDao.class)
+            ));
+
+            builder.register(DegreeManager.class, serviceCollection -> new DegreeManagerImpl(
+                    serviceCollection.getRequiredService(DegreeDao.class)
+            ));
+
+            builder.register(SemesterManager.class, serviceCollection -> new SemesterManagerImpl(
+                    serviceCollection.getRequiredService(SemesterDao.class)
+            ));
+
+            builder.register(GradeManager.class, serviceCollection -> new GradeManagerImpl(
+                    serviceCollection.getRequiredService(GradeDao.class)
             ));
 
             // REGISTER AUTHENTICATION SERVICES

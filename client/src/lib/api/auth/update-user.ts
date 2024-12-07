@@ -5,8 +5,14 @@ type UpdateUserRequestBody = Omit<User, "id" | "settingsId" | "password"> & {
   password?: User["password"];
 };
 
-const updateUserRequest = async (body: UpdateUserRequestBody) => {
-  return await tuam.patch<void, UpdateUserRequestBody>("/api/auth", body);
+const updateUserRequest = async (
+  userId: string,
+  body: UpdateUserRequestBody
+) => {
+  return await tuam.post<void, UpdateUserRequestBody>(
+    `/api/student/${userId}`,
+    body
+  );
 };
 
 export { type UpdateUserRequestBody, updateUserRequest };

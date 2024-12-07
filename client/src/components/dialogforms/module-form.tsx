@@ -118,6 +118,7 @@ const ModuleForm = ({
 
       toast.success(`Successfully ${isEdit ? "updated" : "added"}  module!`);
     } catch (err) {
+        console.log(err);
       toast.error(`Failed to ${isEdit ? "update" : "add"} module.`);
     }
   };
@@ -234,7 +235,13 @@ const ModuleForm = ({
         </div>
         <FormDescription>Rate these values from 0-10.</FormDescription>
         <Button type="submit">{isEdit ? "Save" : "Add"}</Button>
-        <Button variant="ghost" onClick={onClose}>
+          <Button
+              variant="ghost"
+              onClick={(event) => {
+                  event.preventDefault();
+                  onClose();
+              }}
+          >
           Cancel
         </Button>
       </form>

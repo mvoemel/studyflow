@@ -19,7 +19,7 @@ import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 import java.util.List;
 import java.util.Optional;
 
-@Route(path="semesters")
+@Route(path="api/semesters")
 public class SemesterController {
 
     private final AuthenticationHandler authenticationHandler;
@@ -43,25 +43,23 @@ public class SemesterController {
             if(request.getRequestBody().isPresent()) {
                 Optional<SemesterDeo> semesterDeo = request.getRequestBody()
                         .flatMap(body -> body.tryRead(SemesterDeo.class));
-
+                Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
                 if(semesterDeo.isPresent() && semesterDeo.get().isValid()) {
-                    if(semesterManager.getSemesterById(semesterDeo.get().getId()).isPresent()) {
-                        response.setStatusCode(HttpStatusCode.CONFLICT);
-                    } else {
                         semesterDeo.map(obj -> {
                             Semester semester = new Semester();
                             semester.setName(obj.getName());
                             semester.setDescription(obj.getDescription());
                             semester.setDegreeId(obj.getDegreeId());
-                            semester.setUserId(obj.getUserId());
+                            semester.setUserId(userId.get());
+                            semester.setCalendarId(obj.getCalendarId());
                             return semester;
                         }).ifPresentOrElse(semester -> {
                             semesterManager.createSemester(semester, semester.getDegreeId(), semester.getUserId());
-                            response.setStatusCode(HttpStatusCode.CREATED);
+                            response.setResponseBody(JsonContent.writableOf(semester))
+                                    .setStatusCode(HttpStatusCode.CREATED);
                         }, () -> {
                             response.setStatusCode(HttpStatusCode.BAD_REQUEST);
                         });
-                    }
                 }
             }
             return response;
@@ -88,7 +86,7 @@ public class SemesterController {
     }
 
     @Route(path="{id}")
-    @Endpoint(method= HttpMethod.PATCH)
+    @Endpoint(method= HttpMethod.POST)
     public HttpResponse updateSemester(RequestContext context) {
         final HttpRequest request = context.getRequest();
 

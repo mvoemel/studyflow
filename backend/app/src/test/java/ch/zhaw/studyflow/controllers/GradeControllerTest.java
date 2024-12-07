@@ -1,17 +1,19 @@
 package ch.zhaw.studyflow.controllers;
 
 import ch.zhaw.studyflow.controllers.deo.ModuleGrade;
+import ch.zhaw.studyflow.controllers.deo.SemesterGrade;
+import ch.zhaw.studyflow.domain.curriculum.Module;
+import ch.zhaw.studyflow.domain.curriculum.ModuleManager;
+import ch.zhaw.studyflow.domain.curriculum.Semester;
+import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
 import ch.zhaw.studyflow.domain.grade.Grade;
-import ch.zhaw.studyflow.services.persistence.GradeDao;
-import ch.zhaw.studyflow.webserver.http.CaptureContainer;
-import ch.zhaw.studyflow.webserver.http.HttpRequest;
+import ch.zhaw.studyflow.domain.grade.GradeManager;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
-import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -23,161 +25,202 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static ch.zhaw.studyflow.controllers.AuthMockHelpers.*;
+import static ch.zhaw.studyflow.controllers.HttpMockHelpers.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class GradeControllerTest {
-
+class GradeControllerTest {
     @Mock
-    private GradeDao gradeDao;
+    private SemesterManager semesterManager;
+    @Mock
+    private GradeManager gradeManager;
+    @Mock
+    private ModuleManager moduleManager;
     @Mock
     private AuthenticationHandler authenticator;
     @InjectMocks
     private GradeController gradeController;
-    @Mock
-    private HttpRequest request;
-    @Mock
-    private HttpResponse response;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(request.createResponse()).thenReturn(response);
-        when(response.setStatusCode(any())).thenReturn(response);
-        when(response.setResponseBody(any())).thenReturn(response);
-    }
-
-    private void configureSuccessfulAuth() {
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, Map.of(
-                CommonClaims.USER_ID, 1L
-        ));
-    }
-
-    private void configureFailingAuth() {
-        AuthMockHelpers.configureFailingAuthHandler(authenticator);
-    }
-
-    private RequestContext mockRequestContext() {
-        RequestContext context = mock(RequestContext.class);
-        when(context.getRequest()).thenReturn(request);
-        return context;
     }
 
     @Test
     void testGetGradesByDegreeIdSuccessful() throws NoSuchFieldException, IllegalAccessException {
-        configureSuccessfulAuth();
-        RequestContext context = mockRequestContext();
-        CaptureContainer captureContainer = mock(CaptureContainer.class);
-        when(context.getUrlCaptures()).thenReturn(captureContainer);
-        when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
-        Grade grade = new Grade();
-        List<Grade> grades = List.of(grade);
-        when(gradeDao.readByDegree(1)).thenReturn(grades);
+        configureSuccessfulAuthHandler(authenticator, getDefaultClaims());
 
-        HttpResponse actualResponse = gradeController.getGradesByDegreeId(context);
+        RequestContext context = makeRequestContext(
+                makeHttpRequest(),
+                Map.of("degreeId", "1")
+        );
 
-        verify(gradeDao).readByDegree(1);
-        verify(response).setStatusCode(HttpStatusCode.OK);
+        final List<Semester> semesters = List.of(
+                new Semester(1L, "Semester 1", "", 0L, 0, -1L)
+        );
+        when(semesterManager.getSemestersForDegree(1L)).thenReturn(semesters);
 
-        ArgumentCaptor<WritableBodyContent> argumentCaptor = ArgumentCaptor.forClass(WritableBodyContent.class);
-        verify(response).setResponseBody(argumentCaptor.capture());
-        WritableBodyContent capturedContent = argumentCaptor.getValue();
-        assertTrue(capturedContent.getClass().getSimpleName().equals("WritableJsonContent"));
+        final List<Module> modules = List.of(
+                new Module(1L, "Module 1")
+        );
+        when(moduleManager.getModulesBySemester(1L)).thenReturn(modules);
 
-        var contentField = capturedContent.getClass().getDeclaredField("content");
-        contentField.setAccessible(true);
-        Object content = contentField.get(capturedContent);
-        assertTrue(content instanceof List);
+        final List<Grade> grades = List.of(
+                new Grade(0L, "Test 1", 0.5, 100, 1L),
+                new Grade(1L, "Test 2", 0.5, 100, 1L)
+        );
+        when(gradeManager.getGradesByModule(1L)).thenReturn(grades);
 
-        List<Grade> expected = grades;
-        assertEquals(expected, content);
+        final HttpResponse actualResponse = gradeController.getGradesByDegreeId(context);
+
+        verify(semesterManager).getSemestersForDegree(1L);
+        verify(moduleManager).getModulesBySemester(1L);
+        verify(gradeManager).getGradesByModule(1L);
+        verify(actualResponse).setStatusCode(HttpStatusCode.OK);
+
+        ArgumentCaptor<WritableBodyContent> bodyContentArgumentCaptor = ArgumentCaptor.forClass(WritableBodyContent.class);
+        verify(actualResponse).setResponseBody(bodyContentArgumentCaptor.capture());
+
+        WritableBodyContent capturedContent = bodyContentArgumentCaptor.getValue();
+        assertEquals("WritableJsonContent", capturedContent.getClass().getSimpleName());
+        List<?> content = getContentField(capturedContent, List.class);
+
+        final List<SemesterGrade> expected = List.of(
+                new SemesterGrade(1L, "Semester 1", List.of(new ModuleGrade(1L, "Module 1", grades)))
+        );
+        //noinspection unchecked
+        assertSemesterGradesEqual(expected, (List<SemesterGrade>)content);
     }
 
     @Test
     void testPatchGradesByDegreeIdSuccessful() {
-        configureSuccessfulAuth();
-        RequestContext context = mockRequestContext();
-        CaptureContainer captureContainer = mock(CaptureContainer.class);
-        when(context.getUrlCaptures()).thenReturn(captureContainer);
-        when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
-        ModuleGrade moduleGrade = new ModuleGrade(1L, "Module", List.of(new Grade(1L, "Test", 1.0, 100.0, 1L)));
-        ReadableBodyContent bodyContent = mock(ReadableBodyContent.class);
-        when(request.getRequestBody()).thenReturn(Optional.of(bodyContent));
+        configureSuccessfulAuthHandler(authenticator, getDefaultClaims());
+
+        final ModuleGrade moduleGrade = new ModuleGrade(1L, "Module", List.of(new Grade(1L, "Test", 1.0, 100.0, 1L)));
+        final RequestContext context = makeRequestContext(
+                makeHttpRequest(makeJsonRequestBody(ModuleGrade.class, moduleGrade)),
+                Map.of("degreeId", "1")
+        );
+
+        final ReadableBodyContent bodyContent = mock(ReadableBodyContent.class);
         when(bodyContent.tryRead(ModuleGrade.class)).thenReturn(Optional.of(moduleGrade));
 
-        HttpResponse actualResponse = gradeController.patchGradesByDegreeId(context);
+        final HttpResponse actualResponse = gradeController.patchGradesByDegreeId(context);
 
-        verify(gradeDao).updateByDegree(eq(1L), anyList());
-        verify(response).setStatusCode(HttpStatusCode.OK);
+        verify(gradeManager).updateGradesByModule(eq(1L), anyList());
+        verify(actualResponse).setStatusCode(HttpStatusCode.OK);
     }
 
     @Test
     void testGetGradesAveragesByDegreeIdSuccessful() throws NoSuchFieldException, IllegalAccessException {
-        configureSuccessfulAuth();
-        RequestContext context = mockRequestContext();
-        CaptureContainer captureContainer = mock(CaptureContainer.class);
-        when(context.getUrlCaptures()).thenReturn(captureContainer);
-        when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
-        List<Grade> grades = List.of(new Grade(1L, "Test", 1.0, 100.0, 1L));
-        when(gradeDao.readByDegree(1)).thenReturn(grades);
+        configureSuccessfulAuthHandler(authenticator, getDefaultClaims());
 
-        HttpResponse actualResponse = gradeController.getGradesAveragesByDegreeId(context);
+        final RequestContext context = makeRequestContext(
+                makeHttpRequest(),
+                Map.of("degreeId", "1")
+        );
 
-        verify(gradeDao).readByDegree(1);
+        final List<Grade> grades = List.of(
+                new Grade(1L, "Test 1", 0.25, 6, 1L),
+                new Grade(1L, "Test 2", 0.75, 4.5, 1L)
+        );
+        when(gradeManager.getGradesByModule(1L)).thenReturn(grades);
+
+        final HttpResponse response = gradeController.getGradesAveragesByDegreeId(context);
+
+        verify(gradeManager).getGradesByModule(1);
         verify(response).setStatusCode(HttpStatusCode.OK);
 
-        ArgumentCaptor<WritableBodyContent> argumentCaptor = ArgumentCaptor.forClass(WritableBodyContent.class);
-        verify(response).setResponseBody(argumentCaptor.capture());
-        WritableBodyContent capturedContent = argumentCaptor.getValue();
-        assertTrue(capturedContent.getClass().getSimpleName().equals("WritableJsonContent"));
+        final ArgumentCaptor<WritableBodyContent> bodyContentArgumentCaptor = ArgumentCaptor.forClass(WritableBodyContent.class);
+        verify(response).setResponseBody(bodyContentArgumentCaptor.capture());
+        final WritableBodyContent capturedContent = bodyContentArgumentCaptor.getValue();
+        assertEquals("WritableJsonContent", capturedContent.getClass().getSimpleName());
 
-        var contentField = capturedContent.getClass().getDeclaredField("content");
-        contentField.setAccessible(true);
-        Object content = contentField.get(capturedContent);
-        assertTrue(content instanceof Map);
+        final Map<?, ?> content = getContentField(capturedContent, Map.class);
+        assertInstanceOf(Map.class, content);
 
-        Map<String, Double> expected = Map.of("average", 100.0);
+        final Map<String, Double> expected = Map.of("average", 4.875);
         assertEquals(expected, content);
     }
 
     @Test
     void testGetGradesByDegreeIdMissingDegreeId() {
-        configureSuccessfulAuth();
-        RequestContext context = mockRequestContext();
-        CaptureContainer captureContainer = mock(CaptureContainer.class);
-        when(context.getUrlCaptures()).thenReturn(captureContainer);
-        when(captureContainer.get("degreeId")).thenReturn(Optional.empty());
+        configureSuccessfulAuthHandler(authenticator, getDefaultClaims());
+        RequestContext context = makeRequestContext(makeHttpRequest());
 
-        HttpResponse actualResponse = gradeController.getGradesByDegreeId(context);
+        final HttpResponse response = gradeController.getGradesByDegreeId(context);
 
         verify(response).setStatusCode(HttpStatusCode.BAD_REQUEST);
     }
 
     @Test
     void testPatchGradesByDegreeIdInvalidBody() {
-        configureSuccessfulAuth();
-        RequestContext context = mockRequestContext();
-        CaptureContainer captureContainer = mock(CaptureContainer.class);
-        when(context.getUrlCaptures()).thenReturn(captureContainer);
-        when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
-        when(request.getRequestBody()).thenReturn(Optional.empty());
+        configureSuccessfulAuthHandler(authenticator, getDefaultClaims());
+        RequestContext context = makeRequestContext(
+                makeHttpRequest(),
+                Map.of("degreeId", "1")
+        );
 
-        HttpResponse actualResponse = gradeController.patchGradesByDegreeId(context);
+        final HttpResponse response = gradeController.patchGradesByDegreeId(context);
 
         verify(response).setStatusCode(HttpStatusCode.BAD_REQUEST);
     }
 
     @Test
     void testGetGradesByDegreeIdUnauthorized() {
-        configureFailingAuth();
-        RequestContext context = mockRequestContext();
-        CaptureContainer captureContainer = mock(CaptureContainer.class);
-        when(context.getUrlCaptures()).thenReturn(captureContainer);
-        when(captureContainer.get("degreeId")).thenReturn(Optional.of("1"));
-
-        HttpResponse actualResponse = gradeController.getGradesByDegreeId(context);
+        configureFailingAuthHandler(authenticator);
+        RequestContext context = makeRequestContext(
+                makeHttpRequest(),
+                Map.of("degreeId", "1")
+        );
+        final HttpResponse response = gradeController.getGradesByDegreeId(context);
 
         verify(response).setStatusCode(HttpStatusCode.UNAUTHORIZED);
+    }
+
+    @Test
+    void testInvalidWeightSum() {
+        configureSuccessfulAuthHandler(authenticator, getDefaultClaims());
+        ModuleGrade moduleGrade = new ModuleGrade(1L, "Module", List.of(
+                new Grade(1L, "Test 1", 0.5, 6, 1L),
+                new Grade(1L, "Test 2", 1.0, 4.5, 1L)
+        ));
+        final RequestContext context = makeRequestContext(
+                makeHttpRequest(makeJsonRequestBody(ModuleGrade.class, moduleGrade)),
+                Map.of("degreeId", "1")
+        );
+
+        final HttpResponse response = gradeController.patchGradesByDegreeId(context);
+
+        verify(response).setStatusCode(HttpStatusCode.BAD_REQUEST);
+    }
+
+    private static <T> T getContentField(WritableBodyContent content, Class<T> type) throws NoSuchFieldException, IllegalAccessException {
+        var contentField = content.getClass().getDeclaredField("content");
+        contentField.setAccessible(true);
+        return type.cast(contentField.get(content));
+    }
+
+    private void assertSemesterGradesEqual(List<SemesterGrade> expected, List<SemesterGrade> actual) {
+        assertEquals(expected.size(), actual.size());
+        for (int i = 0; i < expected.size(); i++) {
+            SemesterGrade expectedSemesterGrade = expected.get(i);
+            SemesterGrade actualSemesterGrade = actual.get(i);
+            assertEquals(expectedSemesterGrade.getId(), actualSemesterGrade.getId());
+            assertEquals(expectedSemesterGrade.getName(), actualSemesterGrade.getName());
+            assertModuleGradesEqual(expectedSemesterGrade.getModules(), actualSemesterGrade.getModules());
+        }
+    }
+
+    private void assertModuleGradesEqual(List<ModuleGrade> expected, List<ModuleGrade> actual) {
+        assertEquals(expected.size(), actual.size());
+        for (int i = 0; i < expected.size(); i++) {
+            ModuleGrade expectedModuleGrade = expected.get(i);
+            ModuleGrade actualModuleGrade = actual.get(i);
+            assertEquals(expectedModuleGrade.getId(), actualModuleGrade.getId());
+            assertEquals(expectedModuleGrade.getName(), actualModuleGrade.getName());
+            assertEquals(expectedModuleGrade.getGrades(), actualModuleGrade.getGrades());
+        }
     }
 }

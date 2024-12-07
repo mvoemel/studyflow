@@ -27,7 +27,7 @@ import java.util.Optional;
  * Controller for handling calendar-related HTTP requests.
  * Provides endpoints for creating, reading, updating, and deleting calendars and appointments.
  */
-@Route(path = "api/calendar")
+@Route(path = "api/calendars")
 public class CalendarController {
     private final CalendarManager calendarManager;
     private final AppointmentManager appointmentManager;
@@ -177,19 +177,11 @@ public class CalendarController {
             final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
             final Optional<Long> calendarId = context.getUrlCaptures().get("calendarId").flatMap(LongUtils::tryParseLong);
             if (userId.isPresent() && calendarId.isPresent()) {
-                final Optional<Tuple<LocalDate, LocalDate>> optionalDateRange
-                        = extractDateRangeQuery(request.getQueryParameters());
-                if (optionalDateRange.isPresent()) {
-                    Tuple<LocalDate, LocalDate> dateRange = optionalDateRange.get();
                     final List<Appointment> appointments = appointmentManager.readAllBy(
-                            calendarId.get(),
-                            dateRange.value1(),
-                            dateRange.value2()
+                            calendarId.get()
                     );
                     response.setResponseBody(JsonContent.writableOf(appointments))
                             .setStatusCode(HttpStatusCode.OK);
-                }
-
             }
             return response;
         });
@@ -274,32 +266,6 @@ public class CalendarController {
             }
             return response;
         });
-    }
-
-
-    /**
-     * Extracts the date range query parameters from the request.
-     * If the "to" parameter is not present, the default value is the current date.
-     * If the "from" parameter is not present, the default value is one month before the "to" parameter.
-     *
-     * @param queryParameters the query parameters
-     * @return If successful, a tuple containing the start and end date of the range; otherwise an empty optional
-     */
-    private static Optional<Tuple<LocalDate, LocalDate>> extractDateRangeQuery(QueryParameters queryParameters) {
-        Optional<Tuple<LocalDate, LocalDate>> result;
-        try {
-            final LocalDate to = queryParameters.getSingleValue("to")
-                    .map(CalendarController::tryParseDate)
-                    .orElseGet(LocalDate::now);
-
-            final LocalDate from = queryParameters.getSingleValue("from")
-                    .map(CalendarController::tryParseDate)
-                    .orElseGet(() -> to.minusMonths(1));
-            result = Optional.of(new Tuple<>(from, to));
-        } catch (Exception e) {
-            result = Optional.empty();
-        }
-        return result;
     }
 
     /**

@@ -3,17 +3,15 @@ package ch.zhaw.studyflow.controllers;
 import ch.zhaw.studyflow.controllers.deo.ModuleDeo;
 import ch.zhaw.studyflow.domain.curriculum.Module;
 import ch.zhaw.studyflow.domain.curriculum.ModuleManager;
+import ch.zhaw.studyflow.domain.curriculum.Semester;
 import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
-import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContent;
 import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
-import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
-import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,6 +24,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static ch.zhaw.studyflow.controllers.AuthMockHelpers.configureSuccessfulAuthHandler;
 import static ch.zhaw.studyflow.controllers.HttpMockHelpers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -37,16 +36,70 @@ public class ModuleControllerTest {
     private ModuleController moduleController;
     private ModuleManager moduleManager;
     private AuthenticationHandler authenticationHandler;
-    private PrincipalProvider principalProvider;
 
 
     @BeforeEach
     void setUp() {
         moduleManager = mock(ModuleManager.class);
         authenticationHandler = mock(AuthenticationHandler.class);
-        principalProvider = mock(PrincipalProvider.class);
 
-        moduleController = new ModuleController(moduleManager, authenticationHandler, principalProvider);
+        moduleController = new ModuleController(moduleManager, authenticationHandler);
+    }
+
+    @Test
+    void testAddModule() {
+        configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
+
+        final ModuleDeo module = new ModuleDeo();
+        module.setId(-1);
+        module.setName("Test");
+        module.setEcts(4);
+        module.setDegreeId(0);
+        module.setSemesterId(1);
+        module.setDescription("Test");
+        module.setSemesterId(1);
+        module.setTime(4);
+        module.setUnderstanding(4);
+        module.setComplexity(4);
+
+        final HttpRequest request = makeHttpRequest(makeJsonRequestBody(ModuleDeo.class, module));
+        final RequestContext context = makeRequestContext(request);
+
+        final HttpResponse response = moduleController.addModule(context);
+
+        final ArgumentCaptor<HttpStatusCode> statusCodeCapture = captureResponseCode(response);
+        assertEquals(HttpStatusCode.CREATED, statusCodeCapture.getValue());
+
+        verify(moduleManager, never()).create(any(Module.class), eq(1L), eq(0L), eq(0L));
+    }
+
+    @Test
+    void testAddModuleConflict() {
+        configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
+
+        final ModuleDeo module = new ModuleDeo();
+        module.setId(-1);
+        module.setName("Test");
+        module.setEcts(4);
+        module.setDegreeId(0);
+        module.setSemesterId(1);
+        module.setDescription("Test");
+        module.setSemesterId(1);
+        module.setComplexity(4);
+        module.setUnderstanding(4);
+        module.setTime(4);
+
+        when(moduleManager.getModuleByName(module.getName())).thenReturn(Optional.of(new Module()));
+
+        final HttpRequest request = makeHttpRequest(makeJsonRequestBody(ModuleDeo.class, module));
+        final RequestContext context = makeRequestContext(request);
+
+        final HttpResponse response = moduleController.addModule(context);
+
+        final ArgumentCaptor<HttpStatusCode> statusCodeCapture = captureResponseCode(response);
+        assertEquals(HttpStatusCode.CONFLICT, statusCodeCapture.getValue());
+
+        verify(moduleManager, never()).create(any(Module.class), eq(1L), eq(0L), eq(0L));
     }
 
     @Test
@@ -54,15 +107,15 @@ public class ModuleControllerTest {
         Module module = new Module();
         when(moduleManager.read(anyLong())).thenReturn(module);
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
+        configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
 
         final HttpRequest request = makeHttpRequest();
         final RequestContext context = makeRequestContext(request, Map.of("moduleId", "1"));
 
         final HttpResponse response = moduleController.getModule(context);
 
-        final ArgumentCaptor<HttpStatusCode> statusCodeCapture = HttpMockHelpers.captureResponseCode(response);
-        final ArgumentCaptor<WritableBodyContent> responseBodyCapture = HttpMockHelpers.captureResponseBody(response);
+        final ArgumentCaptor<HttpStatusCode> statusCodeCapture = captureResponseCode(response);
+        final ArgumentCaptor<WritableBodyContent> responseBodyCapture = captureResponseBody(response);
 
         assertInstanceOf(JsonContent.class, responseBodyCapture.getValue());
         assertEquals(HttpStatusCode.OK, statusCodeCapture.getValue());
@@ -73,15 +126,15 @@ public class ModuleControllerTest {
         Module module = new Module();
         when(moduleManager.getModules(anyLong())).thenReturn(List.of(module));
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
+        configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
 
         final HttpRequest request = makeHttpRequest();
         final RequestContext context = makeRequestContext(request, Map.of());
 
         final HttpResponse response = moduleController.getModules(context);
 
-        final ArgumentCaptor<HttpStatusCode> statusCodeCapture = HttpMockHelpers.captureResponseCode(response);
-        final ArgumentCaptor<WritableBodyContent> responseBodyCapture = HttpMockHelpers.captureResponseBody(response);
+        final ArgumentCaptor<HttpStatusCode> statusCodeCapture = captureResponseCode(response);
+        final ArgumentCaptor<WritableBodyContent> responseBodyCapture = captureResponseBody(response);
 
         assertInstanceOf(JsonContent.class, responseBodyCapture.getValue());
         assertEquals(HttpStatusCode.OK, statusCodeCapture.getValue());
@@ -89,14 +142,14 @@ public class ModuleControllerTest {
 
     @Test
     void testDeleteModule() {
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
+        configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
 
         final HttpRequest request = makeHttpRequest();
         final RequestContext context = makeRequestContext(request, Map.of("moduleId", "1"));
 
         final HttpResponse response = moduleController.deleteModule(context);
 
-        final ArgumentCaptor<HttpStatusCode> statusCodeCapture = HttpMockHelpers.captureResponseCode(response);
+        final ArgumentCaptor<HttpStatusCode> statusCodeCapture = captureResponseCode(response);
 
         assertEquals(HttpStatusCode.NO_CONTENT, statusCodeCapture.getValue());
     }
@@ -110,13 +163,13 @@ public class ModuleControllerTest {
         moduleDeo.setDegreeId(1L);
         moduleDeo.setDescription("Test");
         moduleDeo.setEcts(1);
-        moduleDeo.setUnderstandingValue(1);
-        moduleDeo.setImportanceValue(1);
-        moduleDeo.setTimeValue(1);
+        moduleDeo.setUnderstanding(1);
+        moduleDeo.setComplexity(1);
+        moduleDeo.setTime(1);
 
         final Module module = testModule();
 
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
+        configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
 
         when(moduleManager.getModule(1L)).thenReturn(Optional.of(module));
 
@@ -129,6 +182,18 @@ public class ModuleControllerTest {
         assertEquals(moduleDeo.getName(), module.getName());
         assertEquals(moduleDeo.getDescription(), module.getDescription());
         assertEquals(moduleDeo.getEcts(), module.getECTS());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideTargets")
+    void testAuthorizationTest(Tuple<String, Function<Tuple<ModuleController, RequestContext>, HttpResponse>> target) {
+        HttpRequest request = makeHttpRequest(makeJsonRequestBody(Semester.class, new Semester()));
+        AuthMockHelpers.configureFailingAuthHandler(authenticationHandler);
+
+        HttpResponse response = target.value2().apply(new Tuple<>(moduleController, makeRequestContext(request)));
+
+        ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
+        assertEquals(HttpStatusCode.UNAUTHORIZED, responseStatusCode.getValue());
     }
 
 
@@ -154,9 +219,9 @@ public class ModuleControllerTest {
         module.setName("Test");
         module.setSemesterId(1);
         module.setDescription("Test");
-        module.setUnderstandingValue(1);
-        module.setImportanceValue(1);
-        module.setTimeValue(1);
+        module.setUnderstanding(1);
+        module.setComplexity(1);
+        module.setTime(1);
         return module;
     }
 }

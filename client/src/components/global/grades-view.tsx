@@ -1,11 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, PenIcon, CirclePlus } from "lucide-react";
 import clsx from "clsx";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { GradesViewModule, GradesViewSemester, GradeViewTree } from "@/types";
+import { Button } from "@/components/ui/button";
+import { AddGradeDialog } from "@/components/dialogs/add-grade";
 
 type GradesViewProps = {
   gradesTree: GradeViewTree;
@@ -115,6 +117,8 @@ const SemesterSection = ({ semester }: { semester: GradesViewSemester }) => {
 };
 
 const ModuleSection = ({ module }: { module: GradesViewModule }) => {
+  const [isGradeDialogOpen, setIsGradeDialogOpen] = useState(false);
+
   const grade = useMemo(
     () =>
       module.grades.reduce(
@@ -133,6 +137,20 @@ const ModuleSection = ({ module }: { module: GradesViewModule }) => {
           {module.moduleEcts}
         </span>
         <span>{grade === 0 ? "-" : grade.toFixed(2)}</span>
+        <Button
+          className="p-0"
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsGradeDialogOpen(true)}
+        >
+          <CirclePlus className="h-4" />
+        </Button>
+
+        <AddGradeDialog
+          isOpen={isGradeDialogOpen}
+          onClose={() => setIsGradeDialogOpen(false)}
+          grades={module.grades}
+        />
       </span>
     </div>
   );

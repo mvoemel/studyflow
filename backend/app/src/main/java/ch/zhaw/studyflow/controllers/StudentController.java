@@ -21,12 +21,8 @@ import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 
-import javax.swing.text.html.Option;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.temporal.TemporalField;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -49,7 +45,7 @@ public class StudentController {
 
 
     @Route(path = "{id}")
-    @Endpoint(method = HttpMethod.PATCH)
+    @Endpoint(method = HttpMethod.POST)
     public HttpResponse updateStudent(RequestContext requestContext) {
         final HttpRequest request = requestContext.getRequest();
 
@@ -131,7 +127,7 @@ public class StudentController {
     }
 
     @Route(path = "settings/{settingsId}")
-    @Endpoint(method = HttpMethod.PATCH)
+    @Endpoint(method = HttpMethod.POST)
     public HttpResponse updateSettings(RequestContext requestContext) {
         return authenticator.handleIfAuthenticated(requestContext.getRequest(), principal -> {
             final HttpResponse response = requestContext.getRequest().createResponse()
@@ -179,7 +175,8 @@ public class StudentController {
                                 })
                                 .flatMap(studentManager::register)
                                 .ifPresentOrElse(student -> {
-                                            response.setStatusCode(HttpStatusCode.CREATED);
+                                            response.setResponseBody(JsonContent.writableOf("Successfully registered"))
+                                                    .setStatusCode(HttpStatusCode.CREATED);
                                         },
                                         () -> response.setStatusCode(HttpStatusCode.FORBIDDEN)
                                 );
@@ -203,7 +200,8 @@ public class StudentController {
                         .flatMap(loginRequest -> studentManager.login(loginRequest.getEmail(), loginRequest.getPassword()))
                         .ifPresentOrElse(student -> {
                                     setLoggedinPrincipalClaims(principal, student);
-                                    response.setStatusCode(HttpStatusCode.OK);
+                                    response.setResponseBody(JsonContent.writableOf("Successfully logged in"))
+                                            .setStatusCode(HttpStatusCode.OK);
                                 },
                                 () -> response.setStatusCode(HttpStatusCode.UNAUTHORIZED)
                         );
@@ -220,7 +218,7 @@ public class StudentController {
     }
 
     @Route(path = "logout")
-    @Endpoint(method = HttpMethod.GET)
+    @Endpoint(method = HttpMethod.POST)
     public HttpResponse logout(RequestContext requestContext) {
         return authenticator.handleIfAuthenticated(requestContext.getRequest(), principal -> {
             HttpResponse response = requestContext.getRequest().createResponse();

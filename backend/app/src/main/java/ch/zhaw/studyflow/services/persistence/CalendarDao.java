@@ -48,6 +48,4 @@ public interface CalendarDao {
      * @return a list of calendars for the user
      */
     List<Calendar> getAllByUserId(long userId);
-
-
 }

@@ -10,6 +10,7 @@ public class SemesterDeo {
     private String description;
     private long degreeId;
     private long userId;
+    private long calendarId;
 
     @JsonGetter("id")
     public long getId() {
@@ -56,8 +57,23 @@ public class SemesterDeo {
         return userId;
     }
 
+    @JsonSetter("userId")
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
+
+    @JsonGetter("calendarId")
+    public long getCalendarId() {
+        return calendarId;
+    }
+
+    @JsonGetter("calendarId")
+    public void setCalendarId(long calendarId) {
+        this.calendarId = calendarId;
+    }
+
     public boolean isValid() {
-        return name != null && !name.isEmpty() && degreeId > 0 && userId > 0;
+        return name != null && !name.isEmpty() && degreeId > -1 && userId > -1;
     }
 
 }

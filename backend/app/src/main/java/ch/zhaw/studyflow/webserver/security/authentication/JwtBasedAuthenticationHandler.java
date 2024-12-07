@@ -42,13 +42,14 @@ public class JwtBasedAuthenticationHandler implements AuthenticationHandler {
         } else {
             response = request.createResponse()
                     .setStatusCode(HttpStatusCode.UNAUTHORIZED);
+            principal.clearClaims();
             principalProvider.clearPrincipal(response);
         }
         final Optional<Long> expires = principal.getClaim(CommonClaims.EXPIRES);
         if (expires.isPresent()) {
             principal.addClaim(CommonClaims.EXPIRES, Instant.now().getEpochSecond() + tokenLifetime);
+            principalProvider.setPrincipal(response, principal);
         }
-        principalProvider.setPrincipal(response, principal);
         return response;
     }
 
@@ -71,8 +72,8 @@ public class JwtBasedAuthenticationHandler implements AuthenticationHandler {
         final Optional<Long> expires = principal.getClaim(CommonClaims.EXPIRES);
         if (expires.isPresent()) {
             principal.addClaim(CommonClaims.EXPIRES, Instant.now().getEpochSecond() + tokenLifetime);
+            principalProvider.setPrincipal(response, principal);
         }
-        principalProvider.setPrincipal(response, principal);
         return response;
     }
 

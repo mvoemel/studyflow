@@ -2,6 +2,7 @@ package ch.zhaw.studyflow.webserver.http.contents;
 
 import ch.zhaw.studyflow.services.ServiceCollection;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +16,11 @@ public class JsonContent implements BodyContent {
     public static final String MIME_TYPE_JSON = "application/json";
 
     private final String mimeType;
+
+    static {
+        OBJECT_MAPPER.registerModule(new JavaTimeModule());
+        OBJECT_MAPPER.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
 
     protected JsonContent(String mimeType) {
         Objects.requireNonNull(mimeType);

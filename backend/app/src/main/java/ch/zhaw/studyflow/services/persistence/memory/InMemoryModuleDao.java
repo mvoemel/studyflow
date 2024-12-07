@@ -25,7 +25,7 @@ public class InMemoryModuleDao implements ModuleDao {
     @Override
     public void create(Module module, long semesterId, long degreeId, long userId) {
         Objects.requireNonNull(module, "Module cannot be null");
-        module.setId(idCounter.incrementAndGet());
+        module.setId(idCounter.getAndIncrement());
         modules.put(module.getId(), module);
         moduleToSemester.put(module.getId(), semesterId);
         semesterToDegree.put(semesterId, degreeId);
@@ -56,9 +56,9 @@ public class InMemoryModuleDao implements ModuleDao {
         degreeToUser.forEach((degreeId, id) -> {
             if (id == userId) {
                 semesterToDegree.forEach((semesterId, dId) -> {
-                    if (dId == degreeId) {
+                    if (Objects.equals(dId, degreeId)) {
                         moduleToSemester.forEach((moduleId, sId) -> {
-                            if (sId == semesterId) {
+                            if (Objects.equals(sId, semesterId)) {
                                 userModules.add(modules.get(moduleId));
                             }
                         });
@@ -79,5 +79,16 @@ public class InMemoryModuleDao implements ModuleDao {
         return modules.values().stream()
                 .filter(module -> module.getName().equals(name))
                 .findFirst();
+    }
+
+    @Override
+    public List<Module> readBySemesterId(long semesterId) {
+        List<Module> modulesForSemester = new ArrayList<>();
+        moduleToSemester.forEach((moduleId, sId) -> {
+            if(sId == semesterId) {
+                modulesForSemester.add(modules.get(moduleId));
+            }
+        });
+        return modulesForSemester;
     }
 }

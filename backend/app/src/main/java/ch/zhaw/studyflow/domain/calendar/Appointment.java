@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
  */
 public class Appointment {
     private long id;
+    private String title;
+    private String description;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private long calendarId;
@@ -18,7 +20,9 @@ public class Appointment {
     /**
      * Default constructor.
      */
-    public Appointment() {}
+    public Appointment() {
+        this.id = -1;
+    }
 
     /**
      * Constructs an appointment with the specified details.
@@ -28,11 +32,53 @@ public class Appointment {
      * @param endTime the end time of the appointment
      * @param calendarId the ID of the calendar
      */
-    public Appointment(long id, LocalDateTime startTime, LocalDateTime endTime, long calendarId) {
+    public Appointment(long id, LocalDateTime startTime, LocalDateTime endTime, long calendarId, String title, String description) {
         this.id = id;
         this.startTime = startTime;
         this.endTime = endTime;
         this.calendarId = calendarId;
+        this.title = title;
+        this.description = description;
+    }
+
+    /**
+     * Gets the name of the appointment.
+     *
+     * @return the name of the appointment
+     */
+    @JsonGetter("title")
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Sets the name of the appointment.
+     *
+     * @param title the new name of the appointment
+     */
+    @JsonSetter("title")
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /**
+     * Gets the description of the appointment.
+     *
+     * @return the description of the appointment
+     */
+    @JsonGetter("description")
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Sets the description of the appointment.
+     *
+     * @param description the new description of the appointment
+     */
+    @JsonSetter("description")
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**
@@ -60,7 +106,7 @@ public class Appointment {
      *
      * @return the start time of the appointment
      */
-    @JsonGetter("startTime")
+    @JsonGetter("startDateTime")
     public LocalDateTime getStartTime() {
         return startTime;
     }
@@ -70,7 +116,7 @@ public class Appointment {
      *
      * @param startTime the new start time of the appointment
      */
-    @JsonSetter("startTime")
+    @JsonSetter("startDateTime")
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
@@ -80,7 +126,7 @@ public class Appointment {
      *
      * @return the end time of the appointment
      */
-    @JsonGetter("endTime")
+    @JsonGetter("endDateTime")
     public LocalDateTime getEndTime() {
         return endTime;
     }
@@ -90,7 +136,7 @@ public class Appointment {
      *
      * @param endTime the new end time of the appointment
      */
-    @JsonSetter("endTime")
+    @JsonSetter("endDateTime")
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }

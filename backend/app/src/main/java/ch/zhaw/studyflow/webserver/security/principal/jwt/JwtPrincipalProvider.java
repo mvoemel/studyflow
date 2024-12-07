@@ -15,13 +15,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.swing.text.html.Option;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +28,7 @@ import java.util.logging.Logger;
  */
 public class JwtPrincipalProvider extends PrincipalProvider {
     private static final Logger LOGGER = Logger.getLogger(JwtPrincipalProvider.class.getName());
+    private static final LocalDateTime RESET_DATE = LocalDateTime.of(0,1,1,0,0,0);
 
     private final JwtPrincipalProviderOptions options;
     private final Base64.Encoder base64Encoder;
@@ -118,7 +116,7 @@ public class JwtPrincipalProvider extends PrincipalProvider {
         Objects.requireNonNull(response, "Response must not be null");
         response.getCookies().remove(options.getCookieName());
         Cookie cookie = new Cookie(options.getCookieName(), "");
-        cookie.setExpires(LocalDateTime.MIN);
+        cookie.setExpires(RESET_DATE);
         response.getCookies().set(cookie);
     }
 
