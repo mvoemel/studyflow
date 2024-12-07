@@ -107,21 +107,19 @@ public class StudentController {
 
     @Route(path = "settings")
     @Endpoint(method = HttpMethod.GET)
-    public HttpResponse settings(RequestContext requestContext) {
+    public HttpResponse getSettings(RequestContext requestContext) {
         return authenticator.handleIfAuthenticated(requestContext.getRequest(), principal -> {
-            HttpResponse response = requestContext.getRequest().createResponse();
-            Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
-            if (userId.isPresent()) {
-                studentManager.getSettings(userId.get())
-                        .ifPresentOrElse(
-                                settings -> response
-                                        .setResponseBody(JsonContent.writableOf(settings))
-                                        .setStatusCode(HttpStatusCode.OK),
-                                () -> response.setStatusCode(HttpStatusCode.NOT_FOUND)
-                        );
-            } else {
-                response.setStatusCode(HttpStatusCode.BAD_REQUEST);
-            }
+            HttpResponse response = requestContext.getRequest().createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+            principal.getClaim(CommonClaims.USER_ID).ifPresent(userId ->
+                    studentManager.getSettings(userId)
+                            .ifPresentOrElse(
+                                    settings -> response
+                                            .setResponseBody(JsonContent.writableOf(settings))
+                                            .setStatusCode(HttpStatusCode.OK),
+                                    () -> response.setStatusCode(HttpStatusCode.NOT_FOUND)
+                            )
+            );
             return response;
         });
     }
