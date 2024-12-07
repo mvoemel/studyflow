@@ -47,6 +47,8 @@ public class StudyplanController {
         return null;
     }
 
+    @Route(path = "")
+    @Endpoint(method = HttpMethod.POST)
     public HttpResponse generateStudyplan(RequestContext context) {
         final HttpRequest request = context.getRequest();
 
