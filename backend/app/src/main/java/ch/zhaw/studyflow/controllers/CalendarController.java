@@ -268,32 +268,6 @@ public class CalendarController {
         });
     }
 
-
-    /**
-     * Extracts the date range query parameters from the request.
-     * If the "to" parameter is not present, the default value is the current date.
-     * If the "from" parameter is not present, the default value is one month before the "to" parameter.
-     *
-     * @param queryParameters the query parameters
-     * @return If successful, a tuple containing the start and end date of the range; otherwise an empty optional
-     */
-    private static Optional<Tuple<LocalDate, LocalDate>> extractDateRangeQuery(QueryParameters queryParameters) {
-        Optional<Tuple<LocalDate, LocalDate>> result;
-        try {
-            final LocalDate to = queryParameters.getSingleValue("to")
-                    .map(CalendarController::tryParseDate)
-                    .orElseGet(LocalDate::now);
-
-            final LocalDate from = queryParameters.getSingleValue("from")
-                    .map(CalendarController::tryParseDate)
-                    .orElseGet(() -> to.minusMonths(1));
-            result = Optional.of(new Tuple<>(from, to));
-        } catch (Exception e) {
-            result = Optional.empty();
-        }
-        return result;
-    }
-
     /**
      * Tries to parse a string to a LocalDate.
      *
