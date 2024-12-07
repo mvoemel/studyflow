@@ -62,7 +62,9 @@ public class StudentController {
                                                 student.setFirstname(registration.getFirstname());
                                                 student.setLastname(registration.getLastname());
                                                 student.setEmail(registration.getEmail());
-                                                student.setPassword(registration.getPassword());
+                                                if (registration.getPassword() != null) {
+                                                    student.setPassword(registration.getPassword());
+                                                }
                                                 studentManager.updateStudent(student);
                                                 response.setResponseBody(JsonContent.writableOf(student))
                                                         .setStatusCode(HttpStatusCode.OK);
