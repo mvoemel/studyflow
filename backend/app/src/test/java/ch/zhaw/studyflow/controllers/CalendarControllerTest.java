@@ -100,7 +100,7 @@ class CalendarControllerTest {
         final RequestContext context = makeRequestContext(request, Map.of("calendarId", "1"));
         HttpMockHelpers.addQueryParameters(request, Map.of("from", List.of("2021-01-01"), "to", List.of("2021-01-02")));
 
-        when(appointmentManager.readAllBy(anyLong(), any(), any())).thenReturn(appointments);
+        when(appointmentManager.readAllBy(anyLong())).thenReturn(appointments);
 
         HttpResponse actualResponse = calendarController.getAppointments(context);
         ArgumentCaptor<HttpStatusCode> statusCodeCaptor = HttpMockHelpers.captureResponseCode(actualResponse);
@@ -113,11 +113,7 @@ class CalendarControllerTest {
         final String to = "2021-01-02";
 
         List<Appointment> appointments = List.of(new Appointment());
-        when(appointmentManager.readAllBy(
-                anyLong(),
-                assertArg(e -> validateDate(LocalDate.parse(from), e)),
-                assertArg(e -> validateDate(LocalDate.parse(to), e))))
-                .thenReturn(appointments);
+        when(appointmentManager.readAllBy(anyLong())).thenReturn(appointments);
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, AuthMockHelpers.getDefaultClaims());
 
