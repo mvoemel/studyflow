@@ -245,6 +245,50 @@ class StudentControllerTest {
         assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
     }
 
+    @Test
+    void testGetSettings() {
+        final HttpRequest request = makeHttpRequest();
+
+        Settings settings = new Settings();
+        settings.setId(1L);
+        settings.setGlobalCalendarId(1);
+        settings.setActiveDegree(1);
+
+        when(studentManager.getSettings(1L)).thenReturn(Optional.of(settings));
+
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
+        HttpResponse response = studentController.getSettings(makeRequestContext(request));
+
+        ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
+        ArgumentCaptor<WritableBodyContent> responseBody = captureResponseBody(response);
+        assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
+        assertInstanceOf(JsonContent.class, responseBody.getValue());
+        assertDoesNotThrow(() -> {
+            JsonContent content = (JsonContent)responseBody.getValue();
+            Settings result = JsonContentHelpers.getContent(content, Settings.class);
+            assertEquals(1L, result.getId());
+            assertEquals(1, result.getGlobalCalendarId());
+            assertEquals(1, result.getActiveDegree());
+        });
+    }
+
+    @Test
+    void testUpdateSettings() {
+        final Settings settings = new Settings();
+        settings.setId(1L);
+        settings.setGlobalCalendarId(1);
+        settings.setActiveDegree(1);
+
+        final HttpRequest request = makeHttpRequest(makeJsonRequestBody(Settings.class, settings));
+
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
+        HttpResponse response = studentController.updateSettings(makeRequestContext(request, Map.of("settingsId", "1")));
+
+        ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
+        verify(studentManager, times(1)).updateSettings(settings);
+        assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
+    }
+
     private static Student getTestStudent() {
         final Student student = new Student();
         student.setId(1L);
@@ -272,7 +316,7 @@ class StudentControllerTest {
         return Stream.of(
                 makeTarget("me", ctrl -> ctrl::me),
                 makeTarget("logout", ctrl -> ctrl::logout),
-                makeTarget("settings", ctrl -> ctrl::settings)
+                makeTarget("settings", ctrl -> ctrl::getSettings)
         );
     }
 

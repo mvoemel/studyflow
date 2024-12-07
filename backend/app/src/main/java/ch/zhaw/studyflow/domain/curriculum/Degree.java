@@ -11,7 +11,9 @@ public class Degree {
     private long activeSemesterId;
 
     public Degree() {
-        this.id = -1;
+        this.id                 = -1;
+        this.ownerId            = -1;
+        this.activeSemesterId   = -1;
     }
 
     @JsonGetter("id")

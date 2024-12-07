@@ -5,14 +5,11 @@ import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
 import ch.zhaw.studyflow.services.persistence.DegreeDao;
 import ch.zhaw.studyflow.services.persistence.SemesterDao;
 import ch.zhaw.studyflow.utils.Validation;
-import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
-import ch.zhaw.studyflow.webserver.security.principal.Principal;
 
 import java.util.List;
 import java.util.Objects;
 
 public class DegreeManagerImpl implements DegreeManager {
-
     private final DegreeDao degreeDao;
     private final SemesterDao semesterDao;
 
