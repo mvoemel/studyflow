@@ -12,6 +12,12 @@ public class SemesterDeo {
     private long userId;
     private long calendarId;
 
+
+    public SemesterDeo() {
+        this.id         = -1;
+        this.calendarId = -1;
+    }
+
     @JsonGetter("id")
     public long getId() {
         return id;
