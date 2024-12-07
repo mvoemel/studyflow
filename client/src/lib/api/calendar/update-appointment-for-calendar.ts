@@ -11,7 +11,7 @@ const updateAppointmentForCalendarRequest = async (
   appointmentId: string,
   body: UpdateAppointmentForCalendarRequestBody
 ) => {
-  return await tuam.patch<void, UpdateAppointmentForCalendarRequestBody>(
+  return await tuam.post<void, UpdateAppointmentForCalendarRequestBody>(
     `/api/calendars/${calendarId}/appointments/${appointmentId}`,
     body
   );

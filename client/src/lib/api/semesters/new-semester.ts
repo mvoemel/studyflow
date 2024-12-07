@@ -19,12 +19,15 @@ const newSemesterRequest = async (body: NewSemesterRequestBody) => {
     NewSemesterRequestBody
   >("/api/semesters", body);
 
+  const calendarId =
+    response.calendarId === -1 ? undefined : response.calendarId;
+
   const newSemesterResponseData: Semester = {
     ...response,
     id: response.id.toString(),
     degreeId: response.degreeId.toString(),
     userId: response.userId?.toString(),
-    calendarId: response.calendarId?.toString(),
+    calendarId: calendarId?.toString(),
   };
 
   return newSemesterResponseData;

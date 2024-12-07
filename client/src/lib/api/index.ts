@@ -7,7 +7,6 @@ export * from "./auth/update-user";
 
 export * from "./calendar/delete-appointment-for-calendar";
 export * from "./calendar/get-appointments-for-calendar";
-export * from "./calendar/get-calendar";
 export * from "./calendar/new-appointment-for-calendar";
 export * from "./calendar/update-appointment-for-calendar";
 

@@ -334,33 +334,19 @@ const AppSidebar = () => {
                       ))
                   )}
                   <SidebarMenuItem>
-                    {settings?.activeDegreeId !== "-1" ? (
-                      <Button
-                        variant="ghost"
-                        className="gap-2 p-2 w-full justify-start"
-                        onClick={() => handleAddSemester()}
-                      >
-                        <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                          <PlusIcon className="size-4" />
-                        </div>
-                        <div className="font-medium text-muted-foreground">
-                          Add Semester
-                        </div>
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        className="gap-2 p-2 w-full justify-start"
-                        disabled
-                      >
-                        <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                          <PlusIcon className="size-4" />
-                        </div>
-                        <div className="font-medium text-muted-foreground">
-                          Add Semester
-                        </div>
-                      </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      className="gap-2 p-2 w-full justify-start"
+                      onClick={() => handleAddSemester()}
+                      disabled={!settings?.activeDegreeId}
+                    >
+                      <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+                        <PlusIcon className="size-4" />
+                      </div>
+                      <div className="font-medium text-muted-foreground">
+                        Add Semester
+                      </div>
+                    </Button>
                   </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarMenuSub>

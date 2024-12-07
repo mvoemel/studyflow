@@ -6,6 +6,7 @@ import ch.zhaw.studyflow.services.persistence.SemesterDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -27,7 +28,7 @@ class DegreeManagerImplTest {
         degree.setDescription("Test Description");
         degreeManager.createDegree(1L, degree);
         verify(degreeDao, times(1)).create(degree);
-        verify(degree, times(1)).setOwnerId(1);
+        assertEquals(1, degree.getOwnerId());
     }
 
     @Test

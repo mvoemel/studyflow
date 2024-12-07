@@ -15,11 +15,14 @@ const newDegreeRequest = async (body: NewDegreeRequestBody) => {
     NewDegreeRequestBody
   >("/api/degrees", body);
 
+  const activeSemesterId =
+    response.activeSemesterId === -1 ? undefined : response.activeSemesterId;
+
   const newDegreeResponseData: Degree = {
     ...response,
     id: response.id.toString(),
     userId: response.userId?.toString(),
-    activeSemesterId: response.activeSemesterId?.toString(),
+    activeSemesterId: activeSemesterId?.toString(),
   };
 
   return newDegreeResponseData;

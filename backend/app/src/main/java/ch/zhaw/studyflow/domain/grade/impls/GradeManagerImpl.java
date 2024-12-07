@@ -44,7 +44,7 @@ public class GradeManagerImpl implements GradeManager {
     }
 
     @Override
-    public void updateGradesByModule(long degreeId, List<Grade> grades) {
-        gradeDao.updateByDegree(degreeId, grades);
+    public void updateGradesByModule(long moduleId, List<Grade> grades) {
+        gradeDao.updateByModule(moduleId, grades);
     }
 }
