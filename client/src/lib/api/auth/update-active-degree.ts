@@ -1,20 +1,22 @@
 import { tuam } from "@/lib/tuam";
-import { Degree } from "@/types";
+import { Settings } from "@/types";
 
-type UpdateActiveDegreeRequestBody = {
-  activeDegreeId: Degree["id"];
-};
+type UpdateActiveDegreeRequestBody = Settings;
 
 const updateActiveDegreeRequest = async (
   settingsId: string,
   body: UpdateActiveDegreeRequestBody
 ) => {
-  const newBody = { activeDegree: body.activeDegreeId };
+  const newBody = {
+    id: body.id,
+    activeDegree: body.activeDegreeId || "-1",
+    globalCalendar: body.globalCalendarId,
+  };
 
-  return await tuam.post<void, { activeDegree: string }>(
-    `/api/student/settings/${settingsId}`,
-    newBody
-  );
+  return await tuam.post<
+    void,
+    { id: string; activeDegree: string; globalCalendar: string }
+  >(`/api/student/settings/${settingsId}`, newBody);
 };
 
 export { type UpdateActiveDegreeRequestBody, updateActiveDegreeRequest };
