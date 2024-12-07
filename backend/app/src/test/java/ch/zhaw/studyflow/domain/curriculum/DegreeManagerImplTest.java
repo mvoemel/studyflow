@@ -2,6 +2,7 @@ package ch.zhaw.studyflow.domain.curriculum;
 
 import ch.zhaw.studyflow.domain.curriculum.impls.DegreeManagerImpl;
 import ch.zhaw.studyflow.services.persistence.DegreeDao;
+import ch.zhaw.studyflow.services.persistence.SemesterDao;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,7 +12,8 @@ class DegreeManagerImplTest {
     @Test
     void testCreateDegree() {
         DegreeDao degreeDao = mock(DegreeDao.class);
-        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao);
+        SemesterDao semesterDao = mock(SemesterDao.class);
+        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao, semesterDao);
         Degree degree = new Degree();
         degree.setName("Test Degree");
         degree.setDescription("Test Description");
@@ -22,7 +24,8 @@ class DegreeManagerImplTest {
     @Test
     void throwIfDegreeIdAlreadySet() {
         DegreeDao degreeDao = mock(DegreeDao.class);
-        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao);
+        SemesterDao semesterDao = mock(SemesterDao.class);
+        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao, semesterDao);
         Degree degree = new Degree();
         degree.setId(1);
         degree.setOwnerId(1);
@@ -32,21 +35,24 @@ class DegreeManagerImplTest {
     @Test
     void throwsIfGetDegreeIdIsNegative() {
         DegreeDao degreeDao = mock(DegreeDao.class);
-        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao);
+        SemesterDao semesterDao = mock(SemesterDao.class);
+        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao, semesterDao);
         assertThrows(IllegalArgumentException.class, () -> degreeManager.getDegree(-1));
     }
 
     @Test
     void throwsIfDeleteDegreeIdIsNegative() {
         DegreeDao degreeDao = mock(DegreeDao.class);
-        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao);
+        SemesterDao semesterDao = mock(SemesterDao.class);
+        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao, semesterDao);
         assertThrows(IllegalArgumentException.class, () -> degreeManager.deleteDegree(-1));
     }
 
     @Test
     void throwsIfGetDegreesForStudentIdIsNegative() {
         DegreeDao degreeDao = mock(DegreeDao.class);
-        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao);
+        SemesterDao semesterDao = mock(SemesterDao.class);
+        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao, semesterDao);
         assertThrows(IllegalArgumentException.class, () -> degreeManager.getDegreesForStudent(-1));
     }
 }
