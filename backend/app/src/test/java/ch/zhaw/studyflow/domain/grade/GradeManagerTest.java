@@ -66,6 +66,6 @@ class GradeManagerTest {
 
         gradeManager.updateGradesByModule(degreeId, grades);
 
-        verify(gradeDao, times(1)).updateByDegree(degreeId, grades);
+        verify(gradeDao, times(1)).updateByModule(degreeId, grades);
     }
 }
