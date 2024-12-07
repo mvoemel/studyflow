@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import ch.zhaw.studyflow.domain.calendar.Appointment;
+import ch.zhaw.studyflow.domain.curriculum.Module;
 
-public interface Studyplan {
+public interface StudyplanAlgorithm {
 
 public long getCalendarId();
 
@@ -34,15 +35,15 @@ public List<Appointment> getAppointments();
 
 public void setAppointments(List<Appointment> appointments);
 
-public List<ch.zhaw.studyflow.domain.curriculum.Module> getModules();
+public List<Module> getModules();
 
-public void setModules(List<ch.zhaw.studyflow.domain.curriculum.Module> modules);
+public void setModules(List<Module> modules);
 
 public List<DayOfWeek> getDaysOfWeek();
 
 public List<StudyDay> getStudyDays();
 
-public Map<ch.zhaw.studyflow.domain.curriculum.Module, List<StudyDay>> getModuleStudyDays();
+public Map<Module, List<StudyDay>> getModuleStudyDays();
 
 
 }

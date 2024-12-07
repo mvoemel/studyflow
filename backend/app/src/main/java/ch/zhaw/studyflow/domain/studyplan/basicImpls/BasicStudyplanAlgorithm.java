@@ -11,10 +11,10 @@ import java.util.logging.Logger;
 
 import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.domain.studyplan.StudyDay;
-import ch.zhaw.studyflow.domain.studyplan.Studyplan;
+import ch.zhaw.studyflow.domain.studyplan.StudyplanAlgorithm;
 
-public class BasicStudyplan implements Studyplan {
-    private static final Logger LOGGER = Logger.getLogger(BasicStudyplan.class.getName());
+public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
+    private static final Logger LOGGER = Logger.getLogger(BasicStudyplanAlgorithm.class.getName());
     private long calendarId;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -28,7 +28,7 @@ public class BasicStudyplan implements Studyplan {
     private List<StudyDay> studyDays;
     private Map<ch.zhaw.studyflow.domain.curriculum.Module, List<StudyDay>> moduleStudyDays;
 
-    public BasicStudyplan(LocalDate startDate, LocalDate endDate, List<DayOfWeek> daysOfWeek, LocalTime startTime, LocalTime endTime, long calendarId) {
+    public BasicStudyplanAlgorithm(LocalDate startDate, LocalDate endDate, List<DayOfWeek> daysOfWeek, LocalTime startTime, LocalTime endTime, long calendarId) {
         this.calendarId = calendarId;
         this.startDate = startDate;
         this.endDate = endDate;
