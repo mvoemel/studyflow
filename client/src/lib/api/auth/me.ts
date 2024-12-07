@@ -12,6 +12,11 @@ const meRequest = async () => {
     settings: { id: number; activeDegree: number; globalCalendar: number };
   }>("/api/student/me");
 
+  const activeDegreeId =
+    response.settings.activeDegree === -1
+      ? undefined
+      : response.settings.activeDegree;
+
   const meResponseData: MeRequestResponseData = {
     user: {
       ...response.student,
@@ -20,7 +25,7 @@ const meRequest = async () => {
     },
     settings: {
       id: response.settings.id.toString(),
-      activeDegreeId: response.settings.activeDegree.toString(),
+      activeDegreeId: activeDegreeId?.toString(),
       globalCalendarId: response.settings.globalCalendar.toString(),
     },
   };
