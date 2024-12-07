@@ -22,7 +22,7 @@ const getAllSemestersRequest = async () => {
       id: s.id.toString(),
       degreeId: s.degreeId.toString(),
       userId: s.userId.toString(),
-      calendarId: s.calendarId?.toString(),
+      calendarId: s.calendarId === -1 ? undefined : s.calendarId?.toString(),
     })
   );
 
