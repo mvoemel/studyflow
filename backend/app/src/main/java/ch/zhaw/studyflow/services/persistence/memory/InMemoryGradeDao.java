@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -14,11 +15,15 @@ import java.util.stream.Collectors;
  */
 public class InMemoryGradeDao implements GradeDao {
     private final Map<Long, Grade> persistedGrades = new HashMap<>();
-    private long currentId = 1;
+    private final AtomicInteger idCounter;
+
+    public InMemoryGradeDao() {
+        this.idCounter  = new AtomicInteger();
+    }
 
     @Override
     public void create(Grade grade) {
-        grade.setId(currentId++);
+        grade.setId(idCounter.getAndIncrement());
         persistedGrades.put(grade.getId(), grade);
     }
 
@@ -73,7 +78,7 @@ public class InMemoryGradeDao implements GradeDao {
     }
 
     private long generateNewId() {
-        return currentId++;
+        return idCounter.getAndIncrement();
     }
 
     @Override
