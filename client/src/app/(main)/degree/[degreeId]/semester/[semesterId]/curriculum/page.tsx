@@ -23,12 +23,13 @@ import { useParams } from "next/navigation";
 import { ModuleDialog } from "@/components/dialogs/module-dialog";
 import { Module } from "@/types";
 import { useModules } from "@/hooks/use-modules";
-import { PenIcon } from "lucide-react";
+import {PenIcon, Trash2} from "lucide-react";
+import {toast} from "sonner";
 
 const ModulesSettingsPage = () => {
   const { degreeId, semesterId } = useParams();
 
-  const { modules } = useModules();
+  const { modules, deleteModule } = useModules();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -58,6 +59,15 @@ const ModulesSettingsPage = () => {
   const closeAddDialog = useCallback(() => {
     setIsAddDialogOpen(false);
   }, []);
+
+  const handleDeleteModule = async (moduleId: string) => {
+    try {
+      await deleteModule(moduleId);
+        toast.success("Successfully deleted module!");
+    } catch (err) {
+        toast.error("Failed to delete module!");
+    }
+  }
 
   return (
     <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
@@ -99,6 +109,14 @@ const ModulesSettingsPage = () => {
                       onClick={() => openEditDialog(module)}
                     >
                       <PenIcon className="h-4" />
+                    </Button>
+                    <Button
+                      className="p-0"
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => handleDeleteModule(module.id)}
+                    >
+                        <Trash2 className="h-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
