@@ -48,7 +48,9 @@ public class SQLAppointmentDao implements AppointmentDao {
                             rs.getLong("id"),
                             rs.getTimestamp("start_time").toLocalDateTime(),
                             rs.getTimestamp("end_time").toLocalDateTime(),
-                            rs.getLong("calendar_id")
+                            rs.getLong("calendar_id"),
+                            rs.getString("title"),
+                            rs.getString("description")
                     );
                 }
             }
@@ -59,20 +61,20 @@ public class SQLAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public List<Appointment> readAllBy(long calendarId, LocalDate from, LocalDate to) {
-        String sql = "SELECT * FROM appointments WHERE calendar_id = ? AND start_time >= ? AND end_time < ?";
+    public List<Appointment> readAllBy(long calendarId) {
+        String sql = "SELECT * FROM appointments WHERE calendar_id = ?";
         List<Appointment> appointments = new ArrayList<>();
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, calendarId);
-            stmt.setTimestamp(2, Timestamp.valueOf(from.atStartOfDay()));
-            stmt.setTimestamp(3, Timestamp.valueOf(to.plusDays(1).atStartOfDay()));
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     appointments.add(new Appointment(
                             rs.getLong("id"),
                             rs.getTimestamp("start_time").toLocalDateTime(),
                             rs.getTimestamp("end_time").toLocalDateTime(),
-                            rs.getLong("calendar_id")
+                            rs.getLong("calendar_id"),
+                            rs.getString("title"),
+                            rs.getString("description")
                     ));
                 }
             }

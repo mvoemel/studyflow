@@ -35,13 +35,11 @@ public class InMemoryAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public List<Appointment> readAllBy(long calendarId, LocalDate from, LocalDate to) {
+    public List<Appointment> readAllBy(long calendarId) {
         // We use !isBefore(from) since this includes the from and isBefore(to) since it
         // excludes the to date.
         return appointments.stream()
-                .filter(appointment -> appointment.getCalendarId() == calendarId &&
-                        !appointment.getStartTime().isBefore(to.atStartOfDay()) &&
-                        appointment.getEndTime().isBefore(from.atStartOfDay()))
+                .filter(appointment -> appointment.getCalendarId() == calendarId)
                 .toList();
     }
 

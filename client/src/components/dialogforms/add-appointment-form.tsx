@@ -110,7 +110,7 @@ export function AddAppointmentForm({
             <FormItem>
               <FormLabel>Appointment Start Date</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input type="datetime-local" {...field} />
               </FormControl>
               <FormDescription>
                 Enter the start date of the appointment.
@@ -126,7 +126,7 @@ export function AddAppointmentForm({
             <FormItem>
               <FormLabel>Appointment End Date</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input type="datetime-local" {...field} />
               </FormControl>
               <FormDescription>
                 Enter the end date of the appointment.

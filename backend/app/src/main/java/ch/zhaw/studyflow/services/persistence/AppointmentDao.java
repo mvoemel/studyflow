@@ -30,11 +30,9 @@ public interface AppointmentDao {
      * Reads all appointments for a calendar within a date range.
      *
      * @param calendarId the ID of the calendar
-     * @param from the start date
-     * @param to the end date
      * @return a list of appointments
      */
-    List<Appointment> readAllBy(long calendarId, LocalDate from, LocalDate to);
+    List<Appointment> readAllBy(long calendarId);
 
     /**
      * Deletes a specific appointment by appointment ID.
