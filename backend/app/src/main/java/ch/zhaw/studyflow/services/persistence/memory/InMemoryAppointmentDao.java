@@ -1,12 +1,12 @@
 package ch.zhaw.studyflow.services.persistence.memory;
 
-import ch.zhaw.studyflow.domain.calendar.Appointment;
-import ch.zhaw.studyflow.services.persistence.AppointmentDao;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
+import ch.zhaw.studyflow.domain.calendar.Appointment;
+import ch.zhaw.studyflow.services.persistence.AppointmentDao;
 
 /**
  *
@@ -52,5 +52,14 @@ public class InMemoryAppointmentDao implements AppointmentDao {
     public void update(Appointment appointment) {
         delete(appointment.getId());
         appointments.add(appointment);
+    }
+
+    @Override
+    public List<Appointment> readAllBy(long calendarId, LocalDate from, LocalDate to) {
+        return appointments.stream()
+                .filter(appointment -> appointment.getCalendarId() == calendarId)
+                .filter(appointment -> !appointment.getStartTime().toLocalDate().isBefore(from))
+                .filter(appointment -> appointment.getEndTime().toLocalDate().isBefore(to))
+                .toList();
     }
 }
