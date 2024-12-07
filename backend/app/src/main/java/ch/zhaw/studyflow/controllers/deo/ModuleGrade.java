@@ -11,6 +11,8 @@ public class ModuleGrade {
     private List<Grade> grades;
     private int ects;
 
+    public ModuleGrade() {}
+
     public ModuleGrade(long id, String name, List<Grade> grades) {
         this(id, name, grades, 0);
     }

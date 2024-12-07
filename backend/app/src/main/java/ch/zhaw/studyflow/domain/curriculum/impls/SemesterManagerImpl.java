@@ -31,7 +31,7 @@ public class SemesterManagerImpl implements SemesterManager {
 
     @Override
     public List<Semester> getSemestersForDegree(long degreeId) {
-        return semesterDao.getSemestersForStudent(degreeId);
+        return semesterDao.getSemestersForDegree(degreeId);
     }
 
     @Override
