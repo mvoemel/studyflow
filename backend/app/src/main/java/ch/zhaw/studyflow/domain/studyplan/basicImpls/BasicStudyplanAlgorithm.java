@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import ch.zhaw.studyflow.controllers.deo.StudyplanParameters;
 import ch.zhaw.studyflow.domain.calendar.Appointment;
+import ch.zhaw.studyflow.domain.curriculum.Module;
 import ch.zhaw.studyflow.domain.studyplan.StudyDay;
 import ch.zhaw.studyflow.domain.studyplan.StudyplanAlgorithm;
 
@@ -23,97 +25,27 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
     private LocalTime endTime;
 
     private List<Appointment> appointments;
-    private List<ch.zhaw.studyflow.domain.curriculum.Module> modules;
-
+    private List<Module> modules;
+    
+    private Map<Module, Long> modulePercentages;
     private List<StudyDay> studyDays;
-    private Map<ch.zhaw.studyflow.domain.curriculum.Module, List<StudyDay>> moduleStudyDays;
+    private Map<Module, List<StudyDay>> moduleStudyDays;
 
-    public BasicStudyplanAlgorithm(LocalDate startDate, LocalDate endDate, List<DayOfWeek> daysOfWeek, LocalTime startTime, LocalTime endTime, long calendarId) {
+    public BasicStudyplanAlgorithm(StudyplanParameters parameters, long calendarId, List<Appointment> appointments, List<Module> modules){ 
         this.calendarId = calendarId;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.daysOfWeek = daysOfWeek;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.startDate = parameters.getStartDate();
+        this.endDate = parameters.getEndDate();
+        this.daysOfWeek = parameters.getDaysOfWeek();
+        this.startTime = parameters.getDayStartTime();
+        this.endTime = parameters.getDayEndTime();
 
+        this.appointments = appointments;
+        this.modules = modules;
+
+        this.modulePercentages = new HashMap<>();
         this.studyDays = new ArrayList<>();
         this.moduleStudyDays = new HashMap<>();
         
-    }
-
-    @Override
-    public long getCalendarId() {
-        return calendarId;
-    }
-
-    @Override
-    public void setCalendarId(long calendarId) {
-        this.calendarId = calendarId;
-    }
-
-    @Override
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    @Override
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-
-    @Override
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    @Override
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
-    }
-
-    @Override
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-
-    @Override
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
-
-    @Override
-    public LocalTime getEndTime() {
-        return endTime;
-    }
-
-    @Override
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
-
-    @Override
-    public List<Appointment> getAppointments() {
-        return appointments;
-    }
-
-    @Override
-    public void setAppointments(List<Appointment> appointments) {
-        this.appointments = appointments;
-    }
-
-    @Override
-    public List<ch.zhaw.studyflow.domain.curriculum.Module> getModules() {
-        return modules;
-    }
-
-    @Override
-    public void setModules(List<ch.zhaw.studyflow.domain.curriculum.Module> modules) {
-        this.modules = modules;
-    }
-
-    @Override
-    public List<DayOfWeek> getDaysOfWeek() {
-        return daysOfWeek;
     }
 
     @Override
@@ -122,10 +54,11 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
     }
 
     @Override
-    public Map<ch.zhaw.studyflow.domain.curriculum.Module, List<StudyDay>> getModuleStudyDays() {
+    public Map<Module, List<StudyDay>> getModuleStudyDays() {
         return moduleStudyDays;
     }
 
+    //TODO: part of interface?
     private void createStudyDays(){
         LocalDate currentDate = startDate;
         
@@ -145,22 +78,36 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
         }
     }
 
+
     private int calculateTotalMinutes(){
         int totalMinutes = 0;
         for(StudyDay studyDay : studyDays){
-            studyDay.calculateMinutes();
             totalMinutes += studyDay.getMinutes();
         }
         return totalMinutes;
     }
 
     private void calculateModulePercentages(){
-        //calculate percentage from importance, understanding and time value
-        //TODO: how do we store that? just as a map/list in the studyplan, do we make a new class, do we add that to the module class?
-        //personally I would store it in the studyplan but idk looking at michaels code he has a class for that
+        long moduleSum = 0;
+        Map<Module, Long> moduleInitValues = new HashMap<>();
+        //calculate percentage from complexity, understanding and time (and ECTS)
+        //TODO: how to calculate percentage? multiply or add complexity value?
+        for(Module module : modules){
+            long initValue = (module.getComplexity() + module.getUnderstanding() + module.getTime())*module.getECTS();
+            moduleInitValues.put(module, initValue);
+            moduleSum += initValue;
+        }
+
+        //normalize percentages
+        for(Module module : modules){
+            long percentage = moduleInitValues.get(module);
+            modulePercentages.put(module, percentage/moduleSum);
+        }
+        
     }
 
     private void allocateModules(){
+        //TODO: implement
         //allocate modules to studyDays
         //use michaels concept:
 
