@@ -75,12 +75,23 @@ const SchedulePage = () => {
       <Card className="p-7 bg-muted/50">
         <FullCalendar
           plugins={[timeGridPlugin, interactionPlugin]}
-          initialView={"timeGridWeek"}
-          weekends={false}
+          initialView="timeGridWeek"
+          weekends={true}
           nowIndicator={true}
           events={events}
-          slotMinTime={"08:00:00"}
-          slotMaxTime={"20:00:00"}
+          // TODO: implement onClick events
+          eventClick={(event) => console.log("Clicked event:", event)}
+          // TODO: implement onDrag events
+          eventDragMinDistance={5}
+          // eventDragStart={(arg) => console.log("Drag start event:", arg.event)}
+          eventDragStop={(arg) => console.log("Drag stop event:", arg.event)}
+          // TODO: implement onResize events
+          // eventResizeStart={(arg) => console.log("Resize start event:", arg.event)}
+          eventResizeStop={(arg) =>
+            console.log("Resize stop event:", arg.event)
+          }
+          slotMinTime={"07:00:00"}
+          slotMaxTime={"23:00:00"}
           slotLabelFormat={{
             hour: "2-digit",
             minute: "2-digit",

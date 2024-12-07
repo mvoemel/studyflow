@@ -30,13 +30,13 @@ const DailyCalendarBox = ({ className }: DailyCalendarBoxProps) => {
       <CardContent className="h-full">
         <FullCalendar
           plugins={[timeGridPlugin, interactionPlugin]}
-          initialView={"timeGridDay"}
+          initialView="timeGridDay"
           weekends={true}
           nowIndicator={true}
           editable={false}
           events={events}
-          slotMinTime={"08:00:00"}
-          slotMaxTime={"20:00:00"}
+          slotMinTime={"07:00:00"}
+          slotMaxTime={"23:00:00"}
           slotLabelFormat={{
             hour: "2-digit",
             minute: "2-digit",
