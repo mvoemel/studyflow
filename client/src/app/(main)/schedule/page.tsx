@@ -22,7 +22,7 @@ const SchedulePage = () => {
   const { modules } = useModules();
   const { events } = useEvents();
 
-  // TODO: perferably remove this feature
+  // TODO: preferably remove this feature (exams)
   const filteredModules = useMemo(() => {
     if (!degrees || !semesters || !modules || !settings?.activeDegreeId)
       return [];
@@ -43,6 +43,20 @@ const SchedulePage = () => {
       ) || []
     );
   }, [settings, degrees, semesters, modules]);
+
+  const currSemester = useMemo(() => {
+    if (!degrees || !semesters || !settings?.activeDegreeId) return undefined;
+
+    const currDegree = degrees?.find((d) => d.id === settings.activeDegreeId);
+
+    if (!currDegree || !currDegree.activeSemesterId) return undefined;
+
+    const currSemester = semesters?.find(
+      (s) => s.id === currDegree.activeSemesterId
+    );
+
+    return currSemester;
+  }, [settings, degrees, semesters]);
 
   const [isAddAppointmentDialogOpen, setIsAddAppointmentDialogOpen] =
     useState(false);
@@ -68,7 +82,10 @@ const SchedulePage = () => {
     <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
       <div className="flex gap-4">
         <Button onClick={openAddAppointmentDialog}>Add an Appointment</Button>
-        <Button onClick={openCreateScheduleDialog}>
+        <Button
+          onClick={openCreateScheduleDialog}
+          disabled={!currSemester?.calendarId}
+        >
           Create a Schedule Plan
         </Button>
       </div>
