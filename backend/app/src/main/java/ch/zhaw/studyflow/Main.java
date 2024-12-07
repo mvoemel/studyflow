@@ -1,23 +1,55 @@
 package ch.zhaw.studyflow;
 
-import ch.zhaw.studyflow.controllers.*;
+import java.net.InetSocketAddress;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.LogManager;
+
+import ch.zhaw.studyflow.controllers.CalendarController;
+import ch.zhaw.studyflow.controllers.DegreeController;
+import ch.zhaw.studyflow.controllers.GradeController;
+import ch.zhaw.studyflow.controllers.ModuleController;
+import ch.zhaw.studyflow.controllers.SemesterController;
+import ch.zhaw.studyflow.controllers.StudentController;
+import ch.zhaw.studyflow.controllers.StudyplanController;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
-import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
-import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
+import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
+import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
 import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
+import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
 import ch.zhaw.studyflow.domain.curriculum.impls.DegreeManagerImpl;
 import ch.zhaw.studyflow.domain.curriculum.impls.ModuleManagerImpl;
 import ch.zhaw.studyflow.domain.curriculum.impls.SemesterManagerImpl;
 import ch.zhaw.studyflow.domain.grade.GradeManager;
 import ch.zhaw.studyflow.domain.grade.impls.GradeManagerImpl;
-import ch.zhaw.studyflow.services.persistence.*;
-import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
-import ch.zhaw.studyflow.services.persistence.memory.*;
 import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.domain.student.impls.StudentManagerImpl;
+import ch.zhaw.studyflow.domain.studyplan.StudyplanManager;
+import ch.zhaw.studyflow.domain.studyplan.impls.StudyplanManagerImpl;
+import ch.zhaw.studyflow.services.persistence.AppointmentDao;
+import ch.zhaw.studyflow.services.persistence.CalendarDao;
+import ch.zhaw.studyflow.services.persistence.DegreeDao;
+import ch.zhaw.studyflow.services.persistence.GradeDao;
+import ch.zhaw.studyflow.services.persistence.ModuleDao;
+import ch.zhaw.studyflow.services.persistence.SemesterDao;
+import ch.zhaw.studyflow.services.persistence.SettingsDao;
+import ch.zhaw.studyflow.services.persistence.StudentDao;
+import ch.zhaw.studyflow.services.persistence.memory.InMemoryAppointmentDao;
+import ch.zhaw.studyflow.services.persistence.memory.InMemoryCalendarDao;
+import ch.zhaw.studyflow.services.persistence.memory.InMemoryDegreeDao;
+import ch.zhaw.studyflow.services.persistence.memory.InMemoryGradeDao;
+import ch.zhaw.studyflow.services.persistence.memory.InMemoryModuleDao;
+import ch.zhaw.studyflow.services.persistence.memory.InMemorySemesterDao;
+import ch.zhaw.studyflow.services.persistence.memory.InMemorySettingsDao;
+import ch.zhaw.studyflow.services.persistence.memory.InMemoryStudentDao;
 import ch.zhaw.studyflow.webserver.WebServerBuilder;
-import ch.zhaw.studyflow.webserver.http.contents.*;
+import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
+import ch.zhaw.studyflow.webserver.http.contents.MapReadableBodyContentFactory;
+import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContentFactory;
+import ch.zhaw.studyflow.webserver.http.contents.ReadableBodyContentInstanceFactory;
+import ch.zhaw.studyflow.webserver.http.contents.TextContent;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.authentication.JwtBasedAuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
@@ -26,16 +58,6 @@ import ch.zhaw.studyflow.webserver.security.principal.jwt.JwtHashAlgorithm;
 import ch.zhaw.studyflow.webserver.security.principal.jwt.JwtPrincipalProvider;
 import ch.zhaw.studyflow.webserver.security.principal.jwt.JwtPrincipalProviderOptions;
 import ch.zhaw.studyflow.webserver.sun.SunHttpServerWebServerBuilder;
-
-import java.net.InetSocketAddress;
-import java.sql.Time;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.LogManager;
 
 public class Main {
     public static void main(String[] args) {
@@ -91,6 +113,13 @@ public class Main {
                             serviceCollection.getRequiredService(AuthenticationHandler.class)
                     )
             );
+            controllerRegistry.register(
+                    StudyplanController.class,
+                    serviceCollection -> new StudyplanController(
+                        serviceCollection.getRequiredService(StudyplanManager.class),
+                        serviceCollection.getRequiredService(AuthenticationHandler.class)
+                    )
+            );
         });
         webServerBuilder.configureServices(builder -> {
             // REGISTER DAO'S
@@ -108,7 +137,6 @@ public class Main {
                     serviceCollection.getRequiredService(CalendarDao.class)
             ));
 
-            builder.registerSingelton(AppointmentDao.class, serviceCollection -> new InMemoryAppointmentDao());
             builder.register(AppointmentManager.class, serviceCollection -> new AppointmentManagerImpl(
                     serviceCollection.getRequiredService(AppointmentDao.class)
             ));
@@ -132,6 +160,8 @@ public class Main {
             builder.register(GradeManager.class, serviceCollection -> new GradeManagerImpl(
                     serviceCollection.getRequiredService(GradeDao.class)
             ));
+
+            builder.registerSingelton(StudyplanManager.class, serviceCollection -> new StudyplanManagerImpl(serviceCollection));
 
             // REGISTER AUTHENTICATION SERVICES
             builder.registerSingelton(PrincipalProvider.class, serviceCollection -> new JwtPrincipalProvider(

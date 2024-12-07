@@ -6,39 +6,26 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.logging.Logger;
 
-import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
-import ch.zhaw.studyflow.domain.calendar.impls.CalendarManagerImpl;
-import ch.zhaw.studyflow.domain.curriculum.impls.ModuleManagerImpl;
-import ch.zhaw.studyflow.domain.curriculum.impls.SemesterManagerImpl;
 import ch.zhaw.studyflow.domain.studyplan.StudyplanManager;
+import ch.zhaw.studyflow.services.ServiceCollection;
 
 
 public class StudyplanManagerImpl implements StudyplanManager {
     private static final Logger LOGGER = Logger.getLogger(StudyplanManagerImpl.class.getName());
 
-    private final SemesterManagerImpl semesterManager;
-    private final ModuleManagerImpl moduleManager;
-    private final CalendarManagerImpl calendarManager;
-    private final AppointmentManagerImpl appointmentManager;
+    private final ServiceCollection serviceCollection;
 
-    
+    //threading: executor service for async tasks, limit nr of threads
 
-    public StudyplanManagerImpl(SemesterManagerImpl semesterManager, ModuleManagerImpl moduleManager, CalendarManagerImpl calendarManager, AppointmentManagerImpl appointmentManager) {
-        this.semesterManager = semesterManager;
-        this.moduleManager = moduleManager;
-        this.calendarManager = calendarManager;
-        this.appointmentManager = appointmentManager;
+    public StudyplanManagerImpl(ServiceCollection serviceCollection) {
+        this.serviceCollection  = serviceCollection;
     }
     
     @Override
     public Long createStudyplan(LocalDate startDate, LocalDate endDate, List<DayOfWeek> daysOfWeek, LocalTime startTime, LocalTime endTime, long calendarId, long userId){
 
         return null;
-        
+        //return calendar id of the created studyplan
     }
 
-
-
-    //TODO: actually return a usable studyplan for frontend, aka create a new calendar?? or just return the appointments and modules?
-    // I really need someone to explain to me how the frontend works with the backend, because I don't know how to return the data in a way that the frontend can use it
 }
