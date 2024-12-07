@@ -39,20 +39,14 @@ public class InMemoryGradeDao implements GradeDao {
     }
 
     @Override
-    public List<Grade> readByDegree(long degreeId) {
-        return persistedGrades.values().stream()
-                .filter(e -> e.getBelongsTo() == degreeId)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public void update(Grade grade) {
         persistedGrades.put(grade.getId(), grade);
     }
 
     @Override
-    public void updateByDegree(long degreeId, List<Grade> grades) {
-        List<Grade> oldGrades = readByDegree(degreeId);
+    public void updateByModule(long moduleId, List<Grade> grades) {
+
+        List<Grade> oldGrades = readByModule(moduleId);
         for (Grade grade : grades) {
             persistedGrades.put(grade.getId(), grade);
             if (persistedGrades.containsKey(grade.getId())) {

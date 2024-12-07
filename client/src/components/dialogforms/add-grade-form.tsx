@@ -89,6 +89,7 @@ export function AddGradesForms({
         name: v.name,
         value: v.value,
         percentage: v.percentage,
+        moduleId,
       })),
     };
 

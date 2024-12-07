@@ -21,7 +21,7 @@ const getGradesForDegreeRequest = async (degreeId: string) => {
     name: string;
     value: number;
     percentage: number;
-    ownerId: number;
+    belongsToModule: number;
   };
 
   const response = await tuam.get<GradesViewTreeFromServer>(
@@ -37,18 +37,17 @@ const getGradesForDegreeRequest = async (degreeId: string) => {
         moduleName: module.name,
         moduleEcts: module.ects,
         grades: module.grades.map(
-          ({ id, name, value, percentage, ownerId }) => ({
+          ({ id, name, value, percentage, belongsToModule }) => ({
             id: id.toString(),
             name,
             value,
             percentage,
-            moduleId: ownerId.toString(),
+            moduleId: belongsToModule?.toString(),
           })
         ),
       })),
     })
   );
-
   return gradesForDegreeResponseData;
 };
 

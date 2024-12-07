@@ -105,7 +105,7 @@ public class GradeController {
                             .flatMap(body -> body.tryRead(ModuleGrade.class))
                             .ifPresent(moduleGrade -> {
                                 final List<Grade> newGrades = moduleGrade.getGrades();
-                                if (moduleGrade.getId() == degreeId && validateGrades(newGrades)) {
+                                if (validateGrades(newGrades)) {
                                     gradeManager.updateGradesByModule(moduleGrade.getId(), newGrades);
                                     response.setStatusCode(HttpStatusCode.OK);
                                 }
@@ -154,6 +154,6 @@ public class GradeController {
      */
     private boolean validateGrades(List<Grade> grades) {
         double totalPercentage = grades.stream().mapToDouble(Grade::getPercentage).sum();
-        return totalPercentage == 1.0;
+        return totalPercentage <= 1.0;
     }
 }
