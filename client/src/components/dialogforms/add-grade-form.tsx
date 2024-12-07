@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Form,
   FormControl,
@@ -15,12 +17,16 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
+import { updateGradesForModuleRequest } from "@/lib/api";
+import { useUserSettings } from "@/hooks/use-user-settings";
+import { useGrades } from "@/hooks/use-grades";
 
 //TODO: fix error message not showing
 const formsSchema = z.object({
   grades: z
     .array(
       z.object({
+        id: z.string().optional(),
         name: z
           .string()
           .min(2, "Grade title must be at least 2 characters long"),
@@ -47,10 +53,18 @@ const formsSchema = z.object({
 
 type AddGradeFormsProps = {
   defaultValues?: Partial<z.infer<typeof formsSchema>>;
+  moduleId: string;
   onClose: () => void;
 };
 
-export function AddGradesForms({ defaultValues, onClose }: AddGradeFormsProps) {
+export function AddGradesForms({
+  defaultValues,
+  moduleId,
+  onClose,
+}: AddGradeFormsProps) {
+  const { settings } = useUserSettings(); // TODO: refactor so that activeDegreeId is given to the component through props
+  const { updateGrades } = useGrades(settings?.activeDegreeId);
+
   const form = useForm<z.infer<typeof formsSchema>>({
     resolver: zodResolver(formsSchema),
     defaultValues: defaultValues || {
@@ -63,10 +77,28 @@ export function AddGradesForms({ defaultValues, onClose }: AddGradeFormsProps) {
     control: form.control,
   });
 
-  //TODO: Connect useGrades hook
   const onSubmit = async (values: z.infer<typeof formsSchema>) => {
-    console.log(values);
+    if (!settings?.activeDegreeId) return;
+
     onClose();
+
+    const requestData = {
+      id: moduleId,
+      grades: values.grades.map((v) => ({
+        id: v.id || "-1",
+        name: v.name,
+        value: v.value,
+        percentage: v.percentage,
+      })),
+    };
+
+    try {
+      await updateGrades(requestData, settings?.activeDegreeId);
+
+      toast.success("Successfully added degree!");
+    } catch (err) {
+      toast.error("Failed to add new degree.");
+    }
   };
 
   return (
