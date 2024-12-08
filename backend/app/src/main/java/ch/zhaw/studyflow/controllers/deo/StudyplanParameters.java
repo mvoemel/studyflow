@@ -17,6 +17,9 @@ public class StudyplanParameters {
     private LocalTime dayEndTime;
     
 
+    public StudyplanParameters() {
+    }
+
     public StudyplanParameters(long settingsId, long semesterId, LocalDate startDate, LocalDate endDate, List<DayOfWeek> daysOfWeek, LocalTime dayStartTime, LocalTime dayEndTime) {
         this.settingsId = settingsId;
         this.semesterId = semesterId;
