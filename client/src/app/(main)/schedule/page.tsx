@@ -300,6 +300,8 @@ const SchedulePage = () => {
       <CreateScheduleDialog
         isOpen={createScheduleDialogOpen}
         onClose={closeCreateScheduleDialog}
+        semesterId={currSemester?.id}
+        settingsId={settings?.id}
       />
     </div>
   );

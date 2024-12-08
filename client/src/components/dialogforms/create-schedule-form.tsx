@@ -13,6 +13,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  createStudyplanRequest,
+  CreateStudyplanRequestBody,
+  DayId,
+  DAYS_OF_WEEK,
+} from "@/lib/api";
+import { mutate } from "swr";
 
 const formsSchema = z.object({
   startDate: z.string().min(1, "Start date is required"),
@@ -22,24 +29,18 @@ const formsSchema = z.object({
   endTime: z.string().min(1, "End time is required"),
 });
 
-const daysOfWeek = [
-  { id: "sunday", name: "Sunday" },
-  { id: "monday", name: "Monday" },
-  { id: "tuesday", name: "Tuesday" },
-  { id: "wednesday", name: "Wednesday" },
-  { id: "thursday", name: "Thursday" },
-  { id: "friday", name: "Friday" },
-  { id: "saturday", name: "Saturday" },
-];
-
 type CreateScheduleFormsProps = {
   defaultValues?: Partial<z.infer<typeof formsSchema>>;
   onClose: () => void;
+  semesterId?: string;
+  settingsId?: string;
 };
 
 export function CreateScheduleForm({
   defaultValues,
   onClose,
+  semesterId,
+  settingsId,
 }: CreateScheduleFormsProps) {
   const form = useForm<z.infer<typeof formsSchema>>({
     resolver: zodResolver(formsSchema),
@@ -52,14 +53,24 @@ export function CreateScheduleForm({
     },
   });
 
-  function onSubmit(values: z.infer<typeof formsSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formsSchema>) {
+    if (!semesterId || !settingsId) return;
+
     onClose();
+
+    const body: CreateStudyplanRequestBody = {
+      settingsId,
+      semesterId,
+      startDate: new Date(values.startDate).toISOString().split("T")[0],
+      endDate: new Date(values.endDate).toISOString().split("T")[0],
+      daysOfWeek: values.daysOfWeek as DayId[],
+      dayStartTime: values.startTime,
+      dayEndTime: values.endTime,
+    };
+
+    await createStudyplanRequest(body);
+    await mutate("semesters");
   }
-  // Debugging...
-  const { errors } = form.formState;
-  console.log("Validation Errors:", errors);
-  console.log("daysOfWeek:", form.watch("daysOfWeek"));
 
   return (
     <Form {...form}>
@@ -102,7 +113,7 @@ export function CreateScheduleForm({
           <FormLabel>Days of the Week</FormLabel>
           <FormControl>
             <div className="grid">
-              {daysOfWeek.map((day) => (
+              {DAYS_OF_WEEK.map((day) => (
                 <label
                   key={day.id}
                   className="inline-flex items-center space-x-2"

@@ -11,13 +11,59 @@ import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { Skeleton } from "../ui/skeleton";
+import { EventSourceInput } from "@fullcalendar/core/index.js";
+import { useMemo } from "react";
+import { useAppointments } from "@/hooks/use-appointments";
+import { useUserSettings } from "@/hooks/use-user-settings";
+import { useDegrees } from "@/hooks/use-degree";
+import { useSemesters } from "@/hooks/use-semester";
 
 type DailyCalendarBoxProps = {
   className?: string;
 };
 
 const DailyCalendarBox = ({ className }: DailyCalendarBoxProps) => {
-  const events = false; // TODO: remove
+  const { settings } = useUserSettings();
+  const { degrees } = useDegrees();
+  const { semesters } = useSemesters();
+
+  const currSemester = useMemo(() => {
+    if (!degrees || !semesters || !settings?.activeDegreeId) return undefined;
+
+    const currDegree = degrees?.find((d) => d.id === settings.activeDegreeId);
+
+    if (!currDegree || !currDegree.activeSemesterId) return undefined;
+
+    const currSemester = semesters?.find(
+      (s) => s.id === currDegree.activeSemesterId
+    );
+
+    return currSemester;
+  }, [settings, degrees, semesters]);
+
+  const { appointments: globalAppointments } = useAppointments(
+    settings?.globalCalendarId
+  );
+  const { appointments: currSemesterAppointments } = useAppointments(
+    currSemester?.calendarId
+  );
+
+  const events = useMemo(() => {
+    const globalEvents: EventSourceInput =
+      globalAppointments?.map((a) => ({
+        ...a,
+        start: a.startDateTime,
+        end: a.endDateTime,
+      })) || [];
+    const currSemesterEvents: EventSourceInput =
+      currSemesterAppointments?.map((a) => ({
+        ...a,
+        start: a.startDateTime,
+        end: a.endDateTime,
+      })) || [];
+
+    return globalEvents.concat(currSemesterEvents);
+  }, [globalAppointments, currSemesterAppointments]);
 
   if (!events) return <DailyCalendarBoxSkeleton className={className} />;
 

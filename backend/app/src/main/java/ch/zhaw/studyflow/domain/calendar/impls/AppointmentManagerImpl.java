@@ -1,10 +1,11 @@
 package ch.zhaw.studyflow.domain.calendar.impls;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.services.persistence.AppointmentDao;
-
-import java.util.List;
 
 /**
  * Manages appointments for users.
@@ -34,6 +35,11 @@ public class AppointmentManagerImpl implements AppointmentManager {
     @Override
     public List<Appointment> readAllBy(long calendarId) {
         return appointmentDao.readAllBy(calendarId);
+    }
+
+    @Override
+    public List<Appointment> readAllBy(long calendarId, LocalDate start, LocalDate end) {
+        return appointmentDao.readAllBy(calendarId, start, end);
     }
 
     @Override

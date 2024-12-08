@@ -3,17 +3,13 @@ package ch.zhaw.studyflow.webserver.security.authentication;
 import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
-import ch.zhaw.studyflow.webserver.security.principal.Claim;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -55,7 +51,7 @@ public class JwtBasedAuthenticationHandler implements AuthenticationHandler {
 
     @Override
     public HttpResponse handleIfUnauthenticated(HttpRequest request, Function<Principal, HttpResponse> handler) {
-        return handleIfUnauthenticated(
+        return handleRequest(
                 request,
                 principal -> request.createResponse().setStatusCode(HttpStatusCode.UNAUTHORIZED),
                 handler
@@ -63,7 +59,7 @@ public class JwtBasedAuthenticationHandler implements AuthenticationHandler {
     }
 
     @Override
-    public HttpResponse handleIfUnauthenticated(HttpRequest request, Function<Principal, HttpResponse> handler, Function<Principal, HttpResponse> unauthenticatedHandler) {
+    public HttpResponse handleRequest(HttpRequest request, Function<Principal, HttpResponse> handler, Function<Principal, HttpResponse> unauthenticatedHandler) {
         final Principal principal = principalProvider.getPrincipal(request);
         HttpResponse response = isAuthenticated(principal)
                 ? handler.apply(principal)

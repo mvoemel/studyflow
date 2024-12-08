@@ -32,6 +32,16 @@ public interface AppointmentManager {
     List<Appointment> readAllBy(long calendarId);
 
     /**
+     * Reads all appointments for a calendar within a date range.
+     *
+     * @param calendarId the ID of the calendar
+     * @param start the start date
+     * @param end the end date
+     * @return a list of appointments
+     */
+    List<Appointment> readAllBy(long calendarId, LocalDate start, LocalDate end);
+
+    /**
      * Deletes a specific appointment by its ID.
      *
      * @param id the ID of the appointment
