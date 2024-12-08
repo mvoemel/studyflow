@@ -214,7 +214,7 @@ public class BasicStudyDay implements StudyDay {
 
         //mark lunch break in TimeSlots
         timeSlots.setTimeSlot(TimeSlotValue.BREAK, midDay.minusMinutes(lunchBreak / 2), midDay.plusMinutes(lunchBreak / 2));
-        System.out.println("Lunch break: " + midDay.minusMinutes(lunchBreak / 2) + " - " + midDay.plusMinutes(lunchBreak / 2));
+
 
         //create studyAllocations for remaining time slots
         while (timeSlots.getRemainingMinutes() >= 30) {
@@ -222,9 +222,9 @@ public class BasicStudyDay implements StudyDay {
             if (start.isAfter(endTime)) {
                 break;
             }
-            System.out.println("Start: " + start);
-            int availableMinutes = timeSlots.getFreeMinutesAfter(startTime);
-            System.out.println("Available minutes: " + availableMinutes);
+
+            int availableMinutes = timeSlots.getFreeMinutesAfter(start);
+
             
             if (availableMinutes < 30) {
                 timeSlots.setTimeSlot(TimeSlotValue.BREAK, start, start.plusMinutes(availableMinutes));
@@ -250,7 +250,7 @@ public class BasicStudyDay implements StudyDay {
                     nextStartMinutes += blockLength + BLOCK_BREAK;
                 }
             }
-            System.out.println("Remaining minutes: " + timeSlots.getRemainingMinutes());
+
         }
 
     }
