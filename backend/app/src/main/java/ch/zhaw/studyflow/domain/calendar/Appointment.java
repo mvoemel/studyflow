@@ -1,8 +1,9 @@
 package ch.zhaw.studyflow.domain.calendar;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import java.time.LocalDateTime;
 
 /**
  * Represents an appointment.
@@ -14,8 +15,6 @@ public class Appointment {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private long calendarId;
-
-    //TODO: add title and description
 
     /**
      * Default constructor.
@@ -39,6 +38,17 @@ public class Appointment {
         this.calendarId = calendarId;
         this.title = title;
         this.description = description;
+    }
+
+    /**
+     * Constructs an appointment with the specified details.
+     *
+     * @param startTime the start time of the appointment
+     * @param endTime the end time of the appointment
+     * @param calendarId the ID of the calendar
+     */
+    public Appointment(LocalDateTime startTime, LocalDateTime endTime, long calendarId, String title, String description) {
+        this(-1, startTime, endTime, calendarId, title, description);
     }
 
     /**

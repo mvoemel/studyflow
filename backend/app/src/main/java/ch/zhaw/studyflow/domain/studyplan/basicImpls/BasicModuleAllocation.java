@@ -60,4 +60,8 @@ public class BasicModuleAllocation implements ModuleAllocation {
         return Long.compare(this.getRemainingMinutes(), other.getRemainingMinutes());
     }
     
+    @Override
+    public List<StudyDay> getStudyDays() {
+        return studyDays;
+    }
 }
