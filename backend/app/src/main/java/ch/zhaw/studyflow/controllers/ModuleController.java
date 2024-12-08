@@ -61,26 +61,22 @@ public class ModuleController {
                         .flatMap(body -> body.tryRead(ModuleDeo.class));
 
                 if(optionalModuleDeo.isPresent() && optionalModuleDeo.get().isValid()) {
-                    if(moduleManager.getModuleByName(optionalModuleDeo.get().getName()).isPresent()) {
-                        response.setStatusCode(HttpStatusCode.CONFLICT);
-                    } else {
-                        optionalModuleDeo.map(obj -> {
-                            Module module = new Module();
-                            module.setName(obj.getName());
-                            module.setDescription(obj.getDescription());
-                            module.setECTS(obj.getEcts());
-                            module.setSemesterId(obj.getSemesterId());
-                            module.setDegreeId(obj.getDegreeId());
-                            module.setComplexity(obj.getComplexity());
-                            module.setTime(obj.getTime());
-                            module.setUnderstanding(obj.getUnderstanding());
-                            return module;
-                        }).ifPresent(module -> {
-                                    moduleManager.create(module, optionalModuleDeo.get().getSemesterId(), optionalModuleDeo.get().getDegreeId(), principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf).orElseThrow());
-                                    response.setResponseBody(JsonContent.writableOf(module))
-                                            .setStatusCode(HttpStatusCode.CREATED);
-                                });
-                    }
+                    optionalModuleDeo.map(obj -> {
+                        Module module = new Module();
+                        module.setName(obj.getName());
+                        module.setDescription(obj.getDescription());
+                        module.setECTS(obj.getEcts());
+                        module.setSemesterId(obj.getSemesterId());
+                        module.setDegreeId(obj.getDegreeId());
+                        module.setComplexity(obj.getComplexity());
+                        module.setTime(obj.getTime());
+                        module.setUnderstanding(obj.getUnderstanding());
+                        return module;
+                    }).ifPresent(module -> {
+                        moduleManager.create(module, optionalModuleDeo.get().getSemesterId(), optionalModuleDeo.get().getDegreeId(), principal.getClaim(CommonClaims.USER_ID).map(Long::valueOf).orElseThrow());
+                        response.setResponseBody(JsonContent.writableOf(module))
+                                .setStatusCode(HttpStatusCode.CREATED);
+                    });
                 }
             }
             return response;

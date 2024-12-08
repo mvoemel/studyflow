@@ -61,7 +61,7 @@ public class SemesterManagerImpl implements SemesterManager {
         final Optional<Semester> semester = getSemesterById(semesterId);
         if (semester.isPresent()) {
             semesterDao.delete(semesterId);
-            moduleDao.readBySemesterId(semesterId).forEach(module -> moduleDao.delete(module.getId()));
+            moduleDao.readAllBySemester(semesterId).forEach(module -> moduleDao.delete(module.getId()));
 
             Degree degree = degreeManager.getDegree(semester.get().getDegreeId());
             if (degree != null) {

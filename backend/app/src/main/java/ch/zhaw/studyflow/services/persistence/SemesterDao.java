@@ -5,6 +5,9 @@ import ch.zhaw.studyflow.domain.curriculum.Semester;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Data access object for reading, writing and updating semesters from and to a persistent storage.
+ */
 public interface SemesterDao {
     void createSemester(Semester semester, long degreeId, long studentId);
     Optional<Semester> read(long semesterId);

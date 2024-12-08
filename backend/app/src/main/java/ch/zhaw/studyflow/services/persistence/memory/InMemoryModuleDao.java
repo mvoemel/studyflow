@@ -38,9 +38,9 @@ public class InMemoryModuleDao implements ModuleDao {
     }
 
     @Override
-    public void delete(long id) {
-        modules.remove(id);
-        moduleToSemester.remove(id);
+    public void delete(long moduleId) {
+        modules.remove(moduleId);
+        moduleToSemester.remove(moduleId);
     }
 
     @Override
@@ -51,10 +51,10 @@ public class InMemoryModuleDao implements ModuleDao {
     }
 
     @Override
-    public List<Module> getModules(long userId) {
+    public List<Module> readAllByStudent(long studentId) {
         List<Module> userModules = new ArrayList<>();
         degreeToUser.forEach((degreeId, id) -> {
-            if (id == userId) {
+            if (id == studentId) {
                 semesterToDegree.forEach((semesterId, dId) -> {
                     if (Objects.equals(dId, degreeId)) {
                         moduleToSemester.forEach((moduleId, sId) -> {
@@ -69,20 +69,9 @@ public class InMemoryModuleDao implements ModuleDao {
         return userModules;
     }
 
-    @Override
-    public Optional<Module> getModule(long moduleId) {
-        return Optional.ofNullable(modules.get(moduleId));
-    }
 
     @Override
-    public Optional<Module> getModuleByName(String name) {
-        return modules.values().stream()
-                .filter(module -> module.getName().equals(name))
-                .findFirst();
-    }
-
-    @Override
-    public List<Module> readBySemesterId(long semesterId) {
+    public List<Module> readAllBySemester(long semesterId) {
         List<Module> modulesForSemester = new ArrayList<>();
         moduleToSemester.forEach((moduleId, sId) -> {
             if(sId == semesterId) {

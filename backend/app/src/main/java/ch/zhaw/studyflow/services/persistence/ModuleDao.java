@@ -3,22 +3,21 @@ package ch.zhaw.studyflow.services.persistence;
 import ch.zhaw.studyflow.domain.curriculum.Module;
 
 import java.util.List;
-import java.util.Optional;
 
+/**
+ * Data access object for reading, writing and updating modules from and to a persistent storage.
+ */
 public interface ModuleDao {
 
     void create(Module module, long semesterId, long degreeId, long studentId);
 
-    ch.zhaw.studyflow.domain.curriculum.Module read(long moduleId);
+    Module read(long moduleId);
 
-    void delete(long id);
+    void delete(long moduleId);
 
     Module update(Module module);
 
-    List<Module> getModules(long userId);
+    List<Module> readAllByStudent(long studentId);
 
-    Optional<Module> getModule(long moduleId);
-
-    Optional<Module> getModuleByName(String name);
-    List<Module> readBySemesterId(long semesterId);
+    List<Module> readAllBySemester(long semesterId);
 }
