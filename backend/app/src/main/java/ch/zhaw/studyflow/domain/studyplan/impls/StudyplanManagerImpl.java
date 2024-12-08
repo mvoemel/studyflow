@@ -48,22 +48,15 @@ public class StudyplanManagerImpl implements StudyplanManager {
      */
     //future possibility: add parameter "algorithm" to create different studyplans :)
     @Override
-    public Long createStudyplan(StudyplanParameters parameters, long userId){  
-        //create studyplanGenerator which handles the creation of the studyplan
-        Callable<Long> task  = () -> {
+    public Long createStudyplan(StudyplanParameters parameters, long userId){
+        //TODO: Removed Future Threading - Shpetim
+        try {
             StudyplanGenerator studyplanGenerator = new StudyplanGeneratorImpl(parameters, serviceCollection, userId);
             return studyplanGenerator.generateStudyplan();
-        };
-
-        Future<Long> studyCalendarId = executor.submit(task);
-        
-        try {
-            return studyCalendarId.get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (Exception e) {
             LOGGER.warning("Studyplan creation failed: " + e.getMessage());
             return null;
         }
-        //return calendar id of the created studyplan
     }
 
 

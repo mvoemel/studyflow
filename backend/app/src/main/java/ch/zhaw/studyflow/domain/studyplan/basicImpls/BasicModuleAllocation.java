@@ -29,7 +29,7 @@ public class BasicModuleAllocation implements ModuleAllocation {
         this.percentage = percentage;
         this.targetMinutes = targetMinutes;
 
-        List<StudyDay> studyDays = new ArrayList<>();
+        this.studyDays = new ArrayList<>();
     }
 
     /**

@@ -91,6 +91,8 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
         while(currentDate.isBefore(endDate)){
             if(daysOfWeek.contains(currentDate.getDayOfWeek())){
                 StudyDay studyDay = new BasicStudyDay(currentDate, startTime, endTime);
+                //TODO: Wrong place to calculate minutes - Shpetim
+                studyDay.calculateMinutes();
                 studyDays.add(studyDay);
 
                 //add appointments to studyDay

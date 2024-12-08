@@ -123,7 +123,6 @@ public class BasicStudyDay implements StudyDay {
      */
     @Override
     public void removeAppointment(Appointment appointment) {
-        if (appointments.contains(appointment))
         appointments.remove(appointment);
     }
 

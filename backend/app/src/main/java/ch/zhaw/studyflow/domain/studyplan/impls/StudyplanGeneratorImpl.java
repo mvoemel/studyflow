@@ -91,6 +91,12 @@ public class StudyplanGeneratorImpl implements StudyplanGenerator {
         //call algorithm to create studyplan
         BasicStudyplanAlgorithm algorithm = new BasicStudyplanAlgorithm(parameters, globalCalendarId, appointments, modules);
         List<ModuleAllocation> moduleAllocations = algorithm.runAlgorithm();
+        //TODO: Wrong place for calculateStudyAllocations - Shpetim
+        for(ModuleAllocation modAc : moduleAllocations){
+            for(StudyDay day : modAc.getStudyDays()){
+                day.calculateStudyAllocations();
+            }
+        }
         long studyplanCalendarId = createCalendar(moduleAllocations);
         createAppointments(studyplanCalendarId, moduleAllocations);
 
