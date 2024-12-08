@@ -3,8 +3,11 @@ package ch.zhaw.studyflow.webserver.http.cookies;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.MissingFormatArgumentException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Represents an HTTP cookie as specified by RFC 6265 (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie).
@@ -157,20 +160,27 @@ public final class Cookie {
         if (parts.length > 1) {
             for (int i = 1; i < parts.length; i++) {
                 String[] attribute = parts[i].split("=");
-                if (attribute.length == 2) {
+                if (attribute.length >= 1) {
                     switch (attribute[0].trim().toLowerCase()) {
-                        case "expires" -> cookie.setExpires(LocalDateTime.parse(attribute[1].trim(), DATE_FORMATTER));
-                        case "max-age" -> cookie.setMaxAge(Long.parseLong(attribute[1].trim()));
-                        case "domain" -> cookie.setDomain(attribute[1].trim());
-                        case "path" -> cookie.setPath(attribute[1].trim());
+                        case "expires" -> cookie.setExpires(LocalDateTime.parse(throwIfMissingArgument(attribute, 1, "expires").trim(), DATE_FORMATTER));
+                        case "max-age" -> cookie.setMaxAge(Long.parseLong(throwIfMissingArgument(attribute, 1, "max-age").trim()));
+                        case "domain" -> cookie.setDomain(throwIfMissingArgument(attribute, 1, "domain").trim());
+                        case "path" -> cookie.setPath(throwIfMissingArgument(attribute, 1, "path").trim());
                         case "secure" -> cookie.setSecure(true);
                         case "httponly" -> cookie.setHttpOnly(true);
-                        case "samesite" -> cookie.setSameSite(SameSitePolicy.fromString(attribute[1].trim()));
+                        case "samesite" -> cookie.setSameSite(SameSitePolicy.valueOf(throwIfMissingArgument(attribute, 1, "samesite").trim().toUpperCase()));
                         default -> { /* intentionally left blank - we ignore unknown attributes */ }
                     }
                 }
             }
         }
         return Optional.of(cookie);
+    }
+
+    private static String throwIfMissingArgument(String[] args, int index, String attribute) {
+        if (args.length <= index) {
+            throw new MissingFormatArgumentException("Expected at least %d arguments while parsing cookie attribute '%s'".formatted(index, attribute));
+        }
+        return args[index];
     }
 }

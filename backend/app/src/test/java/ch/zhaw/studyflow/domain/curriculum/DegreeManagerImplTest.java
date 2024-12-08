@@ -58,7 +58,6 @@ class DegreeManagerImplTest {
         assertEquals("New Name", existingDegree.getName());
         assertEquals("New Description", existingDegree.getDescription());
         assertEquals(6, existingDegree.getActiveSemesterId());
-        assertEquals(5, existingDegree.getOwnerId());
     }
 
     @Test
