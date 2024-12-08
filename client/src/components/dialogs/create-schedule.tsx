@@ -11,11 +11,9 @@ import { Module } from "@/types";
 export function CreateScheduleDialog({
   isOpen,
   onClose,
-  modules,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  modules: Module[];
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -26,7 +24,7 @@ export function CreateScheduleDialog({
             Fill in all the details to generate a study plan.
           </DialogDescription>
         </DialogHeader>
-        <CreateScheduleForm onClose={onClose} modules={modules} />
+        <CreateScheduleForm onClose={onClose} />
       </DialogContent>
     </Dialog>
   );

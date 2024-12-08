@@ -33,6 +33,7 @@ const DailyCalendarBox = ({ className }: DailyCalendarBoxProps) => {
           initialView="timeGridDay"
           weekends={true}
           nowIndicator={true}
+          allDaySlot={false}
           editable={false}
           events={events}
           slotMinTime={"07:00:00"}
