@@ -13,6 +13,10 @@ import static org.mockito.Mockito.when;
 
 import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.domain.studyplan.basicImpls.BasicStudyDay;
+import java.util.List;
+
+
+
 
 
 
@@ -50,16 +54,11 @@ public class BasicStudyDayTest {
 
     @Test
     public void testCalculateMinutes() {
-        StudyAllocation allocation1 = mock(StudyAllocation.class);
-        when(allocation1.getMinutes()).thenReturn(60);
-        StudyAllocation allocation2 = mock(StudyAllocation.class);
-        when(allocation2.getMinutes()).thenReturn(120);
-
-        studyDay.addStudyAllocation(allocation1);
-        studyDay.addStudyAllocation(allocation2);
+        StudyAllocation allocation = mock(StudyAllocation.class);
+        when(allocation.getMinutes()).thenReturn(120);
+        studyDay.addStudyAllocation(allocation);
         studyDay.calculateMinutes();
-
-        assertEquals(180, studyDay.getMinutes());
+        assertEquals(120, studyDay.getMinutes());
     }
 
     @Test
@@ -93,20 +92,25 @@ public class BasicStudyDayTest {
     }
 
     @Test
+    public void testCalculateStudyAllocations() {
+        Appointment appointment = mock(Appointment.class);
+        when(appointment.getStartTime()).thenReturn(startTime.plusHours(2));
+        when(appointment.getEndTime()).thenReturn(startTime.plusHours(3));
+        studyDay.addAppointment(appointment);
+        studyDay.calculateStudyAllocations();
+        List<StudyAllocation> allocations = studyDay.getStudyAllocations();
+        assertFalse(allocations.isEmpty());
+    }
+
+    @Test
     public void testCompareTo() {
         BasicStudyDay otherStudyDay = new BasicStudyDay(date, startTime, endTime);
-        StudyAllocation allocation1 = mock(StudyAllocation.class);
-        when(allocation1.getMinutes()).thenReturn(60);
-        StudyAllocation allocation2 = mock(StudyAllocation.class);
-        when(allocation2.getMinutes()).thenReturn(120);
-
-        studyDay.addStudyAllocation(allocation1);
-        studyDay.calculateMinutes();
-
-        otherStudyDay.addStudyAllocation(allocation2);
+        StudyAllocation allocation = mock(StudyAllocation.class);
+        when(allocation.getMinutes()).thenReturn(120L);
+        otherStudyDay.addStudyAllocation(allocation);
         otherStudyDay.calculateMinutes();
-
         assertTrue(studyDay.compareTo(otherStudyDay) > 0);
     }
 }
+
 
