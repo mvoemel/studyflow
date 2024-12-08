@@ -38,6 +38,7 @@ import {
     AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import {Trash2} from "lucide-react";
+import {useEffect} from "react";
 
 const degreePanelSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters long"),
@@ -76,6 +77,15 @@ const router = useRouter();
             description: currDegree?.description,
         },
     });
+
+    useEffect(() => {
+        if (currDegree) {
+            form.reset({
+                name: currDegree.name,
+                description: currDegree.description,
+            });
+        }
+    }, [currDegree, form]);
 
     if (!user) {
         return (
@@ -116,6 +126,11 @@ const router = useRouter();
         </div>
     );
   }
+
+
+    if (!currDegree) {
+        return <LoadingSpinner />;
+    }
 
   return (
       <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">

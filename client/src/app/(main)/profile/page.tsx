@@ -25,6 +25,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import {useEffect} from "react";
 
 const profileFormSchema = z.object({
   firstname: z.string(),
@@ -50,6 +51,17 @@ const ProfileSettingsPage = () => {
     },
   });
 
+    useEffect(() => {
+        if(user) {
+            form.reset({
+                firstname: user?.firstname,
+                lastname: user?.lastname,
+                email: user?.email,
+                password: "",
+            });
+        }
+    }, [user, form]);
+
   const onSubmit = async (values: z.infer<typeof profileFormSchema>) => {
     try {
       await updateUser(values);
@@ -67,6 +79,10 @@ const ProfileSettingsPage = () => {
       </div>
     );
   }
+
+    if (!user) {
+        return <LoadingSpinner />;
+    }
 
   return (
     <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
