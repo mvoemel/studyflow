@@ -5,7 +5,6 @@ import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.Calendar;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
 import ch.zhaw.studyflow.utils.LongUtils;
-import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
 import ch.zhaw.studyflow.webserver.annotations.Route;
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
@@ -14,12 +13,9 @@ import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.HttpStatusCode;
 import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
-import ch.zhaw.studyflow.webserver.http.query.QueryParameters;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -266,15 +262,5 @@ public class CalendarController {
             }
             return response;
         });
-    }
-
-    /**
-     * Tries to parse a string to a LocalDate.
-     *
-     * @param value the string to parse
-     * @return an optional containing the parsed LocalDate or an empty optional
-     */
-    private static LocalDate tryParseDate(String value) {
-        return LocalDate.parse(value, DateTimeFormatter.ISO_DATE);
     }
 }

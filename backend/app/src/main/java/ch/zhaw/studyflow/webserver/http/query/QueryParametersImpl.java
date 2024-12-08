@@ -24,7 +24,7 @@ public class QueryParametersImpl implements QueryParameters {
         if (values.size() > 1) {
             throw new IllegalArgumentException("Multiple values found for key: " + key);
         }
-        return Optional.of(values.get(0));
+        return Optional.of(values.getFirst());
     }
 
     @Override
@@ -42,15 +42,15 @@ public class QueryParametersImpl implements QueryParameters {
      *         and the value is a list of parameter values
      */
     private Map<String, List<String>> parseQueryParameters(String query) {
-        Map<String, List<String>> parameters = new HashMap<>();
+        Map<String, List<String>> queryParameters = new HashMap<>();
         if (query != null && !query.isEmpty()) {
             for (String param : query.split("&")) {
                 String[] pair = param.split("=");
                 String key = pair[0];
                 String value = pair.length > 1 ? pair[1] : "";
-                parameters.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
+                queryParameters.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
             }
         }
-        return parameters;
+        return queryParameters;
     }
 }
