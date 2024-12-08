@@ -1,6 +1,5 @@
 package ch.zhaw.studyflow.domain.curriculum.impls;
 
-import ch.zhaw.studyflow.domain.curriculum.Module;
 import ch.zhaw.studyflow.domain.curriculum.Semester;
 import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
 import ch.zhaw.studyflow.services.persistence.ModuleDao;
@@ -41,7 +40,13 @@ public class SemesterManagerImpl implements SemesterManager {
 
     @Override
     public void updateSemester(Semester semester) {
-        semesterDao.updateSemester(semester);
+        semesterDao.getSemesterById(semester.getId())
+                .ifPresent(semesterToUpdate -> {
+                    semesterToUpdate.setName(semester.getName());
+                    semesterToUpdate.setDescription(semester.getDescription());
+                    this.semesterDao.updateSemester(semesterToUpdate);
+                }
+        );
     }
 
     @Override

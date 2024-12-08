@@ -11,7 +11,6 @@ import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
 import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
-import ch.zhaw.studyflow.webserver.security.principal.Principal;
 import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +40,7 @@ class SemesterControllerTest {
         this.authenticationHandler  = mock(AuthenticationHandler.class);
         this.semesterManager        = mock(SemesterManager.class);
         this.principalProvider      = mock(PrincipalProvider.class);
-        this.semesterController       = new SemesterController(authenticationHandler, semesterManager, principalProvider);
+        this.semesterController       = new SemesterController(authenticationHandler, semesterManager);
     }
 
 
@@ -55,9 +54,7 @@ class SemesterControllerTest {
 
         HttpRequest request = makeHttpRequest(makeJsonRequestBody(SemesterDeo.class, semester));
 
-        final Principal principal = AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
-
-        when(principalProvider.getPrincipal(request)).thenReturn(principal);
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
 
         HttpResponse response = semesterController.createSemester(makeRequestContext(request));
         ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
@@ -85,25 +82,6 @@ class SemesterControllerTest {
 
         verify(semesterManager, times(1)).getSemestersForStudent(1);
 
-    }
-
-    @Test
-    void testGetSemesters() {
-        HttpRequest request = makeHttpRequest();
-        AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
-
-        when(semesterManager.getSemestersForStudent(1)).thenReturn(List.of(makeSemester(1, 1)));
-
-        final RequestContext requestContext = makeRequestContext(request);
-
-        HttpResponse response = semesterController.getSemesters(requestContext);
-        ArgumentCaptor<HttpStatusCode> responseStatusCode = captureResponseCode(response);
-        ArgumentCaptor<WritableBodyContent> responseBody = captureResponseBody(response);
-
-        assertInstanceOf(JsonContent.class, responseBody.getValue());
-        assertEquals(HttpStatusCode.OK, responseStatusCode.getValue());
-
-        verify(semesterManager, times(1)).getSemestersForStudent(1);
     }
 
     @Test

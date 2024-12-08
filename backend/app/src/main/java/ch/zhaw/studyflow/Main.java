@@ -28,11 +28,7 @@ import ch.zhaw.studyflow.webserver.security.principal.jwt.JwtPrincipalProviderOp
 import ch.zhaw.studyflow.webserver.sun.SunHttpServerWebServerBuilder;
 
 import java.net.InetSocketAddress;
-import java.sql.Time;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
@@ -72,8 +68,7 @@ public class Main {
                     SemesterController.class,
                     serviceCollection -> new SemesterController(
                             serviceCollection.getRequiredService(AuthenticationHandler.class),
-                            serviceCollection.getRequiredService(SemesterManager.class),
-                            serviceCollection.getRequiredService(PrincipalProvider.class)
+                            serviceCollection.getRequiredService(SemesterManager.class)
                     ));
             controllerRegistry.register(
                     DegreeController.class,

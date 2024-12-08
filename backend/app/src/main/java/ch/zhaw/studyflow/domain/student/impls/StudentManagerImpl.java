@@ -62,7 +62,11 @@ public class StudentManagerImpl implements StudentManager {
 
     @Override
     public void updateSettings(Settings settings) {
-        settingsDao.update(settings);
+        Settings settingsToUpdate = settingsDao.read(settings.getId());
+        if (settingsToUpdate != null) {
+            settingsToUpdate.setActiveDegree(settings.getActiveDegree());
+            settingsDao.update(settingsToUpdate);
+        }
     }
 
     @Override

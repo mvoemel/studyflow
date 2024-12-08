@@ -68,7 +68,7 @@ public class GradeController {
                     final List<Module> modules = moduleManager.getModulesBySemester(semester.getId());
                     final List<ModuleGrade> moduleGrades = modules.stream().map(module -> {
                         final List<Grade> grades = gradeManager.getGradesByModule(module.getId());
-                        return new ModuleGrade(module.getId(), module.getName(), grades);
+                        return new ModuleGrade(module.getId(), module.getName(), grades, module.getECTS());
                     }).toList();
                     return new SemesterGrade(semester.getId(), semester.getName(), moduleGrades);
                 }).toList();

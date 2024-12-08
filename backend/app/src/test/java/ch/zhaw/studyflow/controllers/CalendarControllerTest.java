@@ -128,13 +128,7 @@ class CalendarControllerTest {
         assertInstanceOf(JsonContent.class, responseBodyCaptor.getValue());
         assertEquals(HttpStatusCode.OK, statusCodeCaptor.getValue());
     }
-
-    private static void validateDate(LocalDate expected, LocalDate actual) {
-        if (!expected.equals(actual)) {
-            throw new AssertionError("Expected " + expected + " but was " + actual);
-        }
-    }
-
+    
     @Test
     void testGetAppointment() {
         Appointment appointment = new Appointment();
@@ -156,6 +150,30 @@ class CalendarControllerTest {
         final ArgumentCaptor<HttpStatusCode> statusCodeCaptor = HttpMockHelpers.captureResponseCode(actualResponse);
         assertInstanceOf(JsonContent.class, responseBodyCaptor.getValue());
         assertEquals(HttpStatusCode.OK, statusCodeCaptor.getValue());
+    }
+    
+    @Test
+    void testUpdateAppointment() {
+        Appointment appointment = new Appointment();
+        appointment.setTitle("Test");
+        appointment.setStartTime(LocalDateTime.now());
+        appointment.setEndTime(LocalDateTime.now().plusHours(1));
+
+        AuthMockHelpers.configureSuccessfulAuthHandler(authenticator, AuthMockHelpers.getDefaultClaims());
+
+        final ReadableBodyContent bodyContent = makeJsonRequestBody(Appointment.class, appointment);
+        final HttpRequest request = makeHttpRequest(bodyContent);
+        final RequestContext context = makeRequestContext(request, Map.of("calendarId", "1", "appointmentId", "2"));
+
+        final HttpResponse actualResponse = calendarController.updateAppointment(context);
+        final ArgumentCaptor<HttpStatusCode> statusCodeCaptor = HttpMockHelpers.captureResponseCode(actualResponse);
+
+        verify(appointmentManager, times(1)).update(appointment);
+        assertEquals(HttpStatusCode.OK, statusCodeCaptor.getValue());
+
+        verify(appointmentManager, times(1)).update(appointment);
+        assertEquals(1, appointment.getCalendarId());
+        assertEquals(2, appointment.getId());
     }
 
     @Test
