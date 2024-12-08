@@ -59,8 +59,8 @@ public class InMemorySemesterDao implements SemesterDao {
     }
 
     @Override
-    public Optional<Semester> read(long semesterId) {
-        return Optional.ofNullable(semesters.get(semesterId));
+    public Semester read(long semesterId) {
+        return semesters.get(semesterId);
     }
 
     @Override

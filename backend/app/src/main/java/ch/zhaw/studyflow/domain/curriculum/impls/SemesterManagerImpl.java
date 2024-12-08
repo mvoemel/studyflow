@@ -37,19 +37,18 @@ public class SemesterManagerImpl implements SemesterManager {
     }
 
     @Override
-    public Optional<Semester> getSemesterById(long semesterId) {
+    public Semester getSemesterById(long semesterId) {
         return semesterDao.read(semesterId);
     }
 
     @Override
     public void updateSemester(Semester semester) {
-        semesterDao.read(semester.getId())
-                .ifPresent(semesterToUpdate -> {
-                    semesterToUpdate.setName(semester.getName());
-                    semesterToUpdate.setDescription(semester.getDescription());
-                    this.semesterDao.update(semesterToUpdate);
-                }
-        );
+        Semester semesterToUpdate = semesterDao.read(semester.getId());
+        if (semesterToUpdate != null) {
+            semesterToUpdate.setName(semester.getName());
+            semesterToUpdate.setDescription(semester.getDescription());
+            semesterDao.update(semesterToUpdate);
+        }
     }
 
     @Override
@@ -58,12 +57,12 @@ public class SemesterManagerImpl implements SemesterManager {
             throw new IllegalArgumentException("Semester ID must be positive");
         }
 
-        final Optional<Semester> semester = getSemesterById(semesterId);
-        if (semester.isPresent()) {
+        final Semester semester = getSemesterById(semesterId);
+        if (semester == null) {
             semesterDao.delete(semesterId);
             moduleDao.readAllBySemester(semesterId).forEach(module -> moduleDao.delete(module.getId()));
 
-            Degree degree = degreeManager.getDegree(semester.get().getDegreeId());
+            Degree degree = degreeManager.getDegree(semester.getDegreeId());
             if (degree != null) {
                 final long newActiveSemester = getSemestersForDegree(degree.getId())
                         .stream()

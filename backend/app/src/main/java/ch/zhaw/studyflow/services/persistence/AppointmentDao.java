@@ -20,10 +20,10 @@ public interface AppointmentDao {
      * Reads a specific appointment by calendar ID and appointment ID.
      *
      * @param calendarId the ID of the calendar
-     * @param id the ID of the appointment
+     * @param appointmentId the ID of the appointment
      * @return the appointment, or null if not found
      */
-    Appointment read(long calendarId, long id);
+    Appointment read(long calendarId, long appointmentId);
 
     /**
      * Reads all appointments for a calendar within a date range.
@@ -36,9 +36,9 @@ public interface AppointmentDao {
     /**
      * Deletes a specific appointment by appointment ID.
      *
-     * @param id the ID of the appointment
+     * @param appointmentId the ID of the appointment
      */
-    void delete(long id);
+    void delete(long appointmentId);
 
     /**
      * Updates an appointment.

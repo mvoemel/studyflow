@@ -22,7 +22,7 @@ public interface SemesterDao {
      * @param semesterId the ID of the semester
      * @return the semester, or null if not found
      */
-    Optional<Semester> read(long semesterId);
+    Semester read(long semesterId);
 
     /**
      * Reads all semesters for a student from the persistent storage.

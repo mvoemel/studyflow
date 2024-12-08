@@ -20,18 +20,18 @@ public interface CalendarDao {
      * Reads a specific calendar for a user.
      *
      * @param userId the ID of the user
-     * @param id the ID of the calendar
+     * @param calendarId the ID of the calendar
      * @return the calendar, or null if not found
      */
-    Calendar read(long userId, long id);
+    Calendar read(long userId, long calendarId);
 
     /**
      * Deletes a specific calendar for a user.
      *
      * @param userId the ID of the user
-     * @param id the ID of the calendar
+     * @param calendarId the ID of the calendar
      */
-    void delete(long userId, long id);
+    void delete(long userId, long calendarId);
 
     /**
      * Updates a calendar.

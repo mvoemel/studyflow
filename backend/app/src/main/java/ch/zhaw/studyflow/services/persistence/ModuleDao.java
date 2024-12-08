@@ -26,14 +26,29 @@ public interface ModuleDao {
     Module read(long moduleId);
 
     /**
-     * Dele
-     * @param moduleId
+     * Deletes a module by its ID.
+     * @param moduleId the modules ID
      */
     void delete(long moduleId);
 
+    /**
+     * Updates a module.
+     * @param module the module to update
+     * @return the updated module
+     */
     Module update(Module module);
 
+    /**
+     * Gets all modules for a specific student.
+     * @param studentId the ID of the student
+     * @return a list of modules for the student
+     */
     List<Module> readAllByStudent(long studentId);
 
+    /**
+     * Gets all modules for a specific semester.
+     * @param semesterId the ID of the semester
+     * @return a list of modules for the semester
+     */
     List<Module> readAllBySemester(long semesterId);
 }

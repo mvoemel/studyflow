@@ -37,11 +37,11 @@ public class SQLAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public Appointment read(long calendarId, long id) {
+    public Appointment read(long calendarId, long appointmentId) {
         String sql = "SELECT * FROM appointments WHERE calendar_id = ? AND id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, calendarId);
-            stmt.setLong(2, id);
+            stmt.setLong(2, appointmentId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new Appointment(
@@ -85,10 +85,10 @@ public class SQLAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(long appointmentId) {
         String sql = "DELETE FROM appointments WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, id);
+            stmt.setLong(1, appointmentId);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
