@@ -167,7 +167,7 @@ public class TimeSlots {
             if (timeSlots[i] == TimeSlotValue.FREE) {
                 freeMinutes += slotSize; // Freie Minuten summieren
             } else {
-                break; // Abbrechen, sobald ein belegter Slot erreicht wird
+                return freeMinutes; // Abbrechen, sobald ein belegter Slot erreicht wird
             }
         }
 
