@@ -4,8 +4,6 @@ import { useCallback, useMemo, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin, {
-  EventDragStartArg,
-  EventDragStopArg,
   EventResizeStopArg,
 } from "@fullcalendar/interaction";
 import { Card } from "@/components/ui/card";
@@ -17,7 +15,12 @@ import { useDegrees } from "@/hooks/use-degree";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { useSemesters } from "@/hooks/use-semester";
 import { useAppointments } from "@/hooks/use-appointments";
-import { EventClickArg, EventSourceInput } from "@fullcalendar/core/index.js";
+import {
+  EventClickArg,
+  EventDropArg,
+  EventSourceInput,
+} from "@fullcalendar/core/index.js";
+import { toast } from "sonner";
 
 const SchedulePage = () => {
   const { settings } = useUserSettings();
@@ -86,8 +89,61 @@ const SchedulePage = () => {
     console.log("Clicked event:", arg);
   };
 
-  const handleOnDragStopEvent = (arg: EventDragStopArg) => {
-    console.log("Drag start event:", arg.event);
+  const handleOnDropEvent = async (arg: EventDropArg) => {
+    console.log("Drag stop event:", arg.event); // TODO: remove
+
+    const calendarId = arg.event.extendedProps.calendarId;
+    const appointmentId = arg.event.id;
+    const title = arg.event.title;
+    const description = arg.event.extendedProps.description;
+    const startDateTime = arg.event.start;
+    const endDateTime = arg.event.end;
+
+    if (!startDateTime || !endDateTime) return; // TODO: refactor this
+
+    console.log(
+      "calendarId:",
+      calendarId,
+      "appointmentId:",
+      appointmentId,
+      "globalCalendarId:",
+      settings?.globalCalendarId,
+      "currSemesterId:",
+      currSemester?.calendarId
+    );
+
+    try {
+      switch (calendarId) {
+        case settings?.globalCalendarId:
+          await updateGlobalAppointment(
+            {
+              title,
+              description,
+              startDateTime,
+              endDateTime,
+            },
+            appointmentId
+          );
+          break;
+        case currSemester?.calendarId:
+          await updateActiveSemesterAppointment(
+            {
+              title,
+              description,
+              startDateTime,
+              endDateTime,
+            },
+            appointmentId
+          );
+          break;
+        default:
+          throw new Error("Invalid calendar ID:", calendarId);
+      }
+
+      toast.success("Successfully updated appointment!");
+    } catch {
+      toast.error("Failed to update appointment.");
+    }
   };
 
   const handleOnResizeStopEvent = (arg: EventResizeStopArg) => {
@@ -117,7 +173,7 @@ const SchedulePage = () => {
           events={events}
           eventClick={handleOnDClickEvent}
           eventDragMinDistance={5}
-          eventDragStop={handleOnDragStopEvent}
+          eventDrop={handleOnDropEvent}
           eventResizeStop={handleOnResizeStopEvent}
           slotMinTime={"07:00:00"}
           slotMaxTime={"23:00:00"}

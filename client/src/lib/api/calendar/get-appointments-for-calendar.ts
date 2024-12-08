@@ -5,9 +5,25 @@ type AppointmentsForCalendarResponseData = Appointment[];
 
 // TODO: add optional from and to query parameters
 const getAppointmentsForCalendarRequest = async (calendarId: string) => {
-  return await tuam.get<AppointmentsForCalendarResponseData>(
-    `/api/calendars/${calendarId}/appointments`
-  );
+  const response = await tuam.get<
+    {
+      id: number;
+      title: string;
+      startDateTime: Date;
+      endDateTime: Date;
+      calendarId: number;
+      description?: string;
+    }[]
+  >(`/api/calendars/${calendarId}/appointments`);
+
+  const appointmentsForCalendarResponseData: AppointmentsForCalendarResponseData =
+    response.map((m) => ({
+      ...m,
+      id: m.id.toString(),
+      calendarId: m.calendarId.toString(),
+    }));
+
+  return appointmentsForCalendarResponseData;
 };
 
 export {
