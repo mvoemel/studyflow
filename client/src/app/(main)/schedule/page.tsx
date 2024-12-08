@@ -48,10 +48,12 @@ const SchedulePage = () => {
     appointments: globalAppointments,
     addNewAppointment: addNewAppointment,
     updateAppointment: updateGlobalAppointment,
+    deleteAppointment: deleteGlobalAppointment,
   } = useAppointments(settings?.globalCalendarId);
   const {
     appointments: currSemesterAppointments,
     updateAppointment: updateActiveSemesterAppointment,
+    deleteAppointment: deleteActiveSemesterAppointment,
   } = useAppointments(currSemester?.calendarId);
 
   const events = useMemo(() => {
@@ -92,9 +94,35 @@ const SchedulePage = () => {
     setCreateScheduleDialogOpen(false);
   }, []);
 
-  const handleAppointmentDelete = async (appointmentId: string) => {};
+  const handleAppointmentDelete = async () => {
+    setAppointmentDialogOpen(false);
+
+    const appointmentFromGlobal = globalAppointments?.find(
+      (a) => a.id === selectedAppointment?.id
+    );
+
+    const appointmentFromCurrSemester = currSemesterAppointments?.find(
+      (a) => a.id === selectedAppointment?.id
+    );
+
+    try {
+      if (appointmentFromGlobal) {
+        await deleteGlobalAppointment(appointmentFromGlobal.id);
+      } else if (appointmentFromCurrSemester) {
+        await deleteActiveSemesterAppointment(appointmentFromCurrSemester.id);
+      } else {
+        toast.error("Appointment not found!");
+      }
+
+      toast.success("Successfully deleted appointment.");
+    } catch {
+      toast.error("Failed to delete appointment.");
+    }
+  };
 
   const handleAppointmentSubmit = async (data: AppointmentFormValues) => {
+    setAppointmentDialogOpen(false);
+
     console.log(data);
 
     const body = {
@@ -174,7 +202,7 @@ const SchedulePage = () => {
     }
   };
 
-  const handleOnDropEvent = async (arg: EventDropArg) => {
+  const handleOnDropEvent = async (arg: EventDropArg | EventResizeStopArg) => {
     console.log("Drag stop event:", arg.event); // TODO: remove
 
     const calendarId = arg.event.extendedProps.calendarId;
@@ -186,42 +214,20 @@ const SchedulePage = () => {
 
     if (!startDateTime || !endDateTime) return; // TODO: refactor this
 
-    console.log(startDateTime, endDateTime);
-
-    console.log(
-      "calendarId:",
-      calendarId,
-      "appointmentId:",
-      appointmentId,
-      "globalCalendarId:",
-      settings?.globalCalendarId,
-      "currSemesterId:",
-      currSemester?.calendarId
-    );
+    const body = {
+      title,
+      description,
+      startDateTime: adjustToLocalTime(startDateTime),
+      endDateTime: adjustToLocalTime(endDateTime),
+    };
 
     try {
       switch (calendarId) {
         case settings?.globalCalendarId:
-          await updateGlobalAppointment(
-            {
-              title,
-              description,
-              startDateTime: adjustToLocalTime(startDateTime),
-              endDateTime: adjustToLocalTime(endDateTime),
-            },
-            appointmentId
-          );
+          await updateGlobalAppointment(body, appointmentId);
           break;
         case currSemester?.calendarId:
-          await updateActiveSemesterAppointment(
-            {
-              title,
-              description,
-              startDateTime: adjustToLocalTime(startDateTime),
-              endDateTime: adjustToLocalTime(endDateTime),
-            },
-            appointmentId
-          );
+          await updateActiveSemesterAppointment(body, appointmentId);
           break;
         default:
           throw new Error("Invalid calendar ID:", calendarId);
@@ -231,10 +237,6 @@ const SchedulePage = () => {
     } catch {
       toast.error("Failed to update appointment.");
     }
-  };
-
-  const handleOnResizeStopEvent = (arg: EventResizeStopArg) => {
-    console.log("Resize stop event:", arg.event);
   };
 
   if (!events) return <SchedulePageSkeleton />;
@@ -268,7 +270,7 @@ const SchedulePage = () => {
           eventClick={handleOnClickEvent}
           eventDragMinDistance={5}
           eventDrop={handleOnDropEvent}
-          eventResizeStop={handleOnResizeStopEvent}
+          eventResize={handleOnDropEvent}
           slotMinTime={"07:00:00"}
           slotMaxTime={"23:00:00"}
           slotLabelFormat={{
@@ -291,6 +293,7 @@ const SchedulePage = () => {
         onSubmit={handleAppointmentSubmit}
         // @ts-ignore
         initialData={selectedAppointment}
+        onDelete={handleAppointmentDelete}
       />
 
       <CreateScheduleDialog

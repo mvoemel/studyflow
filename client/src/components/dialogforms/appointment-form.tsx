@@ -31,10 +31,15 @@ export type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
 
 type AppointmentFormProps = {
   onSubmit: (data: AppointmentFormValues) => void;
+  onDelete: () => void;
   initialData?: AppointmentFormValues | null;
 };
 
-const AppointmentForm = ({ onSubmit, initialData }: AppointmentFormProps) => {
+const AppointmentForm = ({
+  onSubmit,
+  onDelete,
+  initialData,
+}: AppointmentFormProps) => {
   const form = useForm<z.infer<typeof appointmentFormSchema>>({
     resolver: zodResolver(appointmentFormSchema),
     defaultValues: initialData || {
@@ -121,6 +126,11 @@ const AppointmentForm = ({ onSubmit, initialData }: AppointmentFormProps) => {
           )}
         />
         <Button type="submit">Submit</Button>
+        {!!initialData && (
+          <Button variant="destructive" onClick={onDelete}>
+            Delete
+          </Button>
+        )}
       </form>
     </Form>
   );

@@ -14,6 +14,7 @@ type AppointmentDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: AppointmentFormValues) => void;
+  onDelete: () => void;
   initialData?: AppointmentFormValues | null;
 };
 
@@ -21,6 +22,7 @@ const AppointmentDialog = ({
   open,
   onOpenChange,
   onSubmit,
+  onDelete,
   initialData,
 }: AppointmentDialogProps) => {
   return (
@@ -36,7 +38,11 @@ const AppointmentDialog = ({
               : "Fill in the details to add a new appointment."}
           </DialogDescription>
         </DialogHeader>
-        <AppointmentForm initialData={initialData} onSubmit={onSubmit} />
+        <AppointmentForm
+          initialData={initialData}
+          onSubmit={onSubmit}
+          onDelete={onDelete}
+        />
       </DialogContent>
     </Dialog>
   );
