@@ -13,16 +13,17 @@ import static org.mockito.Mockito.*;
 class DegreeManagerImplTest {
     private DegreeDao degreeDao;
     private SemesterDao semesterDao;
+    private DegreeManagerImpl degreeManager;
 
     @BeforeEach
     void beforeEach() {
         degreeDao = mock(DegreeDao.class);
         semesterDao = mock(SemesterDao.class);
+        degreeManager = new DegreeManagerImpl(degreeDao, semesterDao);
     }
 
     @Test
     void testCreateDegree() {
-        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao, semesterDao);
         Degree degree = new Degree();
         degree.setName("Test Degree");
         degree.setDescription("Test Description");
@@ -32,8 +33,33 @@ class DegreeManagerImplTest {
     }
 
     @Test
+    void testUpdateDegree() {
+        Degree existingDegree = new Degree();
+        existingDegree.setId(1);
+        existingDegree.setName("Test Degree");
+        existingDegree.setDescription("Test Description");
+        existingDegree.setActiveSemesterId(5);
+        existingDegree.setOwnerId(5);
+        when(degreeDao.read(1)).thenReturn(existingDegree);
+
+        Degree updatedDegree = new Degree();
+        updatedDegree.setId(existingDegree.getId());
+        updatedDegree.setName("New Name");
+        updatedDegree.setDescription("New Description");
+        updatedDegree.setActiveSemesterId(6);
+        updatedDegree.setOwnerId(1);
+        degreeManager.updateDegree(updatedDegree);
+        verify(degreeDao, times(1)).update(updatedDegree);
+
+        assertEquals(1, existingDegree.getId());
+        assertEquals("New Name", existingDegree.getName());
+        assertEquals("New Description", existingDegree.getDescription());
+        assertEquals(6, existingDegree.getActiveSemesterId());
+        assertEquals(5, existingDegree.getOwnerId());
+    }
+
+    @Test
     void throwIfDegreeIdAlreadySet() {
-        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao, semesterDao);
         Degree degree = new Degree();
         degree.setId(1);
         degree.setOwnerId(1);
@@ -42,19 +68,16 @@ class DegreeManagerImplTest {
 
     @Test
     void throwsIfGetDegreeIdIsNegative() {
-        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao, semesterDao);
         assertThrows(IllegalArgumentException.class, () -> degreeManager.getDegree(-1));
     }
 
     @Test
     void throwsIfDeleteDegreeIdIsNegative() {
-        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao, semesterDao);
         assertThrows(IllegalArgumentException.class, () -> degreeManager.deleteDegree(-1));
     }
 
     @Test
     void throwsIfGetDegreesForStudentIdIsNegative() {
-        DegreeManager degreeManager = new DegreeManagerImpl(degreeDao, semesterDao);
         assertThrows(IllegalArgumentException.class, () -> degreeManager.getDegreesForStudent(-1));
     }
 }

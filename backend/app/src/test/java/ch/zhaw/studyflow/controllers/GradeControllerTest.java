@@ -106,7 +106,7 @@ class GradeControllerTest {
         final ReadableBodyContent bodyContent = mock(ReadableBodyContent.class);
         when(bodyContent.tryRead(ModuleGrade.class)).thenReturn(Optional.of(moduleGrade));
 
-        final HttpResponse actualResponse = gradeController.patchGradesByDegreeId(context);
+        final HttpResponse actualResponse = gradeController.updateGradesByDegreeId(context);
 
         verify(gradeManager).updateGradesByModule(eq(1L), anyList());
         verify(actualResponse).setStatusCode(HttpStatusCode.OK);
@@ -162,7 +162,7 @@ class GradeControllerTest {
                 Map.of("degreeId", "1")
         );
 
-        final HttpResponse response = gradeController.patchGradesByDegreeId(context);
+        final HttpResponse response = gradeController.updateGradesByDegreeId(context);
 
         verify(response).setStatusCode(HttpStatusCode.BAD_REQUEST);
     }
@@ -191,7 +191,7 @@ class GradeControllerTest {
                 Map.of("degreeId", "1")
         );
 
-        final HttpResponse response = gradeController.patchGradesByDegreeId(context);
+        final HttpResponse response = gradeController.updateGradesByDegreeId(context);
 
         verify(response).setStatusCode(HttpStatusCode.BAD_REQUEST);
     }

@@ -20,20 +20,18 @@ public class DegreeManagerImpl implements DegreeManager {
     }
 
     @Override
-    public void createDegree(long userId, Degree degree) {
+    public void createDegree(long studentId, Degree degree) {
         Objects.requireNonNull(degree);
 
         if (degree.getId() != -1) {
             throw new IllegalArgumentException("Degree should not have an ID set before creation");
         }
 
-        if (degree.getOwnerId() == -1) {
-            degree.setOwnerId(userId);
-        }
-
         if (Validation.isNullOrEmpty(degree.getName())) {
             throw new IllegalArgumentException("Degree name must be set");
         }
+
+        degree.setOwnerId(studentId);
         degreeDao.create(degree);
     }
 
@@ -61,10 +59,10 @@ public class DegreeManagerImpl implements DegreeManager {
             throw new IllegalArgumentException("Degree should have an ID set before updating");
         }
 
-        Degree oldDegree = degreeDao.read(degree.getId());
-        if (oldDegree.getOwnerId() != degree.getOwnerId()) {
-            throw new IllegalArgumentException("Degree owner cannot be changed");
-        }
+        Degree degreeFromDatabase = degreeDao.read(degree.getId());
+        degreeFromDatabase.setName(degree.getName());
+        degreeFromDatabase.setDescription(degree.getDescription());
+        degreeFromDatabase.setActiveSemesterId(degree.getActiveSemesterId());
         degreeDao.update(degree);
     }
 
