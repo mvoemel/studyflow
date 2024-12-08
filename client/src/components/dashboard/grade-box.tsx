@@ -16,7 +16,7 @@ type GradeBoxProps = {
 };
 
 const GradeBox = ({ grade, description, className }: GradeBoxProps) => {
-  if (!grade) return <GradeBoxSkeleton className={className} />;
+  if (grade === undefined) return <GradeBoxSkeleton className={className} />;
 
   return (
     <Card
@@ -34,7 +34,7 @@ const GradeBox = ({ grade, description, className }: GradeBoxProps) => {
             "text-red-500": grade < 4,
           })}
         >
-          {grade.toFixed(1) || 0}
+          {Number.isNaN(grade) ? 0 : grade /*?.toFixed(1)*/}
         </CardTitle>
       </CardContent>
     </Card>

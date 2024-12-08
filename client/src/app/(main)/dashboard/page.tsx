@@ -5,14 +5,42 @@ import { DailyCalendarBox } from "@/components/dashboard/daily-calendar-box";
 import { EctsBox } from "@/components/dashboard/ects-box";
 import { GradeBox } from "@/components/dashboard/grade-box";
 import { ShortCutBox } from "@/components/dashboard/shortcut-box";
-import { useEctsAverage } from "@/hooks/use-ects-average";
+import { useAverage } from "@/hooks/use-average";
+import { useGrades } from "@/hooks/use-grades";
 import { useUserSettings } from "@/hooks/use-user-settings";
+import { useMemo } from "react";
 
 const DashboardPage = () => {
   const { settings } = useUserSettings();
-  const { average, currEcts, totalEcts } = useEctsAverage(
-    settings?.activeDegreeId
-  );
+  const { average } = useAverage(settings?.activeDegreeId);
+  const { gradesTree } = useGrades(settings?.activeDegreeId);
+
+  const { currEcts, totalEcts } = useMemo(() => {
+    let totalEcts = 0;
+    let currEcts = 0;
+
+    gradesTree?.forEach((semester) => {
+      semester.modules.forEach((module) => {
+        totalEcts += module.moduleEcts;
+
+        const totalPercentage = module.grades.reduce(
+          (sum, grade) => sum + grade.percentage,
+          0
+        );
+        const averageGrade =
+          module.grades.reduce(
+            (sum, grade) => sum + grade.value * grade.percentage,
+            0
+          ) / totalPercentage;
+
+        if (totalPercentage === 1 && averageGrade > 4) {
+          currEcts += module.moduleEcts;
+        }
+      });
+    });
+
+    return { currEcts, totalEcts };
+  }, [gradesTree]);
 
   return (
     <main className="grid grid-cols-1 md:grid-cols-3 auto-rows-max md:grid-rows-3 gap-4 h-full p-4">
