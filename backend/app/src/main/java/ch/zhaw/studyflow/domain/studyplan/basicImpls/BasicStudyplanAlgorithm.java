@@ -35,6 +35,7 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
     
     private List<ModuleAllocation> moduleAllocations;
     private List<StudyDay> studyDays;
+    private int totalAvailableMinutes;
 
     /**
      * Constructs a BasicStudyplanAlgorithm with the specified parameters, calendar ID, appointments, and modules.
@@ -91,8 +92,6 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
         while(currentDate.isBefore(endDate)){
             if(daysOfWeek.contains(currentDate.getDayOfWeek())){
                 StudyDay studyDay = new BasicStudyDay(currentDate, startTime, endTime);
-                //TODO: Wrong place to calculate minutes - Shpetim
-                studyDay.calculateMinutes();
                 studyDays.add(studyDay);
 
                 //add appointments to studyDay
@@ -101,9 +100,12 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
                         studyDay.addAppointment(appointment);
                     }
                 }
+                studyDay.calculateStudyAllocations();
+                studyDay.calculateMinutes();
             }
             currentDate = currentDate.plusDays(1);
         }
+        calculateTotalAvailableMinutes();
     }
 
     /**
@@ -131,7 +133,7 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
      *
      * @return the total number of minutes
      */
-    private int calculateTotalMinutes(){
+    private int calculateTotalAvailableMinutes(){
         int totalMinutes = 0;
         for(StudyDay studyDay : studyDays){
             totalMinutes += studyDay.getMinutes();
@@ -146,7 +148,6 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
         long moduleSum = 0;
         Map<Module, Long> moduleInitValues = new HashMap<>();
         //calculate percentage from complexity, understanding and time (and ECTS)
-        //TODO: how to calculate percentage? multiply or add complexity value?
         for(Module module : modules){
             long initValue = (module.getComplexity() + module.getUnderstanding() + module.getTime())*module.getECTS();
             moduleInitValues.put(module, initValue);
@@ -154,10 +155,9 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
         }
 
         //normalize percentages and calculate minutes
-        int totalMinutes = calculateTotalMinutes();
         for(Module module : modules){
             long percentage = moduleInitValues.get(module);
-            moduleAllocations.add(new BasicModuleAllocation(module.getId(), percentage*100/moduleSum, percentage*totalMinutes/moduleSum));
+            moduleAllocations.add(new BasicModuleAllocation(module.getId(), percentage*100/moduleSum, percentage*totalAvailableMinutes/moduleSum));
         }
         
     }

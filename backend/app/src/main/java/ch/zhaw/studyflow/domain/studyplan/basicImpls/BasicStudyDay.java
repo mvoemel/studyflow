@@ -171,7 +171,6 @@ public class BasicStudyDay implements StudyDay {
     @Override
     public void calculateStudyAllocations() {         
         
-        
         //mark appointments in TimeSlots
         for (Appointment appointment : appointments) {
             timeSlots.setTimeSlot(TimeSlotValue.APPOINTMENT, appointment.getStartTime().toLocalTime(), appointment.getEndTime().toLocalTime());
