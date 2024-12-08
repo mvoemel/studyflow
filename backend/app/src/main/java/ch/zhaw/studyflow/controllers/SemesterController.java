@@ -24,12 +24,10 @@ public class SemesterController {
 
     private final AuthenticationHandler authenticationHandler;
     private final SemesterManager semesterManager;
-    private final PrincipalProvider principalProvider;
 
-    public SemesterController(AuthenticationHandler authenticationHandler, SemesterManager semesterManager, PrincipalProvider principalProvider) {
+    public SemesterController(AuthenticationHandler authenticationHandler, SemesterManager semesterManager) {
         this.authenticationHandler = authenticationHandler;
         this.semesterManager = semesterManager;
-        this.principalProvider = principalProvider;
     }
 
     @Route(path="")
@@ -45,11 +43,11 @@ public class SemesterController {
                         .flatMap(body -> body.tryRead(SemesterDeo.class));
                 Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
                 if(semesterDeo.isPresent() && semesterDeo.get().isValid()) {
-                        semesterDeo.map(obj -> {
+                        semesterDeo.map(deo -> {
                             Semester semester = new Semester();
-                            semester.setName(obj.getName());
-                            semester.setDescription(obj.getDescription());
-                            semester.setDegreeId(obj.getDegreeId());
+                            semester.setName(deo.getName());
+                            semester.setDescription(deo.getDescription());
+                            semester.setDegreeId(deo.getDegreeId());
                             semester.setUserId(userId.get());
                             return semester;
                         }).ifPresentOrElse(semester -> {

@@ -26,7 +26,8 @@ class AppointmentManagerTest {
 
     @Test
     void testCreate() {
-        Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L, "Test", "Test");
+        final Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L, "Test", "Test");
+
         doNothing().when(appointmentDao).create(appointment);
 
         appointmentManager.create(appointment);
@@ -35,7 +36,8 @@ class AppointmentManagerTest {
 
     @Test
     void testRead() {
-        Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L, "Test", "Test");
+        final Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L, "Test", "Test");
+
         when(appointmentDao.read(1L, 1L)).thenReturn(appointment);
 
         Appointment readAppointment = appointmentManager.read(1L, 1L);
@@ -45,8 +47,9 @@ class AppointmentManagerTest {
 
     @Test
     void testReadAllBy() {
-        Appointment appointment1 = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L, "Test", "Test");
-        Appointment appointment2 = new Appointment(2, LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(3), 1L, "Test", "Test");
+        final Appointment appointment1 = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L, "Test", "Test");
+        final Appointment appointment2 = new Appointment(2, LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(3), 1L, "Test", "Test");
+
         when(appointmentDao.readAllBy(1L)).thenReturn(List.of(appointment1, appointment2));
 
         List<Appointment> appointments = appointmentManager.readAllBy(1L);
@@ -66,10 +69,24 @@ class AppointmentManagerTest {
 
     @Test
     void testUpdate() {
-        Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1L, "Test", "Test");
-        doNothing().when(appointmentDao).update(appointment);
+        final Appointment appointment = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(1), 1, "Test", "Test");
+        final Appointment updatesToApply = new Appointment(1, LocalDateTime.now(), LocalDateTime.now().plusHours(2), 27, "1234", "4321");
 
-        appointmentManager.update(appointment);
+        when(appointmentDao.read(27, 1)).thenReturn(appointment);
+
+
+        appointmentManager.update(updatesToApply);
+        verify(appointmentDao).read(27, 1);
         verify(appointmentDao).update(appointment);
+
+        /* Assert mutable properties */
+        assertEquals(updatesToApply.getTitle(), appointment.getTitle());
+        assertEquals(updatesToApply.getDescription(), appointment.getDescription());
+        assertEquals(updatesToApply.getStartTime(), appointment.getStartTime());
+        assertEquals(updatesToApply.getEndTime(), appointment.getEndTime());
+
+        /* Assert immutable properties */
+        assertEquals(1, appointment.getId());
+        assertEquals(1, appointment.getCalendarId());
     }
 }

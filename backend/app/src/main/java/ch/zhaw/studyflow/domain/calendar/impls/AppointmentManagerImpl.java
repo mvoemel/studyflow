@@ -49,6 +49,14 @@ public class AppointmentManagerImpl implements AppointmentManager {
 
     @Override
     public void update(Appointment appointment) {
-        appointmentDao.update(appointment);
+        Appointment appointmentToUpdate = appointmentDao.read(appointment.getCalendarId(), appointment.getId());
+
+        if (appointmentToUpdate != null) {
+            appointmentToUpdate.setTitle(appointment.getTitle());
+            appointmentToUpdate.setDescription(appointment.getDescription());
+            appointmentToUpdate.setStartTime(appointment.getStartTime());
+            appointmentToUpdate.setEndTime(appointment.getEndTime());
+            appointmentDao.update(appointmentToUpdate);
+        }
     }
 }

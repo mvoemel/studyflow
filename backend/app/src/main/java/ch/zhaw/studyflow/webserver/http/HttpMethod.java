@@ -1,7 +1,5 @@
 package ch.zhaw.studyflow.webserver.http;
 
-import javax.sound.midi.Patch;
-
 public enum HttpMethod {
     GET("GET"),
     PUT("PUT"),

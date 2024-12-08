@@ -94,8 +94,7 @@ public class Main {
                     SemesterController.class,
                     serviceCollection -> new SemesterController(
                             serviceCollection.getRequiredService(AuthenticationHandler.class),
-                            serviceCollection.getRequiredService(SemesterManager.class),
-                            serviceCollection.getRequiredService(PrincipalProvider.class)
+                            serviceCollection.getRequiredService(SemesterManager.class)
                     ));
             controllerRegistry.register(
                     DegreeController.class,
