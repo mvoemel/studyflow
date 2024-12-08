@@ -25,6 +25,7 @@ import { AppointmentFormValues } from "@/components/dialogforms/appointment-form
 import { Appointment } from "@/types";
 import { adjustToLocalTime } from "@/lib/utils";
 
+// TODO: refactor this shit
 const SchedulePage = () => {
   const { settings } = useUserSettings();
   const { degrees } = useDegrees();
