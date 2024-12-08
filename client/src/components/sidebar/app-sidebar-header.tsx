@@ -10,7 +10,7 @@ import {
 import { Separator } from "../ui/separator";
 import { SidebarTrigger } from "../ui/sidebar";
 import { useBasePath } from "./use-base-path";
-import { CircleHelp } from "lucide-react";
+import {CheckCircle, CircleHelp} from "lucide-react";
 import {
     Dialog,
     DialogTrigger,
@@ -58,19 +58,23 @@ const AppSidebarHeader = () => {
                 <DialogTrigger asChild>
                     <CircleHelp className="text-3xl hover:text-gray-700 text-blue-500 cursor-pointer" />
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-md p-6 bg-white rounded-md shadow-lg space-y-6">
                     <DialogHeader>
-                        <DialogTitle>Getting Started</DialogTitle>
+                        <DialogTitle className="text-xl font-semibold text-gray-900">Getting Started</DialogTitle>
                     </DialogHeader>
-                    <ol className="list-decimal list-inside space-y-2">
+                    <hr className="border-gray-300" />
+
+                    <ol className="list-decimal list-inside space-y-4 pt-4">
                         {instructions.map((step, index) => (
-                            <li key={index} className="text-gray-800">
-                                {step}
+                            <li key={index} className="flex items-start space-x-2">
+                                <CheckCircle className="text-green-500 h-5 w-5 flex-shrink-0 mt-0.5" />
+                                <span className="text-gray-800 leading-6">{step}</span>
                             </li>
                         ))}
                     </ol>
+
                     <DialogClose asChild>
-                        <Button>Close</Button>
+                        <Button className="mt-4">Close</Button>
                     </DialogClose>
                 </DialogContent>
             </Dialog>
