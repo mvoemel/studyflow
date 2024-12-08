@@ -2,6 +2,7 @@ package ch.zhaw.studyflow.controllers;
 
 import ch.zhaw.studyflow.domain.curriculum.Degree;
 import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
+import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.utils.LongUtils;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
 import ch.zhaw.studyflow.webserver.annotations.Route;
@@ -26,8 +27,8 @@ public class DegreeController {
 
 
     public DegreeController(AuthenticationHandler authenticationHandler, DegreeManager degreeManager) {
-        this.authenticationHandler = authenticationHandler;
-        this.degreeManager = degreeManager;
+        this.authenticationHandler  = authenticationHandler;
+        this.degreeManager          = degreeManager;
     }
 
 

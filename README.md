@@ -66,6 +66,10 @@ This guide describes how to build and run the Docker image for the StudyFlow Jav
 
 For detailed class diagrams, please refer to the [backend architecture documentation](https://github.com/mvoemel/studyflow/blob/dev/docs/backendArchitecture.md).
 
+## Testing Concept
+
+For detailed information on the testing strategy and test cases, please refer to the [testing concept documentation](https://github.com/mvoemel/studyflow/blob/dev/docs/testingConcept/Test_Cases.md).
+
 
 ## License
 

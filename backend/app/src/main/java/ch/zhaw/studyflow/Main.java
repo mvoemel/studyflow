@@ -149,11 +149,13 @@ public class Main {
             ));
 
             builder.register(DegreeManager.class, serviceCollection -> new DegreeManagerImpl(
+                    serviceCollection.getRequiredService(StudentManager.class),
                     serviceCollection.getRequiredService(DegreeDao.class),
                     serviceCollection.getRequiredService(SemesterDao.class)
             ));
 
             builder.register(SemesterManager.class, serviceCollection -> new SemesterManagerImpl(
+                    serviceCollection.getRequiredService(DegreeManager.class),
                     serviceCollection.getRequiredService(SemesterDao.class),
                     serviceCollection.getRequiredService(ModuleDao.class)
             ));
