@@ -40,7 +40,13 @@ public class SemesterManagerImpl implements SemesterManager {
 
     @Override
     public void updateSemester(Semester semester) {
-        semesterDao.updateSemester(semester);
+        semesterDao.getSemesterById(semester.getId())
+                .ifPresent(semesterToUpdate -> {
+                    semesterToUpdate.setName(semester.getName());
+                    semesterToUpdate.setDescription(semester.getDescription());
+                    this.semesterDao.updateSemester(semesterToUpdate);
+                }
+        );
     }
 
     @Override
