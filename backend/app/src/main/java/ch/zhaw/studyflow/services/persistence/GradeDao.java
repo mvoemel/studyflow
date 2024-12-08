@@ -34,14 +34,6 @@ public interface GradeDao {
     List<Grade> readByModule(long moduleId);
 
     /**
-     * Reads grades by degree ID.
-     *
-     * @param degreeId the degree ID.
-     * @return the list of grades.
-     */
-    List<Grade> readByDegree(long degreeId);
-
-    /**
      * Updates an existing grade.
      *
      * @param grade the grade to update.
@@ -51,10 +43,10 @@ public interface GradeDao {
     /**
      * Updates grades by degree ID.
      *
-     * @param degreeId the degree ID.
+     * @param moduleId the degree ID.
      * @param grades the list of grades to update.
      */
-    void updateByDegree(long degreeId, List<Grade> grades);
+    void updateByModule(long moduleId, List<Grade> grades);
 
     /**
      * Deletes a grade by its ID.

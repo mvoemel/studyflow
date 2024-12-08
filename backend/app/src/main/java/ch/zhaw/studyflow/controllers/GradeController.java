@@ -7,7 +7,6 @@ import ch.zhaw.studyflow.domain.curriculum.Module;
 import ch.zhaw.studyflow.domain.grade.Grade;
 import ch.zhaw.studyflow.domain.grade.GradeManager;
 import ch.zhaw.studyflow.utils.LongUtils;
-import ch.zhaw.studyflow.utils.Tuple;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
 import ch.zhaw.studyflow.webserver.annotations.Route;
 import ch.zhaw.studyflow.webserver.http.HttpMethod;
@@ -62,15 +61,14 @@ public class GradeController {
         return authenticator.handleIfAuthenticated(request, principal -> {
             final HttpResponse response = request.createResponse();
 
-            final Optional<String> degreeIdOpt = context.getUrlCaptures().get("degreeId");
+            final Optional<Long> degreeIdOpt = context.getUrlCaptures().get("degreeId").flatMap(LongUtils::tryParseLong);
             if (degreeIdOpt.isPresent()) {
-                long degreeId = Long.parseLong(degreeIdOpt.get());
-                final List<Semester> semesters = semesterManager.getSemestersForDegree(degreeId);
+                final List<Semester> semesters = semesterManager.getSemestersForDegree(degreeIdOpt.get());
                 final List<SemesterGrade> semesterGrades = semesters.stream().map(semester -> {
                     final List<Module> modules = moduleManager.getModulesBySemester(semester.getId());
                     final List<ModuleGrade> moduleGrades = modules.stream().map(module -> {
                         final List<Grade> grades = gradeManager.getGradesByModule(module.getId());
-                        return new ModuleGrade(module.getId(), module.getName(), grades);
+                        return new ModuleGrade(module.getId(), module.getName(), grades, module.getECTS());
                     }).toList();
                     return new SemesterGrade(semester.getId(), semester.getName(), moduleGrades);
                 }).toList();
@@ -92,25 +90,24 @@ public class GradeController {
      */
     @Route(path = "{degreeId}/grades")
     @Endpoint(method = HttpMethod.POST)
-    public HttpResponse patchGradesByDegreeId(RequestContext context) {
+    public HttpResponse updateGradesByDegreeId(RequestContext context) {
         final HttpRequest request = context.getRequest();
 
         return authenticator.handleIfAuthenticated(request, principal -> {
             final HttpResponse response = request.createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
 
-            Optional<Long> degreeIdOpt = context.getUrlCaptures().get("degreeId").flatMap(LongUtils::tryParseLong);
-            degreeIdOpt.ifPresent(degreeId ->
-                    request.getRequestBody()
-                            .flatMap(body -> body.tryRead(ModuleGrade.class))
-                            .ifPresent(moduleGrade -> {
-                                final List<Grade> newGrades = moduleGrade.getGrades();
-                                if (moduleGrade.getId() == degreeId && validateGrades(newGrades)) {
-                                    gradeManager.updateGradesByModule(moduleGrade.getId(), newGrades);
-                                    response.setStatusCode(HttpStatusCode.OK);
-                                }
-                            })
-            );
+            context.getUrlCaptures().get("degreeId")
+                    .flatMap(LongUtils::tryParseLong)
+                    .flatMap(degreeId -> request.getRequestBody().flatMap(
+                            body -> body.tryRead(ModuleGrade.class))
+                    ).ifPresent(moduleGrade -> {
+                        final List<Grade> newGrades = moduleGrade.getGrades();
+                        if (validateGrades(newGrades)) {
+                            gradeManager.updateGradesByModule(moduleGrade.getId(), newGrades);
+                            response.setStatusCode(HttpStatusCode.OK);
+                        }
+                    });
             return response;
         });
     }
@@ -154,6 +151,6 @@ public class GradeController {
      */
     private boolean validateGrades(List<Grade> grades) {
         double totalPercentage = grades.stream().mapToDouble(Grade::getPercentage).sum();
-        return totalPercentage == 1.0;
+        return totalPercentage <= 1.0;
     }
 }

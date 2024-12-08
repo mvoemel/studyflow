@@ -10,7 +10,8 @@ public class Semester {
 
 
     public Semester() {
-        this.id = -1;
+        this.id         = -1;
+        this.calendarId = -1;
     }
 
     public Semester(long id, String name, String description, long degreeId, long userId, long calendarId) {

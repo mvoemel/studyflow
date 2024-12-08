@@ -8,7 +8,7 @@ const getAllDegreesRequest = async () => {
     {
       id: number;
       name: string;
-      userId: number;
+      ownerId: number;
       activeSemesterId?: number;
       description?: string;
     }[]
@@ -17,8 +17,9 @@ const getAllDegreesRequest = async () => {
   const allDegreesResponseData: AllDegreesResponseData = response.map((d) => ({
     id: d.id.toString(),
     name: d.name,
-    userId: d.userId?.toString(),
-    activeSemesterId: d.activeSemesterId?.toString(),
+    userId: d.ownerId?.toString(),
+    activeSemesterId:
+      d.activeSemesterId === -1 ? undefined : d.activeSemesterId?.toString(),
     description: d.description,
   }));
 

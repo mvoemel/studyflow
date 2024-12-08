@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, PenIcon, CirclePlus } from "lucide-react";
+import { ChevronDown, CirclePlus } from "lucide-react";
 import clsx from "clsx";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -98,7 +98,7 @@ const SemesterSection = ({ semester }: { semester: GradesViewSemester }) => {
                 "text-red-500": grade >= 1 && grade < 4,
               })}
             >
-              {grade === 0 ? "-" : grade.toFixed(2)}
+              {grade === 0 || Number.isNaN(grade) ? "-" : grade.toFixed(2)}
             </span>
           </span>
         </div>
@@ -136,7 +136,7 @@ const ModuleSection = ({ module }: { module: GradesViewModule }) => {
         <span className="mr-4 text-muted-foreground text-xs">
           {module.moduleEcts}
         </span>
-        <span>{grade === 0 ? "-" : grade.toFixed(2)}</span>
+        <span>{grade === 0 || Number.isNaN(grade) ? "-" : grade.toFixed(2)}</span>
         <Button
           className="p-0"
           variant="ghost"
@@ -150,6 +150,7 @@ const ModuleSection = ({ module }: { module: GradesViewModule }) => {
           isOpen={isGradeDialogOpen}
           onClose={() => setIsGradeDialogOpen(false)}
           grades={module.grades}
+          moduleId={module.moduleId}
         />
       </span>
     </div>

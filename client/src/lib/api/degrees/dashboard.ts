@@ -16,6 +16,9 @@ const dashboardRequest = async (degreeId: string) => {
     ),
   ]);
 
+  // TODO: parse data
+  // `/api/degrees/${degreeId}/grades/average` returns {average: number}
+
   return {
     ...averageResponse,
     ...averageGradesResponse,

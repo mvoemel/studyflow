@@ -69,33 +69,17 @@ public class SQLGradeDao implements GradeDao {
         return grades;
     }
 
-    @Override
-    public List<Grade> readByDegree(long degreeId) {
-        String sql = "SELECT * FROM grades WHERE degree_id = ?";
-        List<Grade> grades = new ArrayList<>();
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, degreeId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    grades.add(mapRowToGrade(rs));
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return grades;
-    }
 
     @Override
-    public void updateByDegree(long degreeId, List<Grade> grades) {
-        String sql = "UPDATE grades SET name = ?, percentage = ?, value = ?, belongs_to_module = ? WHERE degree_id = ? AND id = ?";
+    public void updateByModule(long moduleId, List<Grade> grades) {
+        String sql = "UPDATE grades SET name = ?, percentage = ?, value = ?, belongs_to_module = ? WHERE module_id = ? AND id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             for (Grade grade : grades) {
                 stmt.setString(1, grade.getName());
                 stmt.setDouble(2, grade.getPercentage());
                 stmt.setDouble(3, grade.getValue());
                 stmt.setLong(4, grade.getBelongsTo());
-                stmt.setLong(5, degreeId);
+                stmt.setLong(5, moduleId);
                 stmt.setLong(6, grade.getId());
                 stmt.addBatch();
             }

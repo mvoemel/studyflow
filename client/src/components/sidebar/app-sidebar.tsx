@@ -59,7 +59,9 @@ import { AddGradeDialog } from "@/components/dialogs/add-grade";
 const AppSidebar = () => {
   const { mutate } = useSWRConfig();
 
-  const [selectedSemester, setSelectedSemester] = useState<Semester | undefined>(undefined);
+  const [selectedSemester, setSelectedSemester] = useState<
+    Semester | undefined
+  >(undefined);
 
   const router = useRouter();
   const basePath = useBasePath();
@@ -81,15 +83,22 @@ const AppSidebar = () => {
   }, [degrees, semesters, settings?.activeDegreeId]);
 
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState<boolean>(true);
-  const [isAddDegreeDialogOpen, setIsAddDegreeDialogOpen] = useState(false);
-  const [isAddSemesterDialogOpen, setIsAddSemesterDialogOpen] = useState(false);
-  const [isEditSemesterDialogOpen, setIsEditSemesterDialogOpen] = useState(false);
+  const [isAddDegreeDialogOpen, setIsAddDegreeDialogOpen] =
+    useState<boolean>(false);
+  const [isAddSemesterDialogOpen, setIsAddSemesterDialogOpen] =
+    useState<boolean>(false);
+  const [isEditSemesterDialogOpen, setIsEditSemesterDialogOpen] =
+    useState<boolean>(false);
 
   const handleSelectDegree = async (degree: Degree) => {
     if (settings?.activeDegreeId === degree.id) return;
 
     try {
-      await updateActiveDegree({ activeDegreeId: degree.id });
+      await updateActiveDegree({
+        id: settings?.id || "",
+        activeDegreeId: degree.id,
+        globalCalendarId: settings?.globalCalendarId || "",
+      });
 
       toast.success("Successfully updated active degree!");
     } catch (err) {
@@ -119,7 +128,7 @@ const AppSidebar = () => {
 
   const handleAddSemester = () => {
     setIsAddSemesterDialogOpen(true);
-  }
+  };
 
   const handleDeleteSemester = async (semester: Semester) => {
     try {
@@ -166,7 +175,7 @@ const AppSidebar = () => {
 
       toast.success("Successfully logged out!");
 
-      router.push("/dashboard");
+      router.push("/login");
     } catch (err) {
       toast.error("Failed to log out.");
     }
@@ -325,33 +334,19 @@ const AppSidebar = () => {
                       ))
                   )}
                   <SidebarMenuItem>
-                    {settings?.activeDegreeId !== "-1" ? (
-                        <Button
-                            variant="ghost"
-                            className="gap-2 p-2 w-full justify-start"
-                            onClick={() => handleAddSemester()}
-                        >
-                          <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                            <PlusIcon className="size-4" />
-                          </div>
-                          <div className="font-medium text-muted-foreground">
-                            Add Semester
-                          </div>
-                        </Button>
-                    ) : (
-                        <Button
-                            variant="ghost"
-                            className="gap-2 p-2 w-full justify-start"
-                            disabled
-                        >
-                          <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                            <PlusIcon className="size-4" />
-                          </div>
-                          <div className="font-medium text-muted-foreground">
-                            Add Semester
-                          </div>
-                        </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      className="gap-2 p-2 w-full justify-start"
+                      onClick={() => handleAddSemester()}
+                      disabled={!settings?.activeDegreeId}
+                    >
+                      <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+                        <PlusIcon className="size-4" />
+                      </div>
+                      <div className="font-medium text-muted-foreground">
+                        Add Semester
+                      </div>
+                    </Button>
                   </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarMenuSub>
@@ -377,15 +372,15 @@ const AppSidebar = () => {
       />
 
       <AddSemesterDialog
-          isOpen={isAddSemesterDialogOpen && !isEditSemesterDialogOpen}
-          onClose={() => setIsAddSemesterDialogOpen(false)}
-          isEdit={false}
+        isOpen={isAddSemesterDialogOpen && !isEditSemesterDialogOpen}
+        onClose={() => setIsAddSemesterDialogOpen(false)}
+        isEdit={false}
       />
       <AddSemesterDialog
-          isOpen={isEditSemesterDialogOpen}
-          onClose={() => setIsEditSemesterDialogOpen(false)}
-          isEdit={true}
-          semester={selectedSemester}
+        isOpen={isEditSemesterDialogOpen}
+        onClose={() => setIsEditSemesterDialogOpen(false)}
+        isEdit={true}
+        semester={selectedSemester}
       />
     </Sidebar>
   );
