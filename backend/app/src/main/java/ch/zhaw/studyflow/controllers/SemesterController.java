@@ -24,12 +24,10 @@ public class SemesterController {
 
     private final AuthenticationHandler authenticationHandler;
     private final SemesterManager semesterManager;
-    private final PrincipalProvider principalProvider;
 
-    public SemesterController(AuthenticationHandler authenticationHandler, SemesterManager semesterManager, PrincipalProvider principalProvider) {
+    public SemesterController(AuthenticationHandler authenticationHandler, SemesterManager semesterManager) {
         this.authenticationHandler = authenticationHandler;
         this.semesterManager = semesterManager;
-        this.principalProvider = principalProvider;
     }
 
     @Route(path="")
