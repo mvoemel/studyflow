@@ -17,7 +17,7 @@ type EctsBoxProps = {
 };
 
 const EctsBox = ({ ectsPoints, maxEctsPoints, className }: EctsBoxProps) => {
-  if (!ectsPoints || !maxEctsPoints)
+  if (ectsPoints === undefined || maxEctsPoints === undefined)
     return <EctsBoxSkeleton className={className} />;
 
   return (
@@ -49,8 +49,8 @@ const EctsBoxSkeleton = ({ className }: Pick<EctsBoxProps, "className">) => {
         <Skeleton className="h-5 w-[150px]" />
         <Skeleton className="h-12 w-16 rounded-md" />
       </div>
-      <Skeleton className="h-3 w-[200px]" />
-      <Skeleton className="h-5 w-[300px]" />
+      <Skeleton className="h-3 w-2/3" />
+      <Skeleton className="h-5 w-full" />
     </Card>
   );
 };

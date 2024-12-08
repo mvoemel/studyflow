@@ -10,7 +10,7 @@ export * from "./calendar/get-appointments-for-calendar";
 export * from "./calendar/new-appointment-for-calendar";
 export * from "./calendar/update-appointment-for-calendar";
 
-export * from "./degrees/dashboard";
+export * from "./degrees/get-average-grade";
 export * from "./degrees/delete-degree";
 export * from "./degrees/get-all-degrees";
 export * from "./degrees/get-grades-for-degree";
