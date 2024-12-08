@@ -4,6 +4,7 @@ import ch.zhaw.studyflow.controllers.*;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
+import ch.zhaw.studyflow.domain.curriculum.ModuleManager;
 import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
 import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
 import ch.zhaw.studyflow.domain.curriculum.impls.DegreeManagerImpl;
@@ -53,7 +54,7 @@ public class Main {
             controllerRegistry.register(
                     ModuleController.class,
                     serviceCollection -> new ModuleController(
-                            serviceCollection.getRequiredService(ModuleManagerImpl.class),
+                            serviceCollection.getRequiredService(ModuleManager.class),
                             serviceCollection.getRequiredService(AuthenticationHandler.class)
 
                     ));
@@ -81,7 +82,7 @@ public class Main {
                     GradeController.class,
                     serviceCollection -> new GradeController(
                             serviceCollection.getRequiredService(SemesterManager.class),
-                            serviceCollection.getRequiredService(ModuleManagerImpl.class),
+                            serviceCollection.getRequiredService(ModuleManager.class),
                             serviceCollection.getRequiredService(GradeManager.class),
                             serviceCollection.getRequiredService(AuthenticationHandler.class)
                     )
@@ -112,7 +113,7 @@ public class Main {
                     serviceCollection.getRequiredService(StudentDao.class),
                     serviceCollection.getRequiredService(SettingsDao.class)
             ));
-            builder.register(ModuleManagerImpl.class, serviceCollection -> new ModuleManagerImpl(
+            builder.register(ModuleManager.class, serviceCollection -> new ModuleManagerImpl(
                     serviceCollection.getRequiredService(ModuleDao.class)
             ));
 
