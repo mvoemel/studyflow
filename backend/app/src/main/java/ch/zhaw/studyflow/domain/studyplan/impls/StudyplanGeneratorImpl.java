@@ -20,6 +20,10 @@ import ch.zhaw.studyflow.domain.studyplan.StudyplanGenerator;
 import ch.zhaw.studyflow.domain.studyplan.basicImpls.BasicStudyplanAlgorithm;
 import ch.zhaw.studyflow.services.ServiceCollection;
 
+/**
+ * Implementation of the StudyplanGenerator interface.
+ * This class is responsible for generating study plans based on the provided parameters, services, and user ID.
+ */
 public class StudyplanGeneratorImpl implements StudyplanGenerator {
     private static final Logger LOGGER = Logger.getLogger(StudyplanGeneratorImpl.class.getName());
 
@@ -27,14 +31,25 @@ public class StudyplanGeneratorImpl implements StudyplanGenerator {
     private final ServiceCollection serviceCollection;
     private final long userId;
 
+    /**
+     * Constructs a StudyplanGeneratorImpl with the specified parameters, service collection, and user ID.
+     *
+     * @param parameters       the study plan parameters
+     * @param serviceCollection the collection of services required for generating the study plan
+     * @param userId           the ID of the user for whom the study plan is being generated
+     */
     //threading: executor service for async tasks, limit nr of threads
-
     public StudyplanGeneratorImpl(StudyplanParameters parameters, ServiceCollection serviceCollection, long userId) {
         this.parameters = parameters;
         this.serviceCollection  = serviceCollection;
         this.userId = userId;
     }
-    
+
+    /**
+     * Generates a study plan based on the provided parameters and user ID.
+     *
+     * @return the ID of the created study plan calendar, or null if an error occurs
+     */
     //future possibility: add parameter "algorithm" to create different studyplans :)
     @Override
     public Long generateStudyplan(){
@@ -84,6 +99,12 @@ public class StudyplanGeneratorImpl implements StudyplanGenerator {
         return studyplanCalendarId;
     }
 
+    /**
+     * Creates a calendar for the study plan.
+     *
+     * @param moduleAllocations the list of module allocations
+     * @return the ID of the created calendar, or -1 if an error occurs
+     */
     private long createCalendar(List<ModuleAllocation> moduleAllocations){
         Optional<CalendarManager> calendarManager = serviceCollection.getService(CalendarManager.class);
         if(calendarManager.isPresent()){
@@ -96,6 +117,12 @@ public class StudyplanGeneratorImpl implements StudyplanGenerator {
         }
     }
 
+    /**
+     * Creates appointments for the study plan based on the module allocations.
+     *
+     * @param calendarId        the ID of the calendar
+     * @param moduleAllocations the list of module allocations
+     */
     private void createAppointments(long calendarId, List<ModuleAllocation> moduleAllocations){
         Optional<AppointmentManager> appointmentManager = serviceCollection.getService(AppointmentManager.class);
         Optional<ModuleManager> moduleManager = serviceCollection.getService(ModuleManager.class);

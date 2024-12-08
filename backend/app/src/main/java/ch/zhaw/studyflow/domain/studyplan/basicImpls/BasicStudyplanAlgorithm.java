@@ -17,6 +17,10 @@ import ch.zhaw.studyflow.domain.studyplan.ModuleAllocation;
 import ch.zhaw.studyflow.domain.studyplan.StudyDay;
 import ch.zhaw.studyflow.domain.studyplan.StudyplanAlgorithm;
 
+/**
+ * Basic implementation of the StudyplanAlgorithm interface.
+ * This class represents the algorithm for creating and allocating study plans.
+ */
 public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
     private static final Logger LOGGER = Logger.getLogger(BasicStudyplanAlgorithm.class.getName());
     private long calendarId;
@@ -32,6 +36,14 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
     private List<ModuleAllocation> moduleAllocations;
     private List<StudyDay> studyDays;
 
+    /**
+     * Constructs a BasicStudyplanAlgorithm with the specified parameters, calendar ID, appointments, and modules.
+     *
+     * @param parameters   the study plan parameters
+     * @param calendarId   the ID of the calendar
+     * @param appointments the list of appointments
+     * @param modules      the list of modules
+     */
     public BasicStudyplanAlgorithm(StudyplanParameters parameters, long calendarId, List<Appointment> appointments, List<Module> modules){ 
         this.calendarId = calendarId;
         this.startDate = parameters.getStartDate();
@@ -47,6 +59,11 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
         this.studyDays = new ArrayList<>();        
     }
 
+    /**
+     * Runs the study plan algorithm to create and allocate study plans.
+     *
+     * @return the list of module allocations
+     */
     @Override
     public List<ModuleAllocation> runAlgorithm() {
         createStudyDays();
@@ -54,11 +71,19 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
         return moduleAllocations;
     }
 
+    /**
+     * Returns the list of study days created by the algorithm.
+     *
+     * @return the list of study days
+     */
     @Override
     public List<StudyDay> getStudyDays() {
         return studyDays;
     }
 
+    /**
+     * Creates study days based on the specified parameters.
+     */
     @Override
     public void createStudyDays(){
         LocalDate currentDate = startDate;
@@ -79,6 +104,9 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
         }
     }
 
+    /**
+     * Allocates modules to the created study days.
+     */
     @Override
     public void allocateModules(){
         calculateModulePercentages();
@@ -96,6 +124,11 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
         }
     }
 
+    /**
+     * Calculates the total number of minutes available for study.
+     *
+     * @return the total number of minutes
+     */
     private int calculateTotalMinutes(){
         int totalMinutes = 0;
         for(StudyDay studyDay : studyDays){
@@ -104,6 +137,9 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
         return totalMinutes;
     }
 
+    /**
+     * Calculates the percentages of study time allocated to each module.
+     */
     private void calculateModulePercentages(){
         long moduleSum = 0;
         Map<Module, Long> moduleInitValues = new HashMap<>();
