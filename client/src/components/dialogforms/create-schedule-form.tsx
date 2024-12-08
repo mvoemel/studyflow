@@ -13,7 +13,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Module } from "@/types";
+import {
+  createStudyplanRequest,
+  CreateStudyplanRequestBody,
+  DayId,
+  DAYS_OF_WEEK,
+} from "@/lib/api";
+import { mutate } from "swr";
 
 const formsSchema = z.object({
   startDate: z.string().min(1, "Start date is required"),
@@ -21,30 +27,20 @@ const formsSchema = z.object({
   daysOfWeek: z.array(z.string()).nonempty("At least one day is required"),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
-  examDates: z.record(z.string(), z.string().min(1, "Exam date is required")),
 });
-
-const daysOfWeek = [
-  { id: "sunday", name: "Sunday" },
-  { id: "monday", name: "Monday" },
-  { id: "tuesday", name: "Tuesday" },
-  { id: "wednesday", name: "Wednesday" },
-  { id: "thursday", name: "Thursday" },
-  { id: "friday", name: "Friday" },
-  { id: "saturday", name: "Saturday" },
-];
 
 type CreateScheduleFormsProps = {
   defaultValues?: Partial<z.infer<typeof formsSchema>>;
   onClose: () => void;
-  modules: Module[];
+  semesterId?: string;
+  settingsId?: string;
 };
 
-// TODO: refactor
 export function CreateScheduleForm({
   defaultValues,
   onClose,
-  modules,
+  semesterId,
+  settingsId,
 }: CreateScheduleFormsProps) {
   const form = useForm<z.infer<typeof formsSchema>>({
     resolver: zodResolver(formsSchema),
@@ -54,21 +50,27 @@ export function CreateScheduleForm({
       daysOfWeek: [], // Ensure this is a non-empty array
       startTime: "",
       endTime: "",
-      examDates: modules.reduce((acc, module) => {
-        acc[module.name] = "";
-        return acc;
-      }, {} as Record<string, string>),
     },
   });
 
-  function onSubmit(values: z.infer<typeof formsSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formsSchema>) {
+    if (!semesterId || !settingsId) return;
+
     onClose();
+
+    const body: CreateStudyplanRequestBody = {
+      settingsId,
+      semesterId,
+      startDate: new Date(values.startDate).toISOString().split("T")[0],
+      endDate: new Date(values.endDate).toISOString().split("T")[0],
+      daysOfWeek: values.daysOfWeek as DayId[],
+      dayStartTime: values.startTime,
+      dayEndTime: values.endTime,
+    };
+
+    await createStudyplanRequest(body);
+    await mutate("semesters");
   }
-  // Debugging...
-  const { errors } = form.formState;
-  console.log("Validation Errors:", errors);
-  console.log("daysOfWeek:", form.watch("daysOfWeek"));
 
   return (
     <Form {...form}>
@@ -111,7 +113,7 @@ export function CreateScheduleForm({
           <FormLabel>Days of the Week</FormLabel>
           <FormControl>
             <div className="grid">
-              {daysOfWeek.map((day) => (
+              {DAYS_OF_WEEK.map((day) => (
                 <label
                   key={day.id}
                   className="inline-flex items-center space-x-2"
@@ -175,27 +177,6 @@ export function CreateScheduleForm({
               </FormItem>
             )}
           />
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold">Exam Dates for Modules</h2>
-          <div className="grid gap-4">
-            {modules.map((module) => (
-              <FormField
-                key={module.id}
-                control={form.control}
-                name={`examDates.${module.name}`}
-                render={({ field }) => (
-                  <FormItem className="flex items-center justify-between">
-                    <FormLabel className="w-1/2">{module.name}</FormLabel>
-                    <FormControl className="w-1/2">
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ))}
-          </div>
         </div>
         <div>
           <Button type="submit">Create Schedule</Button>

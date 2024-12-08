@@ -92,6 +92,15 @@ public class StudentManagerImpl implements StudentManager {
 
     @Override
     public void updateStudent(Student student) {
-        studentDao.update(student);
+        Student studentToUpdate = studentDao.read(student.getId());
+        if (studentToUpdate != null) {
+            studentToUpdate.setFirstname(student.getFirstname());
+            studentToUpdate.setLastname(student.getLastname());
+            studentToUpdate.setEmail(student.getEmail());
+            if (student.getPassword() != null) {
+                studentToUpdate.setPassword(student.getPassword());
+            }
+            studentDao.update(studentToUpdate);
+        }
     }
 }

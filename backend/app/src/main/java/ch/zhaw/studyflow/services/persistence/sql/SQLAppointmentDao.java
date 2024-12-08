@@ -1,12 +1,15 @@
 package ch.zhaw.studyflow.services.persistence.sql;
 
-import ch.zhaw.studyflow.domain.calendar.Appointment;
-import ch.zhaw.studyflow.services.persistence.AppointmentDao;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import ch.zhaw.studyflow.domain.calendar.Appointment;
+import ch.zhaw.studyflow.services.persistence.AppointmentDao;
 
 /**
  * SQL implementation of the AppointmentDao interface.
@@ -107,5 +110,31 @@ public class SQLAppointmentDao implements AppointmentDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public List<Appointment> readAllBy(long calendarId, LocalDate start, LocalDate end) {
+        String sql = "SELECT * FROM appointments WHERE calendar_id = ? AND start_time >= ? AND end_time <= ?";
+        List<Appointment> appointments = new ArrayList<>();
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, calendarId);
+            stmt.setTimestamp(2, java.sql.Timestamp.valueOf(start.atStartOfDay()));
+            stmt.setTimestamp(3, java.sql.Timestamp.valueOf(end.plusDays(1).atStartOfDay()));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    appointments.add(new Appointment(
+                            rs.getLong("id"),
+                            rs.getTimestamp("start_time").toLocalDateTime(),
+                            rs.getTimestamp("end_time").toLocalDateTime(),
+                            rs.getLong("calendar_id"),
+                            rs.getString("title"),
+                            rs.getString("description")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return appointments;
     }
 }
