@@ -9,8 +9,6 @@ import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import ch.zhaw.studyflow.webserver.security.principal.Principal;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +34,7 @@ public class AuthMockHelpers {
             return request.createResponse().setStatusCode(HttpStatusCode.UNAUTHORIZED);
         });
 
-        when(authHandler.handleIfUnauthenticated(any(), any(), any())).then(invocation -> {
+        when(authHandler.handleRequest(any(), any(), any())).then(invocation -> {
             Function<Principal, HttpResponse> unauthenticatedHandler = invocation.getArgument(2);
             return unauthenticatedHandler.apply(principal);
         });
@@ -55,7 +53,7 @@ public class AuthMockHelpers {
             return handler.apply(principal);
         });
 
-        when(authHandler.handleIfUnauthenticated(any(), any(), any())).then(a -> {
+        when(authHandler.handleRequest(any(), any(), any())).then(a -> {
             Function<Principal, HttpResponse> handler = a.getArgument(1);
             return handler.apply(principal);
         });
