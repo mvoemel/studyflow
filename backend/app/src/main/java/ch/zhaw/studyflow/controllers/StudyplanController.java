@@ -16,6 +16,7 @@ import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 
+@Route(path="api/studyplan")
 public class StudyplanController {
     private static Logger LOGGER = Logger.getLogger(StudyplanController.class.getName());
 
@@ -39,7 +40,6 @@ public class StudyplanController {
      * @param context the request context
      * @return the HTTP response
      */
-    @Route(path = "")
     @Endpoint(method = HttpMethod.POST)
     public HttpResponse generateStudyplan(RequestContext context) {
         final HttpRequest request = context.getRequest();
