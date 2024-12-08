@@ -98,7 +98,7 @@ const SemesterSection = ({ semester }: { semester: GradesViewSemester }) => {
                 "text-red-500": grade >= 1 && grade < 4,
               })}
             >
-              {grade === 0 ? "-" : grade.toFixed(2)}
+              {grade === 0 || Number.isNaN(grade) ? "-" : grade.toFixed(2)}
             </span>
           </span>
         </div>
@@ -136,7 +136,7 @@ const ModuleSection = ({ module }: { module: GradesViewModule }) => {
         <span className="mr-4 text-muted-foreground text-xs">
           {module.moduleEcts}
         </span>
-        <span>{grade === 0 ? "-" : grade.toFixed(2)}</span>
+        <span>{grade === 0 || Number.isNaN(grade) ? "-" : grade.toFixed(2)}</span>
         <Button
           className="p-0"
           variant="ghost"
