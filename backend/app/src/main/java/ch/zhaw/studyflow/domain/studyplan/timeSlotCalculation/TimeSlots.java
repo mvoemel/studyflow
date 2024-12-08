@@ -89,6 +89,10 @@ public class TimeSlots {
         int startSlot = Math.max((startMinutes - dayStartMinutes) / slotSize, 0);
         int endSlot = Math.min(((endMinutes - dayStartMinutes) / slotSize), timeSlots.length);
 
+        if (endMinutes%slotSize != 0) {
+            endSlot++;
+        }
+
         if (startSlot >= endSlot) {
             timeSlots[startSlot] = content;
             remainingMinutes -= slotSize;
