@@ -1,13 +1,15 @@
 package ch.zhaw.studyflow.domain.studyplan;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.LocalTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import ch.zhaw.studyflow.domain.studyplan.timeSlotCalculation.TimeSlotValue;
 import ch.zhaw.studyflow.domain.studyplan.timeSlotCalculation.TimeSlots;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 class TimeSlotsTest {
 
@@ -42,7 +44,7 @@ class TimeSlotsTest {
     @Test
     void testGetFreeMinutesAfter() {
         timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(9, 0), LocalTime.of(10, 0));
-        assertEquals(540, timeSlots.getFreeMinutesAfter(LocalTime.of(8, 0)), "There should be 540 free minutes after 08:00.");
+        assertEquals(60, timeSlots.getFreeMinutesAfter(LocalTime.of(8, 0)), "There should be 60 free minutes after 08:00.");
     }
 
     @Test
