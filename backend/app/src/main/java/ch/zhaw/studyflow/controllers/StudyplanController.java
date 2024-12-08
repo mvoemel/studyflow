@@ -41,32 +41,30 @@ public class StudyplanController {
      */
     @Route(path = "")
     @Endpoint(method = HttpMethod.POST)
-    public HttpResponse addStudyplan(RequestContext context) {
-        final HttpRequest request = context.getRequest();
-        //TODO: Implement the addStudyplan method
-        return null;
-    }
-
-    @Route(path = "")
-    @Endpoint(method = HttpMethod.POST)
     public HttpResponse generateStudyplan(RequestContext context) {
         final HttpRequest request = context.getRequest();
 
         return authenticationHandler.handleIfAuthenticated(request, principal -> {
-                final HttpResponse response = request.createResponse()
+            final HttpResponse response = request.createResponse()
                     .setStatusCode(HttpStatusCode.BAD_REQUEST);
-
+            if (request.getRequestBody().isPresent()) {
                 final Optional<Long> userId = principal.getClaim(CommonClaims.USER_ID);
                 
                 final Optional<StudyplanParameters> parameters = request.getRequestBody().flatMap(body -> body.tryRead(StudyplanParameters.class));
 
                 if (parameters.isPresent() && userId.isPresent()) {
-                    //studyplanManager.createStudyplan(...);
-                    response.setResponseBody(JsonContent.writableOf(null))
-                            .setStatusCode(HttpStatusCode.OK);
+                    Long calendarId = studyplanManager.createStudyplan(parameters.get(),  userId.get());
+                    if (calendarId != null) {
+                        response.setResponseBody(JsonContent.writableOf(calendarId))
+                                .setStatusCode(HttpStatusCode.CREATED);
+                    } else {
+                        response.setResponseBody(JsonContent.writableOf(null))
+                                .setStatusCode(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                    }
                 }
-
+            }
                 return response;
-        });
+        });    
     }
 }
+

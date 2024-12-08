@@ -32,7 +32,7 @@ public class StudyplanManagerImpl implements StudyplanManager {
     
     //future possibility: add parameter "algorithm" to create different studyplans :)
     @Override
-    public Long createStudyplan(StudyplanParameters parameters, ServiceCollection serviceCollection, long userId){  
+    public Long createStudyplan(StudyplanParameters parameters, long userId){  
         //create studyplanGenerator which handles the creation of the studyplan
         Callable<Long> task  = () -> {
             StudyplanGenerator studyplanGenerator = new StudyplanGeneratorImpl(parameters, serviceCollection, userId);
