@@ -18,14 +18,17 @@ import { useEffect } from "react";
 const appointmentFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  startDateTime: z.string(),
-  endDateTime: z.string(),
+  startDateTime: z.string().min(1, "Start date is required"),
+  endDateTime: z.string().min(1, "End date is required"),
   // start: z
   //   .date()
   //   .refine((date) => date > new Date(), "Start date must be in the future"),
   // // TODO: make check for start date < end date
   // end: z.date(),
-});
+}).refine((date) => date.startDateTime < date.endDateTime, {
+    message: "Start date must be before end date",
+    path: ["startDateTime", "endDateTime"],
+    });
 
 export type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
 
@@ -45,8 +48,8 @@ const AppointmentForm = ({
     defaultValues: initialData || {
       title: "",
       description: "",
-      startDateTime: new Date().toLocaleDateString(),
-      endDateTime: new Date().toLocaleDateString(),
+      startDateTime: "",
+      endDateTime: "",
     },
   });
 
