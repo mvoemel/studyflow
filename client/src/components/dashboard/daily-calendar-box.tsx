@@ -11,14 +11,13 @@ import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { Skeleton } from "../ui/skeleton";
-import { useEvents } from "@/hooks/use-events";
 
 type DailyCalendarBoxProps = {
   className?: string;
 };
 
 const DailyCalendarBox = ({ className }: DailyCalendarBoxProps) => {
-  const { events } = useEvents();
+  const events = false; // TODO: remove
 
   if (!events) return <DailyCalendarBoxSkeleton className={className} />;
 
@@ -33,6 +32,7 @@ const DailyCalendarBox = ({ className }: DailyCalendarBoxProps) => {
           initialView="timeGridDay"
           weekends={true}
           nowIndicator={true}
+          allDaySlot={false}
           editable={false}
           events={events}
           slotMinTime={"07:00:00"}

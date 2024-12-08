@@ -13,7 +13,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Module } from "@/types";
 
 const formsSchema = z.object({
   startDate: z.string().min(1, "Start date is required"),
@@ -21,7 +20,6 @@ const formsSchema = z.object({
   daysOfWeek: z.array(z.string()).nonempty("At least one day is required"),
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().min(1, "End time is required"),
-  examDates: z.record(z.string(), z.string().min(1, "Exam date is required")),
 });
 
 const daysOfWeek = [
@@ -37,14 +35,11 @@ const daysOfWeek = [
 type CreateScheduleFormsProps = {
   defaultValues?: Partial<z.infer<typeof formsSchema>>;
   onClose: () => void;
-  modules: Module[];
 };
 
-// TODO: refactor
 export function CreateScheduleForm({
   defaultValues,
   onClose,
-  modules,
 }: CreateScheduleFormsProps) {
   const form = useForm<z.infer<typeof formsSchema>>({
     resolver: zodResolver(formsSchema),
@@ -54,10 +49,6 @@ export function CreateScheduleForm({
       daysOfWeek: [], // Ensure this is a non-empty array
       startTime: "",
       endTime: "",
-      examDates: modules.reduce((acc, module) => {
-        acc[module.name] = "";
-        return acc;
-      }, {} as Record<string, string>),
     },
   });
 
@@ -175,27 +166,6 @@ export function CreateScheduleForm({
               </FormItem>
             )}
           />
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold">Exam Dates for Modules</h2>
-          <div className="grid gap-4">
-            {modules.map((module) => (
-              <FormField
-                key={module.id}
-                control={form.control}
-                name={`examDates.${module.name}`}
-                render={({ field }) => (
-                  <FormItem className="flex items-center justify-between">
-                    <FormLabel className="w-1/2">{module.name}</FormLabel>
-                    <FormControl className="w-1/2">
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ))}
-          </div>
         </div>
         <div>
           <Button type="submit">Create Schedule</Button>
