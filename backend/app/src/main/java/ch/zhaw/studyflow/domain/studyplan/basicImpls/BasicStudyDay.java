@@ -218,6 +218,9 @@ public class BasicStudyDay implements StudyDay {
         //create studyAllocations for remaining time slots
         while (timeSlots.getRemainingMinutes() >= 30) {
             LocalTime start = timeSlots.getEarliestFree();
+            if (start.isAfter(endTime)) {
+                break;
+            }
             System.out.println("Start: " + start);
             int availableMinutes = timeSlots.getFreeMinutesAfter(startTime);
             System.out.println("Available minutes: " + availableMinutes);

@@ -7,6 +7,8 @@ import java.time.LocalTime;
  * Each time slot has a fixed size and can be allocated with a specific value.
  */
 public class TimeSlots {
+    private LocalTime dayStartTime;
+    private LocalTime dayEndTime;
     private TimeSlotValue[] timeSlots;
     private int remainingMinutes;
     private int slotSize;
@@ -15,14 +17,16 @@ public class TimeSlots {
     /**
      * Constructs a TimeSlots object with the specified start time, end time, and slot size.
      *
-     * @param startTime the start time of the time slots
-     * @param endTime   the end time of the time slots
+     * @param dayStartTime the start time of the time slots
+     * @param dayEndTime   the end time of the time slots
      * @param slotSize  the size of each time slot in minutes
      */
-    public TimeSlots(LocalTime startTime, LocalTime endTime, int slotSize) {
+    public TimeSlots(LocalTime dayStartTime, LocalTime dayEndTime, int slotSize) {
+        this.dayStartTime = dayStartTime;
+        this.dayEndTime = dayEndTime;
         this.slotSize = slotSize;
-        int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
-        int endMinutes = endTime.getHour() * 60 + endTime.getMinute();
+        int startMinutes = dayStartTime.getHour() * 60 + dayStartTime.getMinute();
+        int endMinutes = dayEndTime.getHour() * 60 + dayEndTime.getMinute();
         int totalMinutes = endMinutes - startMinutes;
         this.slotCount = totalMinutes / slotSize;
         this.timeSlots = new TimeSlotValue[slotCount];
@@ -77,17 +81,26 @@ public class TimeSlots {
      * @param endTime   the end time of the range to set
      */
     public void setTimeSlot(TimeSlotValue content, LocalTime startTime, LocalTime endTime) {
+        int adjust = 1;
+        if (startTime.equals(endTime)) adjust = 0;
+
+        int dayStartMinutes = dayStartTime.getHour() * 60 + dayStartTime.getMinute();
         int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
         int endMinutes = endTime.getHour() * 60 + endTime.getMinute();
 
-        int startSlot = Math.max((startMinutes - (8 * 60)) / slotSize, 0);
-        int endSlot = Math.min((endMinutes - (8 * 60)) / slotSize, timeSlots.length);
+        int startSlot = Math.max((startMinutes - dayStartMinutes) / slotSize, 0);
+        int endSlot = Math.min(((endMinutes - dayStartMinutes) / slotSize) - adjust, timeSlots.length);
 
-        for (int i = startSlot; i < endSlot; i++) {
-            timeSlots[i] = content;
+        if (startSlot >= endSlot) {
+            timeSlots[startSlot] = content;
+            remainingMinutes -= slotSize;
+        } else {
+            for (int i = startSlot; i < endSlot; i++) {
+                timeSlots[i] = content;
+                remainingMinutes -= slotSize;
+            }
         }
-
-        remainingMinutes -= (endMinutes - startMinutes);
+        
     }
 
     /**
@@ -97,7 +110,8 @@ public class TimeSlots {
      * @return the start time of the slot
      */
     public LocalTime getStartTime(int slot) {
-        return LocalTime.of(slot * slotSize / 60, slot * slotSize % 60);
+        int minutesOffset = slot * slotSize; // Minuten relativ zu Startzeit 08:00
+        return dayStartTime.plusMinutes(minutesOffset);
     }
 
     /**
@@ -111,8 +125,8 @@ public class TimeSlots {
         int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
         int endMinutes = endTime.getHour() * 60 + endTime.getMinute();
 
-        int startSlot = Math.max((startMinutes - (8 * 60)) / slotSize, 0);
-        int endSlot = Math.min((endMinutes - (8 * 60)) / slotSize, timeSlots.length);
+        int startSlot = Math.max((startMinutes - dayStartTime.getHour() * 60) / slotSize, 0);
+        int endSlot = Math.min((endMinutes - dayStartTime.getHour() * 60) / slotSize, timeSlots.length);
 
         for (int i = startSlot; i < endSlot; i++) {
             if (timeSlots[i] != TimeSlotValue.FREE) {
@@ -132,10 +146,10 @@ public class TimeSlots {
         for (int i = 0; i < timeSlots.length; i++) {
             if (timeSlots[i] == TimeSlotValue.FREE) {
                 int minutesOffset = i * slotSize; // Minuten relativ zu Startzeit 08:00
-                return LocalTime.of(8, 0).plusMinutes(minutesOffset);
+                return dayStartTime.plusMinutes(minutesOffset);
             }
         }
-        return null; // Falls kein freier Slot vorhanden ist
+        return dayEndTime.plusMinutes(slotSize); // Falls kein freier Slot vorhanden ist
     }
 
     /**
@@ -146,7 +160,7 @@ public class TimeSlots {
      */
     public int getFreeMinutesAfter(LocalTime startTime) {
         int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
-        int startMinutesOffset = startMinutes - (8 * 60); // Offset relativ zu 08:00
+        int startMinutesOffset = startMinutes - dayStartTime.getHour() * 60;
         int startSlot = startMinutesOffset / slotSize;
 
         int freeMinutes = 0;
