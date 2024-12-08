@@ -1,4 +1,3 @@
-// GradeDao.java
 package ch.zhaw.studyflow.services.persistence;
 
 import ch.zhaw.studyflow.domain.grade.Grade;

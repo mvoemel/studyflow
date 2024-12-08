@@ -125,11 +125,16 @@ class GradeControllerTest {
                 new Grade(1L, "Test 1", 0.25, 6, 1L),
                 new Grade(1L, "Test 2", 0.75, 4.5, 1L)
         );
+        when(semesterManager.getSemestersForDegree(1L)).thenReturn(
+                List.of(new Semester(1L, "Semester 1", "", 1L, 0, -1L))
+        );
+        when(moduleManager.getModulesBySemester(1L)).thenReturn(
+                List.of(new Module(1L, "Module 1"))
+        );
         when(gradeManager.getGradesByModule(1L)).thenReturn(grades);
 
         final HttpResponse response = gradeController.getGradesAveragesByDegreeId(context);
 
-        verify(gradeManager).getGradesByModule(1);
         verify(response).setStatusCode(HttpStatusCode.OK);
 
         final ArgumentCaptor<WritableBodyContent> bodyContentArgumentCaptor = ArgumentCaptor.forClass(WritableBodyContent.class);

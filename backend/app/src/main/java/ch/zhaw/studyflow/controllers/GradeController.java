@@ -17,6 +17,7 @@ import ch.zhaw.studyflow.webserver.http.contents.JsonContent;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -129,14 +130,28 @@ public class GradeController {
 
             context.getUrlCaptures().get("degreeId").flatMap(LongUtils::tryParseLong)
                     .ifPresent(degreeId -> {
-                        final List<Grade> grades = gradeManager.getGradesByModule(degreeId);
-                        double denominator = 0;
-                        double numerator = 0;
-                        for (Grade grade : grades) {
-                            numerator += grade.getPercentage() * grade.getValue();
-                            denominator += grade.getPercentage();
+                        List<Double> moduleAverageGrades = new ArrayList<>();
+
+                        for (Semester semester : semesterManager.getSemestersForDegree(degreeId)) {
+                            for (Module module : moduleManager.getModulesBySemester(semester.getId())) {
+                                final List<Grade> grades = gradeManager.getGradesByModule(module.getId());
+
+                                double denominator = 0;
+                                double numerator = 0;
+                                for (Grade grade : grades) {
+                                    numerator += grade.getPercentage() * grade.getValue();
+                                    denominator += grade.getPercentage();
+                                }
+                                moduleAverageGrades.add(numerator / denominator);
+                            }
                         }
-                        response.setResponseBody(JsonContent.writableOf(Map.of("average", numerator / denominator)))
+
+                        response.setResponseBody(
+                                JsonContent.writableOf(
+                                        Map.of(
+                                                "average",
+                                                moduleAverageGrades.stream().mapToDouble(Double::doubleValue).average().orElse(0))
+                                ))
                                 .setStatusCode(HttpStatusCode.OK);
                     });
             return response;
