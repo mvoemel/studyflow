@@ -92,6 +92,15 @@ public class ModuleManagerImpl implements ModuleManager {
      * @param module the module to update
      */
     public void update(Module module) {
-        moduleDao.update(module);
+        Module moduleToUpdate = moduleDao.read(module.getId());
+        if (moduleToUpdate != null) {
+            moduleToUpdate.setName(module.getName());
+            moduleToUpdate.setDescription(module.getDescription());
+            moduleToUpdate.setECTS(module.getECTS());
+            moduleToUpdate.setComplexity(module.getComplexity());
+            moduleToUpdate.setTime(module.getTime());
+            moduleToUpdate.setUnderstanding(module.getUnderstanding());
+            moduleDao.update(moduleToUpdate);
+        }
     }
 }

@@ -60,10 +60,12 @@ public class DegreeManagerImpl implements DegreeManager {
         }
 
         Degree degreeFromDatabase = degreeDao.read(degree.getId());
-        degreeFromDatabase.setName(degree.getName());
-        degreeFromDatabase.setDescription(degree.getDescription());
-        degreeFromDatabase.setActiveSemesterId(degree.getActiveSemesterId());
-        degreeDao.update(degree);
+        if (degreeFromDatabase != null) {
+            degreeFromDatabase.setName(degree.getName());
+            degreeFromDatabase.setDescription(degree.getDescription());
+            degreeFromDatabase.setActiveSemesterId(degree.getActiveSemesterId());
+            degreeDao.update(degree);
+        }
     }
 
     @Override
