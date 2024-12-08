@@ -52,7 +52,7 @@ public class InMemoryCalendarDao implements CalendarDao {
 
 
     @Override
-    public List<Calendar> getAllByUserId(long userId) {
-        return new ArrayList<>(userCalendars.getOrDefault(userId, new HashMap<>()).values());
+    public List<Calendar> readAllByStudent(long studentId) {
+        return new ArrayList<>(userCalendars.getOrDefault(studentId, new HashMap<>()).values());
     }
 }

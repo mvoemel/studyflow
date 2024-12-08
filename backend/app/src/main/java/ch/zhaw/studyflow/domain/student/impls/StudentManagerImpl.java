@@ -28,7 +28,7 @@ public class StudentManagerImpl implements StudentManager {
 
     @Override
     public Optional<Student> login(String email, String password) {
-        Student student = studentDao.readStudentByEmail(email);
+        Student student = studentDao.readByEMail(email);
 
         Optional<Student> result = Optional.empty();
         if (student != null
@@ -40,12 +40,12 @@ public class StudentManagerImpl implements StudentManager {
 
     @Override
     public Optional<Student> getStudent(long studentId) {
-        return Optional.ofNullable(studentDao.readStudentById(studentId));
+        return Optional.ofNullable(studentDao.read(studentId));
     }
 
     @Override
     public Optional<Student> getStudentByEmail(String email) {
-        return Optional.ofNullable(studentDao.readStudentByEmail(email));
+        return Optional.ofNullable(studentDao.readByEMail(email));
     }
 
     @Override
@@ -72,7 +72,7 @@ public class StudentManagerImpl implements StudentManager {
     @Override
     public Optional<Student> register(Student student) {
         Optional<Student> result;
-        if (studentDao.readStudentByEmail(student.getEmail()) != null) {
+        if (studentDao.readByEMail(student.getEmail()) != null) {
             result = Optional.empty();
         } else {
             studentDao.create(student);

@@ -61,7 +61,7 @@ class StudentManagerTest {
     void testLogin() {
         final Student student = makeFakeStudent();
 
-        when(studentDao.readStudentByEmail("test@test.test")).thenReturn(student);
+        when(studentDao.readByEMail("test@test.test")).thenReturn(student);
 
         final Optional<Student> loginResult = studentManager.login(student.getEmail(), "password");
 
@@ -73,7 +73,7 @@ class StudentManagerTest {
     void testInvalidLogin() {
         final Student student = makeFakeStudent();
 
-        when(studentDao.readStudentByEmail("test@test.test")).thenReturn(student);
+        when(studentDao.readByEMail("test@test.test")).thenReturn(student);
 
         final Optional<Student> loginResult = studentManager.login(student.getEmail(), "wrongPassword");
 
@@ -85,26 +85,26 @@ class StudentManagerTest {
         final Student student = makeFakeStudent();
         student.setId(1);
 
-        when(studentDao.readStudentById(1)).thenReturn(student);
+        when(studentDao.read(1)).thenReturn(student);
 
         final Optional<Student> studentResult = studentManager.getStudent(1);
 
         assertTrue(studentResult.isPresent());
         assertEquals(student, studentResult.get());
-        verify(studentDao).readStudentById(1);
+        verify(studentDao).read(1);
     }
 
     @Test
     void testGetStudentByEmail() {
         final Student student = makeFakeStudent();
 
-        when(studentDao.readStudentByEmail(student.getEmail())).thenReturn(student);
+        when(studentDao.readByEMail(student.getEmail())).thenReturn(student);
 
         final Optional<Student> studentResult = studentManager.getStudentByEmail(student.getEmail());
 
         assertTrue(studentResult.isPresent());
         assertEquals(student, studentResult.get());
-        verify(studentDao).readStudentByEmail(student.getEmail());
+        verify(studentDao).readByEMail(student.getEmail());
     }
 
     @Test

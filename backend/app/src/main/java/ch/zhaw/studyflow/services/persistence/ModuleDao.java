@@ -7,13 +7,13 @@ import java.util.Optional;
 
 public interface ModuleDao {
 
-    void create(Module module,long semesterId, long degreeId, long userId);
+    void create(Module module, long semesterId, long degreeId, long studentId);
 
     ch.zhaw.studyflow.domain.curriculum.Module read(long moduleId);
 
     void delete(long id);
 
-    ch.zhaw.studyflow.domain.curriculum.Module update(Module module);
+    Module update(Module module);
 
     List<Module> getModules(long userId);
 

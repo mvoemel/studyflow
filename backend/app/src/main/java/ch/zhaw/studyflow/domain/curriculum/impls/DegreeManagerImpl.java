@@ -7,7 +7,6 @@ import ch.zhaw.studyflow.services.persistence.DegreeDao;
 import ch.zhaw.studyflow.services.persistence.SemesterDao;
 import ch.zhaw.studyflow.utils.Validation;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Objects;
 
@@ -80,7 +79,7 @@ public class DegreeManagerImpl implements DegreeManager {
 
         Degree degree = degreeDao.read(degreeId);
         if (degree != null) {
-            semesterDao.getSemestersForDegree(degreeId).forEach(semester -> semesterDao.deleteSemester(semester.getId()));
+            semesterDao.readAllByDegree(degreeId).forEach(semester -> semesterDao.delete(semester.getId()));
             degreeDao.delete(degreeId);
 
             List<Degree> degreesForStudent = getDegreesForStudent(degree.getOwnerId());

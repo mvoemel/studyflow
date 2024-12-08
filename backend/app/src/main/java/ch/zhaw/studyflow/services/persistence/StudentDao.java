@@ -29,12 +29,12 @@ public interface StudentDao {
      * @param studentId The id of the student
      * @return the student, or null if not found
      */
-    Student readStudentById(long studentId);
+    Student read(long studentId);
 
     /**
      * Reads a specific student by email.
      * @param email The email of the student
      * @return the student, or null if not found
      */
-    Student readStudentByEmail(String email);
+    Student readByEMail(String email);
 }

@@ -7,7 +7,7 @@ import java.util.List;
 public interface DegreeDao {
     void create(Degree degree);
     Degree read(long degreeId);
-    List<Degree> readAllByStudent(long degreeId);
+    List<Degree> readAllByStudent(long studentId);
     void update(Degree degree);
-    void delete(long id);
+    void delete(long degreeId);
 }

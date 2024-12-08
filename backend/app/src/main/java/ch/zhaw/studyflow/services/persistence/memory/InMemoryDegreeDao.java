@@ -37,11 +37,11 @@ public class InMemoryDegreeDao implements DegreeDao {
     }
 
     @Override
-    public List<Degree> readAllByStudent(long degreeId) {
-        if (degreeId < 0)
+    public List<Degree> readAllByStudent(long studentId) {
+        if (studentId < 0)
             return List.of();
         return degrees.values()
-                .stream().filter(d -> d.getOwnerId() == degreeId)
+                .stream().filter(d -> d.getOwnerId() == studentId)
                 .toList();
     }
 
@@ -57,7 +57,7 @@ public class InMemoryDegreeDao implements DegreeDao {
     }
 
     @Override
-    public void delete(long id) {
-        degrees.remove(id);
+    public void delete(long degreeId) {
+        degrees.remove(degreeId);
     }
 }

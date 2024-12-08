@@ -28,26 +28,26 @@ public class SemesterManagerImpl implements SemesterManager {
 
     @Override
     public List<Semester> getSemestersForStudent(long userId) {
-        return semesterDao.getSemestersForStudent(userId);
+        return semesterDao.readAllByStudent(userId);
     }
 
     @Override
     public List<Semester> getSemestersForDegree(long degreeId) {
-        return semesterDao.getSemestersForDegree(degreeId);
+        return semesterDao.readAllByDegree(degreeId);
     }
 
     @Override
     public Optional<Semester> getSemesterById(long semesterId) {
-        return semesterDao.getSemesterById(semesterId);
+        return semesterDao.read(semesterId);
     }
 
     @Override
     public void updateSemester(Semester semester) {
-        semesterDao.getSemesterById(semester.getId())
+        semesterDao.read(semester.getId())
                 .ifPresent(semesterToUpdate -> {
                     semesterToUpdate.setName(semester.getName());
                     semesterToUpdate.setDescription(semester.getDescription());
-                    this.semesterDao.updateSemester(semesterToUpdate);
+                    this.semesterDao.update(semesterToUpdate);
                 }
         );
     }
@@ -60,7 +60,7 @@ public class SemesterManagerImpl implements SemesterManager {
 
         final Optional<Semester> semester = getSemesterById(semesterId);
         if (semester.isPresent()) {
-            semesterDao.deleteSemester(semesterId);
+            semesterDao.delete(semesterId);
             moduleDao.readBySemesterId(semesterId).forEach(module -> moduleDao.delete(module.getId()));
 
             Degree degree = degreeManager.getDegree(semester.get().getDegreeId());

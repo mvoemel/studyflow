@@ -36,12 +36,12 @@ public class InMemoryStudentDao implements StudentDao {
     }
 
     @Override
-    public Student readStudentById(long studentId) {
+    public Student read(long studentId) {
         return studentsById.get(studentId);
     }
 
     @Override
-    public Student readStudentByEmail(String email) {
+    public Student readByEMail(String email) {
         return studentsById.values().stream()
                 .filter(student -> student.getEmail().equals(email))
                 .findFirst()
