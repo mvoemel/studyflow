@@ -28,8 +28,16 @@ import { z } from "zod";
 import {useDegrees} from "@/hooks/use-degree";
 import {useParams} from "next/navigation";
 import {awaitTimeout} from "@/app/api-old/_utils";
-import {deleteDegreeRequest} from "@/lib/api";
+import {deleteDegreeRequest, meRequest} from "@/lib/api";
 import { useRouter } from "next/navigation";
+import {
+    AlertDialog, AlertDialogAction, AlertDialogCancel,
+    AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
+import {Trash2} from "lucide-react";
 
 const degreePanelSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters long"),
@@ -53,6 +61,8 @@ const router = useRouter();
       } catch (err) {
           toast.error("Failed to delete degree!");
       } finally {
+          await meRequest();
+
           router.push("/dashboard");
       }
   }
@@ -149,10 +159,39 @@ const router = useRouter();
                 />
               </CardContent>
               <CardFooter className="border-t px-6 py-4 flex justify-end gap-4">
-                  <Button variant="destructive" onClick={(event) => {
-                      event.preventDefault();
-                      handleDeleteDegree();
-                  }} >Delete</Button>
+                  <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                          <Button
+                              className="p-0"
+                              variant="destructive"
+                              size="icon"
+                              type="button"
+                          >
+                              <Trash2 className="h-4" />
+                          </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                          <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                  Are you sure you want to delete this module?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                  This action cannot be undone.
+                              </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                  onClick={(e) => {
+                                      e.preventDefault();
+                                      handleDeleteDegree();
+                                  }}
+                              >
+                                  Continue
+                              </AlertDialogAction>
+                          </AlertDialogFooter>
+                      </AlertDialogContent>
+                  </AlertDialog>
                   <Button type="submit">Save</Button>
               </CardFooter>
             </Card>
