@@ -65,9 +65,14 @@ public class StudentController {
                                                 if (registration.getPassword() != null) {
                                                     student.setPassword(registration.getPassword());
                                                 }
-                                                studentManager.updateStudent(student);
-                                                response.setResponseBody(JsonContent.writableOf(student))
-                                                        .setStatusCode(HttpStatusCode.OK);
+                                                try {
+                                                    studentManager.updateStudent(student);
+                                                    response.setResponseBody(JsonContent.writableOf(student))
+                                                            .setStatusCode(HttpStatusCode.OK);
+                                                } catch (IllegalArgumentException e) {
+                                                    response.setStatusCode(HttpStatusCode.CONFLICT);
+                                                }
+
                                             },
                                             () -> response.setStatusCode(HttpStatusCode.NOT_FOUND)
                                     );
