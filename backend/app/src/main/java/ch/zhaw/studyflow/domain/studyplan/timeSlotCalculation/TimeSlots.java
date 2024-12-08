@@ -111,7 +111,7 @@ public class TimeSlots {
         int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
         int endMinutes = endTime.getHour() * 60 + endTime.getMinute();
 
-        int startSlot = (startMinutes - (8 * 60)) / slotSize;
+        int startSlot = Math.max((startMinutes - (8 * 60)) / slotSize, 0);
         int endSlot = Math.min((endMinutes - (8 * 60)) / slotSize, timeSlots.length);
 
         for (int i = startSlot; i < endSlot; i++) {
@@ -151,13 +151,11 @@ public class TimeSlots {
 
         int freeMinutes = 0;
 
-        // Iteriere durch alle Slots ab dem Startslot
-        System.out.println("StartSlot: " + startSlot);
-
         for (int i = startSlot; i < timeSlots.length; i++) {
-            System.out.println("Checking Slot " + i + ": " + timeSlots[i]);
             if (timeSlots[i] == TimeSlotValue.FREE) {
                 freeMinutes += slotSize; // Freie Minuten summieren
+            } else {
+                break; // Abbrechen, sobald ein belegter Slot erreicht wird
             }
         }
 
