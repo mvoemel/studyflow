@@ -1,14 +1,15 @@
 package ch.zhaw.studyflow.domain.studyplan.basicImpls;
 
-import ch.zhaw.studyflow.domain.calendar.Appointment;
-import ch.zhaw.studyflow.domain.studyplan.StudyAllocation;
-import ch.zhaw.studyflow.domain.studyplan.StudyDay;
-import ch.zhaw.studyflow.domain.studyplan.timeSlotCalculation.TimeSlots;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import ch.zhaw.studyflow.domain.calendar.Appointment;
+import ch.zhaw.studyflow.domain.studyplan.StudyAllocation;
+import ch.zhaw.studyflow.domain.studyplan.StudyDay;
+import ch.zhaw.studyflow.domain.studyplan.timeSlotCalculation.TimeSlotValue;
+import ch.zhaw.studyflow.domain.studyplan.timeSlotCalculation.TimeSlots;
 
 /**
  * Basic implementation of the StudyDay interface.
@@ -35,13 +36,8 @@ public class BasicStudyDay implements StudyDay {
     private long minutes;
     private List<Appointment> appointments;
     private TimeSlots timeSlots;
-<<<<<<< Updated upstream
-    private final int slotSize = 5;
-    private List<StudyAllocation> studyAllocations;
-=======
     
     private List<StudyAllocation> studyAllocations; 
->>>>>>> Stashed changes
 
     /**
      * Constructs a BasicStudyDay with the specified date, start time, and end time.
@@ -56,6 +52,7 @@ public class BasicStudyDay implements StudyDay {
         this.endTime = endTime;
         this.timeSlots = new TimeSlots(startTime, endTime, SLOT_SIZE);
         this.studyAllocations = new ArrayList<>();
+        this.appointments = new ArrayList<>();
     }
 
     /**
@@ -126,6 +123,7 @@ public class BasicStudyDay implements StudyDay {
      */
     @Override
     public void removeAppointment(Appointment appointment) {
+        if (appointments.contains(appointment))
         appointments.remove(appointment);
     }
 
@@ -156,19 +154,13 @@ public class BasicStudyDay implements StudyDay {
      */
     @Override
     public void removeStudyAllocation(StudyAllocation studyAllocation) {
+        if (studyAllocations.contains(studyAllocation))
         studyAllocations.remove(studyAllocation);
     }
 
     /**
      * Calculates the study allocations for this study day based on the available time slots.
-     */
-    @Override
-<<<<<<< Updated upstream
-    public void calculateStudyAllocations() {
-        // Implementation details...
-=======
-    public void calculateStudyAllocations() {         
-        /*Process:
+     * Process:
         1. Using startTime and endTime create an array of time slots (e.g. 5 minutes each)
         2. Check if there are appointments between start and end time, if yes add a break of 15 minutes before and after the appointment and mark the time slots as taken 
         3. Standard lunch break: 60 minutes between 11:30 and 14:30, ideally in the middle of the day
@@ -176,7 +168,10 @@ public class BasicStudyDay implements StudyDay {
         - if any appointments are clash with the lunch break, move the lunch break to a different time (right before or after the appointment, such that it is as close to intended time as possible, only 45 minutes)
         - if day starts after 12:00 or ends before 14:00, or total time of studyDay <4h reduce lunch break to 30 minutes and place in middle of day (unless clashes with appointment, then place before or after and reduce to 15 minutes)
         4. Create studyAllocations for remaining time slots
-        */
+     */
+    @Override
+    public void calculateStudyAllocations() {         
+        
         
         //mark appointments in TimeSlots
         for (Appointment appointment : appointments) {
@@ -184,7 +179,6 @@ public class BasicStudyDay implements StudyDay {
             timeSlots.setTimeSlot(TimeSlotValue.BREAK, appointment.getStartTime().toLocalTime().minusMinutes(15), appointment.getStartTime().toLocalTime());
         }
         
-
         //calculate lunch break
         int lunchBreak = 60;
         LocalTime midDay = timeSlots.getStartTime(timeSlots.getSlotCount() / 2);
@@ -244,7 +238,6 @@ public class BasicStudyDay implements StudyDay {
             }
         }
 
->>>>>>> Stashed changes
     }
 
     /**
