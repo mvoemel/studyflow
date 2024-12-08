@@ -133,12 +133,12 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
      *
      * @return the total number of minutes
      */
-    private int calculateTotalAvailableMinutes(){
+    private void calculateTotalAvailableMinutes(){
         int totalMinutes = 0;
         for(StudyDay studyDay : studyDays){
             totalMinutes += studyDay.getMinutes();
         }
-        return totalMinutes;
+        this.totalAvailableMinutes = totalMinutes;
     }
 
     /**
