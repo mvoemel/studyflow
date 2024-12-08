@@ -74,35 +74,6 @@ public class ModuleControllerTest {
     }
 
     @Test
-    void testAddModuleConflict() {
-        configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
-
-        final ModuleDeo module = new ModuleDeo();
-        module.setId(-1);
-        module.setName("Test");
-        module.setEcts(4);
-        module.setDegreeId(0);
-        module.setSemesterId(1);
-        module.setDescription("Test");
-        module.setSemesterId(1);
-        module.setComplexity(4);
-        module.setUnderstanding(4);
-        module.setTime(4);
-
-        when(moduleManager.getModuleByName(module.getName())).thenReturn(Optional.of(new Module()));
-
-        final HttpRequest request = makeHttpRequest(makeJsonRequestBody(ModuleDeo.class, module));
-        final RequestContext context = makeRequestContext(request);
-
-        final HttpResponse response = moduleController.addModule(context);
-
-        final ArgumentCaptor<HttpStatusCode> statusCodeCapture = captureResponseCode(response);
-        assertEquals(HttpStatusCode.CONFLICT, statusCodeCapture.getValue());
-
-        verify(moduleManager, never()).create(any(Module.class), eq(1L), eq(0L), eq(0L));
-    }
-
-    @Test
     void testGetModule() {
         Module module = new Module();
         when(moduleManager.read(anyLong())).thenReturn(module);

@@ -3,22 +3,52 @@ package ch.zhaw.studyflow.services.persistence;
 import ch.zhaw.studyflow.domain.curriculum.Module;
 
 import java.util.List;
-import java.util.Optional;
 
+/**
+ * Data access object for reading, writing and updating modules from and to a persistent storage.
+ */
 public interface ModuleDao {
 
-    void create(Module module,long semesterId, long degreeId, long userId);
+    /**
+     * Writes a new module to the persistent storage and assigns an ID to it.
+     * @param studentId the ID of the student
+     * @param semesterId the ID of the semester
+     * @param degreeId the ID of the degree
+     * @param module the module to create
+     */
+    void create(long studentId, long semesterId, long degreeId, Module module);
 
-    ch.zhaw.studyflow.domain.curriculum.Module read(long moduleId);
+    /**
+     * Reads a module by its ID.
+     * @param moduleId the module ID
+     * @return the module
+     */
+    Module read(long moduleId);
 
-    void delete(long id);
+    /**
+     * Deletes a module by its ID.
+     * @param moduleId the modules ID
+     */
+    void delete(long moduleId);
 
-    ch.zhaw.studyflow.domain.curriculum.Module update(Module module);
+    /**
+     * Updates a module.
+     * @param module the module to update
+     * @return the updated module
+     */
+    Module update(Module module);
 
-    List<Module> getModules(long userId);
+    /**
+     * Gets all modules for a specific student.
+     * @param studentId the ID of the student
+     * @return a list of modules for the student
+     */
+    List<Module> readAllByStudent(long studentId);
 
-    Optional<Module> getModule(long moduleId);
-
-    Optional<Module> getModuleByName(String name);
-    List<Module> readBySemesterId(long semesterId);
+    /**
+     * Gets all modules for a specific semester.
+     * @param semesterId the ID of the semester
+     * @return a list of modules for the semester
+     */
+    List<Module> readAllBySemester(long semesterId);
 }

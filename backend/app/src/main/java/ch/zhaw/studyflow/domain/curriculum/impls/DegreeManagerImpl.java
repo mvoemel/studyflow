@@ -81,7 +81,7 @@ public class DegreeManagerImpl implements DegreeManager {
 
         Degree degree = degreeDao.read(degreeId);
         if (degree != null) {
-            semesterDao.getSemestersForDegree(degreeId).forEach(semester -> semesterDao.deleteSemester(semester.getId()));
+            semesterDao.readAllByDegree(degreeId).forEach(semester -> semesterDao.delete(semester.getId()));
             degreeDao.delete(degreeId);
 
             List<Degree> degreesForStudent = getDegreesForStudent(degree.getOwnerId());

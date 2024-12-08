@@ -8,8 +8,8 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryStudentDao implements StudentDao {
-    private AtomicLong idCounter = new AtomicLong(0);
-    private HashMap<Long, Student> studentsById;
+    private final AtomicLong idCounter = new AtomicLong(0);
+    private final HashMap<Long, Student> studentsById;
 
 
     public InMemoryStudentDao() {
@@ -36,12 +36,12 @@ public class InMemoryStudentDao implements StudentDao {
     }
 
     @Override
-    public Student readStudentById(long studentId) {
+    public Student read(long studentId) {
         return studentsById.get(studentId);
     }
 
     @Override
-    public Student readStudentByEmail(String email) {
+    public Student readByEMail(String email) {
         return studentsById.values().stream()
                 .filter(student -> student.getEmail().equals(email))
                 .findFirst()

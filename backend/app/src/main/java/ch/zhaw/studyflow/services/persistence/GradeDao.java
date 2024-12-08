@@ -6,12 +6,12 @@ import ch.zhaw.studyflow.domain.grade.Grade;
 import java.util.List;
 
 /**
- * Data Access Object for grades.
+ * Data access object for reading, writing and updating students from and to a persistent storage.
  */
 public interface GradeDao {
 
     /**
-     * Creates a new grade.
+     * Writes a new grade to the persistent storage and assigns an ID to it.
      *
      * @param grade the grade to create.
      */
