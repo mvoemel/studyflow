@@ -52,7 +52,7 @@ class DegreeManagerImplTest {
         updatedDegree.setActiveSemesterId(6);
         updatedDegree.setOwnerId(1);
         degreeManager.updateDegree(updatedDegree);
-        verify(degreeDao, times(1)).update(updatedDegree);
+        verify(degreeDao, times(1)).update(existingDegree);
 
         assertEquals(1, existingDegree.getId());
         assertEquals("New Name", existingDegree.getName());
