@@ -24,12 +24,14 @@ import { toast } from "sonner";
 import { AppointmentFormValues } from "@/components/dialogforms/appointment-form";
 import { Appointment } from "@/types";
 import { adjustToLocalTime } from "@/lib/utils";
+import { useModules } from "@/hooks/use-modules";
 
 // TODO: refactor this shit
 const SchedulePage = () => {
   const { settings } = useUserSettings();
   const { degrees } = useDegrees();
   const { semesters } = useSemesters();
+  const { modules } = useModules();
 
   const currSemester = useMemo(() => {
     if (!degrees || !semesters || !settings?.activeDegreeId) return undefined;
@@ -44,6 +46,13 @@ const SchedulePage = () => {
 
     return currSemester;
   }, [settings, degrees, semesters]);
+
+  const hasModules = useMemo(() => {
+    const modulesInCurrSemester =
+      modules?.filter((m) => m.semesterId === currSemester?.id) || [];
+
+    return modulesInCurrSemester.length > 0;
+  }, [modules, currSemester]);
 
   const {
     appointments: globalAppointments,
@@ -124,8 +133,6 @@ const SchedulePage = () => {
   const handleAppointmentSubmit = async (data: AppointmentFormValues) => {
     setAppointmentDialogOpen(false);
 
-    console.log(data);
-
     const body = {
       title: data.title,
       description: data.description,
@@ -173,8 +180,6 @@ const SchedulePage = () => {
   };
 
   const handleOnClickEvent = (arg: EventClickArg) => {
-    console.log("Clicked event:", arg);
-
     const appointmentFromGlobal = globalAppointments?.find(
       (a) => a.id === arg.event.id
     );
@@ -204,8 +209,6 @@ const SchedulePage = () => {
   };
 
   const handleOnDropEvent = async (arg: EventDropArg | EventResizeStopArg) => {
-    console.log("Drag stop event:", arg.event); // TODO: remove
-
     const calendarId = arg.event.extendedProps.calendarId;
     const appointmentId = arg.event.id;
     const title = arg.event.title;
@@ -255,7 +258,7 @@ const SchedulePage = () => {
         </Button>
         <Button
           onClick={openCreateScheduleDialog}
-          disabled={!!currSemester?.calendarId}
+          disabled={!!currSemester?.calendarId || !hasModules}
         >
           Create a Schedule Plan
         </Button>
