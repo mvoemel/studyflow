@@ -22,6 +22,7 @@ import ch.zhaw.studyflow.domain.grade.impls.GradeManagerImpl;
 import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.domain.student.impls.StudentManagerImpl;
 import ch.zhaw.studyflow.domain.studyplan.StudyplanManager;
+import ch.zhaw.studyflow.domain.studyplan.impls.StudyplanManagerImpl;
 import ch.zhaw.studyflow.services.persistence.AppointmentDao;
 import ch.zhaw.studyflow.services.persistence.CalendarDao;
 import ch.zhaw.studyflow.services.persistence.DegreeDao;
