@@ -1,6 +1,7 @@
 package ch.zhaw.studyflow.domain.curriculum;
 
 import ch.zhaw.studyflow.domain.curriculum.impls.DegreeManagerImpl;
+import ch.zhaw.studyflow.domain.student.StudentManager;
 import ch.zhaw.studyflow.services.persistence.DegreeDao;
 import ch.zhaw.studyflow.services.persistence.SemesterDao;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,15 +12,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class DegreeManagerImplTest {
+    private StudentManager studentManager;
     private DegreeDao degreeDao;
     private SemesterDao semesterDao;
-    private DegreeManagerImpl degreeManager;
+    private DegreeManager degreeManager;
 
     @BeforeEach
     void beforeEach() {
-        degreeDao = mock(DegreeDao.class);
-        semesterDao = mock(SemesterDao.class);
-        degreeManager = new DegreeManagerImpl(degreeDao, semesterDao);
+        studentManager  = mock(StudentManager.class);
+        degreeDao       = mock(DegreeDao.class);
+        semesterDao     = mock(SemesterDao.class);
+        degreeManager   = new DegreeManagerImpl(studentManager, degreeDao, semesterDao);
     }
 
     @Test

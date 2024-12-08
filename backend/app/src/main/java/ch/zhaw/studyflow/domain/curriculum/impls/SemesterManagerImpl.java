@@ -1,5 +1,7 @@
 package ch.zhaw.studyflow.domain.curriculum.impls;
 
+import ch.zhaw.studyflow.domain.curriculum.Degree;
+import ch.zhaw.studyflow.domain.curriculum.DegreeManager;
 import ch.zhaw.studyflow.domain.curriculum.Semester;
 import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
 import ch.zhaw.studyflow.services.persistence.ModuleDao;
@@ -9,13 +11,14 @@ import java.util.List;
 import java.util.Optional;
 
 public class SemesterManagerImpl implements SemesterManager {
-
+    private final DegreeManager degreeManager;
     private final SemesterDao semesterDao;
     private final ModuleDao moduleDao;
 
-    public SemesterManagerImpl(SemesterDao semesterDao, ModuleDao moduleDao) {
-        this.semesterDao = semesterDao;
-        this.moduleDao = moduleDao;
+    public SemesterManagerImpl(DegreeManager degreeManager, SemesterDao semesterDao, ModuleDao moduleDao) {
+        this.degreeManager  = degreeManager;
+        this.semesterDao    = semesterDao;
+        this.moduleDao      = moduleDao;
     }
 
     @Override
@@ -45,8 +48,26 @@ public class SemesterManagerImpl implements SemesterManager {
 
     @Override
     public void deleteSemester(long semesterId) {
-        semesterDao.deleteSemester(semesterId);
-        moduleDao.readBySemesterId(semesterId).forEach(module -> moduleDao.delete(module.getId()));
+        if (semesterId < 0) {
+            throw new IllegalArgumentException("Semester ID must be positive");
+        }
+
+        final Optional<Semester> semester = getSemesterById(semesterId);
+        if (semester.isPresent()) {
+            semesterDao.deleteSemester(semesterId);
+            moduleDao.readBySemesterId(semesterId).forEach(module -> moduleDao.delete(module.getId()));
+
+            Degree degree = degreeManager.getDegree(semester.get().getDegreeId());
+            if (degree != null) {
+                final long newActiveSemester = getSemestersForDegree(degree.getId())
+                        .stream()
+                        .mapToLong(Semester::getId)
+                        .max()
+                        .orElse(-1);
+                degree.setActiveSemesterId(newActiveSemester);
+                degreeManager.updateDegree(degree);
+            }
+        }
     }
 
 }
