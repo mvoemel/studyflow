@@ -7,7 +7,6 @@ import ch.zhaw.studyflow.services.persistence.DegreeDao;
 import ch.zhaw.studyflow.services.persistence.SemesterDao;
 import ch.zhaw.studyflow.utils.Validation;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,7 +66,9 @@ public class DegreeManagerImpl implements DegreeManager {
         if (degreeFromDatabase != null) {
             degreeFromDatabase.setName(degree.getName());
             degreeFromDatabase.setDescription(degree.getDescription());
-            degreeFromDatabase.setActiveSemesterId(degree.getActiveSemesterId());
+            if (degree.getActiveSemesterId() != -1) {
+                degreeFromDatabase.setActiveSemesterId(degree.getActiveSemesterId());
+            }
             degreeDao.update(degreeFromDatabase);
         }
     }
