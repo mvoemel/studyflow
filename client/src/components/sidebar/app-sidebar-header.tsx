@@ -26,12 +26,12 @@ const AppSidebarHeader = () => {
     const [openHelpModal, setOpenHelpModal] = useState(false);
 
     const instructions = [
-        "Add a Degree in the top left.",
-        "Select the added Degree (This sets it to your active degree).",
-        "Add Semesters to that degree in the sidebar under Curriculum inside Semesters.",
-        "Set the desired Semester to Active.",
-        "Click on a Semester and add Modules to that Semester.",
-        "Finally, inside Schedule you can add appointments and then create your schedule plan.",
+        "Add a degree in the top left.",
+        "Select the added degree (This sets it to your active degree).",
+        "Add semesters to that degree in the sidebar under curriculum inside semesters.",
+        "Set the desired semester to Active.",
+        "Click on a semester and add modules to that semester.",
+        "Finally, inside schedule you can add appointments and then create your schedule plan.",
     ];
 
     return (
