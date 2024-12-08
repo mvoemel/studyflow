@@ -27,9 +27,9 @@ public class InMemoryAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public Appointment read(long calendarId, long id) {
+    public Appointment read(long calendarId, long appointmentId) {
         return appointments.stream()
-                .filter(a -> a.getCalendarId() == calendarId && a.getId() == id)
+                .filter(a -> a.getCalendarId() == calendarId && a.getId() == appointmentId)
                 .findFirst()
                 .orElse(null);
     }
@@ -44,8 +44,8 @@ public class InMemoryAppointmentDao implements AppointmentDao {
     }
 
     @Override
-    public void delete(long id) {
-        appointments.removeIf(a -> a.getId() == id);
+    public void delete(long appointmentId) {
+        appointments.removeIf(a -> a.getId() == appointmentId);
     }
 
     @Override

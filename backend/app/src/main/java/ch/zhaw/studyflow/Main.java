@@ -6,13 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
 
-import ch.zhaw.studyflow.controllers.CalendarController;
-import ch.zhaw.studyflow.controllers.DegreeController;
-import ch.zhaw.studyflow.controllers.GradeController;
-import ch.zhaw.studyflow.controllers.ModuleController;
-import ch.zhaw.studyflow.controllers.SemesterController;
-import ch.zhaw.studyflow.controllers.StudentController;
-import ch.zhaw.studyflow.controllers.StudyplanController;
+import ch.zhaw.studyflow.controllers.*;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.calendar.CalendarManager;
 import ch.zhaw.studyflow.domain.calendar.impls.AppointmentManagerImpl;
@@ -138,6 +132,7 @@ public class Main {
                     serviceCollection.getRequiredService(CalendarDao.class)
             ));
 
+            builder.registerSingelton(AppointmentDao.class, serviceCollection -> new InMemoryAppointmentDao());
             builder.register(AppointmentManager.class, serviceCollection -> new AppointmentManagerImpl(
                     serviceCollection.getRequiredService(AppointmentDao.class)
             ));

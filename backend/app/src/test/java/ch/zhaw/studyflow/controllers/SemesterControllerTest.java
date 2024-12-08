@@ -20,7 +20,6 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -32,14 +31,12 @@ class SemesterControllerTest {
     private AuthenticationHandler authenticationHandler;
     private SemesterManager semesterManager;
     private SemesterController semesterController;
-    private PrincipalProvider principalProvider;
 
 
     @BeforeEach
     void beforeEach() {
         this.authenticationHandler  = mock(AuthenticationHandler.class);
         this.semesterManager        = mock(SemesterManager.class);
-        this.principalProvider      = mock(PrincipalProvider.class);
         this.semesterController       = new SemesterController(authenticationHandler, semesterManager);
     }
 
@@ -88,7 +85,7 @@ class SemesterControllerTest {
     void testDeleteSemester() {
         Semester semester = makeSemester(1, 1);
 
-        when(semesterManager.getSemesterById(1)).thenReturn(Optional.of(semester));
+        when(semesterManager.getSemesterById(1)).thenReturn(semester);
 
         HttpRequest request = makeHttpRequest();
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
@@ -114,14 +111,14 @@ class SemesterControllerTest {
         final Semester semester = makeSemester(1, 1);
 
         AuthMockHelpers.configureSuccessfulAuthHandler(authenticationHandler, AuthMockHelpers.getDefaultClaims());
-        when(semesterManager.getSemesterById(1)).thenReturn(Optional.of(semester));
+        when(semesterManager.getSemesterById(1)).thenReturn(semester);
 
         HttpRequest request = makeHttpRequest(makeJsonRequestBody(SemesterDeo.class, semesterDeo));
 
         semesterController.updateSemester(makeRequestContext(request, Map.of("id", "1")));
 
         verify(semesterManager,times(1)).getSemesterById(1);
-        verify(semesterManager,times(1)).updateSemester(semester);
+        verify(semesterManager,times(1)).updateSemester(any(Semester.class));
 
         assertEquals("Test Semester", semester.getName());
         assertEquals("Test Description", semester.getDescription());

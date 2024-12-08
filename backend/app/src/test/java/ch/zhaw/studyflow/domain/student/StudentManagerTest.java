@@ -61,7 +61,7 @@ class StudentManagerTest {
     void testLogin() {
         final Student student = makeFakeStudent();
 
-        when(studentDao.readStudentByEmail("test@test.test")).thenReturn(student);
+        when(studentDao.readByEMail("test@test.test")).thenReturn(student);
 
         final Optional<Student> loginResult = studentManager.login(student.getEmail(), "password");
 
@@ -73,7 +73,7 @@ class StudentManagerTest {
     void testInvalidLogin() {
         final Student student = makeFakeStudent();
 
-        when(studentDao.readStudentByEmail("test@test.test")).thenReturn(student);
+        when(studentDao.readByEMail("test@test.test")).thenReturn(student);
 
         final Optional<Student> loginResult = studentManager.login(student.getEmail(), "wrongPassword");
 
@@ -85,26 +85,26 @@ class StudentManagerTest {
         final Student student = makeFakeStudent();
         student.setId(1);
 
-        when(studentDao.readStudentById(1)).thenReturn(student);
+        when(studentDao.read(1)).thenReturn(student);
 
         final Optional<Student> studentResult = studentManager.getStudent(1);
 
         assertTrue(studentResult.isPresent());
         assertEquals(student, studentResult.get());
-        verify(studentDao).readStudentById(1);
+        verify(studentDao).read(1);
     }
 
     @Test
     void testGetStudentByEmail() {
         final Student student = makeFakeStudent();
 
-        when(studentDao.readStudentByEmail(student.getEmail())).thenReturn(student);
+        when(studentDao.readByEMail(student.getEmail())).thenReturn(student);
 
         final Optional<Student> studentResult = studentManager.getStudentByEmail(student.getEmail());
 
         assertTrue(studentResult.isPresent());
         assertEquals(student, studentResult.get());
-        verify(studentDao).readStudentByEmail(student.getEmail());
+        verify(studentDao).readByEMail(student.getEmail());
     }
 
     @Test
@@ -120,6 +120,69 @@ class StudentManagerTest {
         assertTrue(settingsResult.isPresent());
         assertEquals(settings, settingsResult.get());
         verify(settingsDao).read(1);
+    }
+
+    @Test
+    void testUpdateStudent() {
+        final Student persistedStudent = makeFakeStudent();
+        persistedStudent.setId(1);
+        when(studentDao.read(1)).thenReturn(persistedStudent);
+
+        final Student updatedStudent = makeFakeStudent();
+        updatedStudent.setId(1);
+        updatedStudent.setEmail("UpdatedEmail");
+        updatedStudent.setFirstname("UpdatedFirstname");
+        updatedStudent.setLastname("UpdatedLastname");
+        updatedStudent.setPassword("UpdatedPassword");
+
+        studentManager.updateStudent(updatedStudent);
+        verify(studentDao).update(persistedStudent);
+
+        assertEquals("UpdatedEmail", persistedStudent.getEmail());
+        assertEquals("UpdatedFirstname", persistedStudent.getFirstname());
+        assertEquals("UpdatedLastname", persistedStudent.getLastname());
+        assertEquals("UpdatedPassword", persistedStudent.getPassword());
+    }
+
+    @Test
+    void testUpdateStudentDontUpdatePasswordIfNull() {
+        final Student persistedStudent = makeFakeStudent();
+        persistedStudent.setId(1);
+        when(studentDao.read(1)).thenReturn(persistedStudent);
+
+        final Student updatedStudent = makeFakeStudent();
+        updatedStudent.setId(1);
+
+        updatedStudent.setEmail("UpdatedEmail");
+        updatedStudent.setFirstname("UpdatedFirstname");
+        updatedStudent.setLastname("UpdatedLastname");
+        studentManager.updateStudent(updatedStudent);
+        verify(studentDao).update(persistedStudent);
+
+        assertEquals("UpdatedEmail", persistedStudent.getEmail());
+        assertEquals("UpdatedFirstname", persistedStudent.getFirstname());
+        assertEquals("UpdatedLastname", persistedStudent.getLastname());
+        assertEquals("password", persistedStudent.getPassword());
+    }
+
+    @Test
+    void testUpdateSettings() {
+        final Settings persistedSettings = new Settings();
+        persistedSettings.setId(1);
+        persistedSettings.setActiveDegree(5);
+        persistedSettings.setGlobalCalendarId(6);
+        when(settingsDao.read(1)).thenReturn(persistedSettings);
+
+        final Settings updatedSettings = new Settings();
+        updatedSettings.setId(1);
+        updatedSettings.setActiveDegree(7);
+        updatedSettings.setGlobalCalendarId(8);
+
+        studentManager.updateSettings(updatedSettings);
+        verify(settingsDao).update(persistedSettings);
+
+        assertEquals(7, persistedSettings.getActiveDegree());
+        assertEquals(6, persistedSettings.getGlobalCalendarId());
     }
 
 

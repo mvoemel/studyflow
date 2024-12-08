@@ -1,8 +1,5 @@
 package ch.zhaw.studyflow.domain.student;
 
-import ch.zhaw.studyflow.utils.Result;
-
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 /**

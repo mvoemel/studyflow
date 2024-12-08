@@ -7,7 +7,7 @@ import ch.zhaw.studyflow.domain.student.Student;
  */
 public interface StudentDao {
     /**
-     * Creates a new student.
+     * Writes a new student to the persistent storage and assigns an ID to it.
      * @param student the student to create
      */
     void create(Student student);
@@ -29,12 +29,12 @@ public interface StudentDao {
      * @param studentId The id of the student
      * @return the student, or null if not found
      */
-    Student readStudentById(long studentId);
+    Student read(long studentId);
 
     /**
      * Reads a specific student by email.
      * @param email The email of the student
      * @return the student, or null if not found
      */
-    Student readStudentByEmail(String email);
+    Student readByEMail(String email);
 }

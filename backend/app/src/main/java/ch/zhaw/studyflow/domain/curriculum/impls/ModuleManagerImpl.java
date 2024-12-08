@@ -29,7 +29,7 @@ public class ModuleManagerImpl implements ModuleManager {
      * @param module the module to create
      */
     public void create(Module module,long semesterId, long degreeId, long userId) {
-        moduleDao.create(module,semesterId,degreeId,userId);
+        moduleDao.create(userId, semesterId, degreeId, module);
     }
 
     /**
@@ -58,7 +58,7 @@ public class ModuleManagerImpl implements ModuleManager {
      * @return the list of modules
      */
     public List<Module> getModules(long userId) {
-        return moduleDao.getModules(userId);
+        return moduleDao.readAllByStudent(userId);
     }
 
     /**
@@ -68,22 +68,13 @@ public class ModuleManagerImpl implements ModuleManager {
      * @return the module
      */
     public Optional<Module> getModule(long moduleId) {
-        return moduleDao.getModule(moduleId);
+        return Optional.ofNullable(moduleDao.read(moduleId));
     }
 
-    /**
-     * Gets a module by name.
-     *
-     * @param name the name of the module
-     * @return the module
-     */
-    public Optional<Module> getModuleByName(String name) {
-        return moduleDao.getModuleByName(name);
-    }
 
     @Override
     public List<Module> getModulesBySemester(long semesterId) {
-        return moduleDao.readBySemesterId(semesterId);
+        return moduleDao.readAllBySemester(semesterId);
     }
 
     /**

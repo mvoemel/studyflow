@@ -59,8 +59,12 @@ public class StudyplanController {
 
                 if (parameters.isPresent() && userId.isPresent()) {
                     Long calendarId = studyplanManager.createStudyplan(parameters.get(),  userId.get());
-                    Optional<Semester> semester =  semesterManager.getSemesterById(parameters.get().getSemesterId());
-                    semester.ifPresent(value -> value.setCalendarId(calendarId));
+                    Semester semester =  semesterManager.getSemesterById(parameters.get().getSemesterId());
+
+                    if (semester != null) {
+                        semester.setCalendarId(calendarId);
+                    }
+
                     if (calendarId != null) {
                         response.setResponseBody(JsonContent.writableOf(calendarId))
                                 .setStatusCode(HttpStatusCode.CREATED);
