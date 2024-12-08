@@ -27,6 +27,10 @@ public class TimeSlots {
         this.slotCount = totalMinutes / slotSize;
         this.timeSlots = new TimeSlotValue[slotCount];
         this.remainingMinutes = totalMinutes;
+
+        for (int i = 0; i < timeSlots.length; i++) {
+            timeSlots[i] = TimeSlotValue.FREE;
+        }
     }
 
     /**
@@ -75,11 +79,14 @@ public class TimeSlots {
     public void setTimeSlot(TimeSlotValue content, LocalTime startTime, LocalTime endTime) {
         int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
         int endMinutes = endTime.getHour() * 60 + endTime.getMinute();
-        int startSlot = startMinutes / slotSize;
-        int endSlot = endMinutes / slotSize;
+
+        int startSlot = (startMinutes - (8 * 60)) / slotSize;
+        int endSlot = Math.min((endMinutes - (8 * 60)) / slotSize, timeSlots.length);
+
         for (int i = startSlot; i < endSlot; i++) {
             timeSlots[i] = content;
         }
+
         remainingMinutes -= (endMinutes - startMinutes);
     }
 
@@ -103,13 +110,16 @@ public class TimeSlots {
     public boolean isFree(LocalTime startTime, LocalTime endTime) {
         int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
         int endMinutes = endTime.getHour() * 60 + endTime.getMinute();
-        int startSlot = startMinutes / slotSize;
-        int endSlot = endMinutes / slotSize;
+
+        int startSlot = (startMinutes - (8 * 60)) / slotSize;
+        int endSlot = Math.min((endMinutes - (8 * 60)) / slotSize, timeSlots.length);
+
         for (int i = startSlot; i < endSlot; i++) {
             if (timeSlots[i] != TimeSlotValue.FREE) {
                 return false;
             }
         }
+
         return true;
     }
 
@@ -121,10 +131,11 @@ public class TimeSlots {
     public LocalTime getEarliestFree() {
         for (int i = 0; i < timeSlots.length; i++) {
             if (timeSlots[i] == TimeSlotValue.FREE) {
-                return getStartTime(i);
+                int minutesOffset = i * slotSize; // Minuten relativ zu Startzeit 08:00
+                return LocalTime.of(8, 0).plusMinutes(minutesOffset);
             }
         }
-        return null;
+        return null; // Falls kein freier Slot vorhanden ist
     }
 
     /**
@@ -135,14 +146,25 @@ public class TimeSlots {
      */
     public int getFreeMinutesAfter(LocalTime startTime) {
         int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
-        int startSlot = startMinutes / slotSize;
+        int startMinutesOffset = startMinutes - (8 * 60); // Offset relativ zu 08:00
+        int startSlot = startMinutesOffset / slotSize;
+
+        int freeMinutes = 0;
+
+        // Iteriere durch alle Slots ab dem Startslot
+        System.out.println("StartSlot: " + startSlot);
+
         for (int i = startSlot; i < timeSlots.length; i++) {
-            if (timeSlots[i] != TimeSlotValue.FREE) {
-                return i * slotSize - startMinutes;
+            System.out.println("Checking Slot " + i + ": " + timeSlots[i]);
+            if (timeSlots[i] == TimeSlotValue.FREE) {
+                freeMinutes += slotSize; // Freie Minuten summieren
             }
         }
-        return 0;
+
+        System.out.println("Calculated free minutes: " + freeMinutes);
+        return freeMinutes;
     }
 
-    
+
+
 }

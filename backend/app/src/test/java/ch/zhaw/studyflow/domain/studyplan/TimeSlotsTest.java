@@ -1,60 +1,55 @@
 package ch.zhaw.studyflow.domain.studyplan;
 
-import java.time.LocalTime;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import java.time.LocalTime;
 
 import ch.zhaw.studyflow.domain.studyplan.timeSlotCalculation.TimeSlotValue;
 import ch.zhaw.studyflow.domain.studyplan.timeSlotCalculation.TimeSlots;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+class TimeSlotsTest {
 
-public class TimeSlotsTest {
     private TimeSlots timeSlots;
 
     @BeforeEach
-    public void setUp() {
-        timeSlots = new TimeSlots(LocalTime.of(8, 0), LocalTime.of(12, 0), 30);
+    void setUp() {
+        timeSlots = new TimeSlots(LocalTime.of(8, 0), LocalTime.of(18, 0), 60);
     }
 
     @Test
-    public void testGetSlotCount() {
-        assertEquals(8, timeSlots.getSlotCount());
+    void testSetTimeSlot() {
+        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(9, 0), LocalTime.of(11, 0));
+        assertEquals(TimeSlotValue.STUDY, timeSlots.getTimeSlots()[1], "The slot at 09:00 should be occupied.");
+        assertEquals(TimeSlotValue.STUDY, timeSlots.getTimeSlots()[2], "The slot at 10:00 should be occupied.");
+        assertEquals(480, timeSlots.getRemainingMinutes(), "There should be 480 remaining minutes.");
     }
 
     @Test
-    public void testGetRemainingMinutes() {
-        assertEquals(240, timeSlots.getRemainingMinutes());
+    void testIsFree() {
+        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(9, 0), LocalTime.of(11, 0));
+        assertFalse(timeSlots.isFree(LocalTime.of(9, 0), LocalTime.of(11, 0)), "The time from 09:00 to 11:00 should be occupied.");
+        assertTrue(timeSlots.isFree(LocalTime.of(8, 0), LocalTime.of(9, 0)), "The time from 08:00 to 09:00 should be free.");
     }
 
     @Test
-    public void testSetTimeSlot() {
+    void testGetEarliestFree() {
+        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(8, 0), LocalTime.of(9, 0));
+        assertEquals(LocalTime.of(9, 0), timeSlots.getEarliestFree(), "The earliest free time should be at 09:00.");
+    }
+
+    @Test
+    void testGetFreeMinutesAfter() {
         timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(9, 0), LocalTime.of(10, 0));
-        assertEquals(TimeSlotValue.STUDY, timeSlots.getTimeSlots()[2]);
-        assertEquals(TimeSlotValue.STUDY, timeSlots.getTimeSlots()[3]);
+        assertEquals(540, timeSlots.getFreeMinutesAfter(LocalTime.of(8, 0)), "There should be 540 free minutes after 08:00.");
     }
 
     @Test
-    public void testIsFree() {
-        assertTrue(timeSlots.isFree(LocalTime.of(8, 0), LocalTime.of(9, 0)));
-        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(8, 0), LocalTime.of(9, 0));
-        assertFalse(timeSlots.isFree(LocalTime.of(8, 0), LocalTime.of(9, 0)));
-    }
-
-    @Test
-    public void testGetEarliestFree() {
-        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(8, 0), LocalTime.of(9, 0));
-        assertEquals(LocalTime.of(9, 0), timeSlots.getEarliestFree());
-    }
-
-    @Test
-    public void testGetFreeMinutesAfter() {
-        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(8, 0), LocalTime.of(9, 0));
-        assertEquals(180, timeSlots.getFreeMinutesAfter(LocalTime.of(8, 0)));
+    void testSlotInitialization() {
+        for (int i = 0; i < timeSlots.getTimeSlots().length; i++) {
+            System.out.println("Slot " + i + ": " + timeSlots.getTimeSlots()[i]);
+            assertEquals(TimeSlotValue.FREE, timeSlots.getTimeSlots()[i], "Slot " + i + " should be FREE.");
+        }
     }
 }
-
-

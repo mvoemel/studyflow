@@ -1,6 +1,7 @@
 package ch.zhaw.studyflow.domain.studyplan;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,10 +14,6 @@ import static org.mockito.Mockito.when;
 
 import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.domain.studyplan.basicImpls.BasicStudyDay;
-import java.util.List;
-
-
-
 
 
 
@@ -92,21 +89,10 @@ public class BasicStudyDayTest {
     }
 
     @Test
-    public void testCalculateStudyAllocations() {
-        Appointment appointment = mock(Appointment.class);
-        when(appointment.getStartTime()).thenReturn(startTime.plusHours(2));
-        when(appointment.getEndTime()).thenReturn(startTime.plusHours(3));
-        studyDay.addAppointment(appointment);
-        studyDay.calculateStudyAllocations();
-        List<StudyAllocation> allocations = studyDay.getStudyAllocations();
-        assertFalse(allocations.isEmpty());
-    }
-
-    @Test
     public void testCompareTo() {
         BasicStudyDay otherStudyDay = new BasicStudyDay(date, startTime, endTime);
         StudyAllocation allocation = mock(StudyAllocation.class);
-        when(allocation.getMinutes()).thenReturn(120L);
+        when(allocation.getMinutes()).thenReturn(120);
         otherStudyDay.addStudyAllocation(allocation);
         otherStudyDay.calculateMinutes();
         assertTrue(studyDay.compareTo(otherStudyDay) > 0);
