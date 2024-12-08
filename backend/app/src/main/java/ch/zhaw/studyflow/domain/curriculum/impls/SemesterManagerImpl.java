@@ -58,7 +58,7 @@ public class SemesterManagerImpl implements SemesterManager {
         }
 
         final Semester semester = getSemesterById(semesterId);
-        if (semester == null) {
+        if (semester != null) {
             semesterDao.delete(semesterId);
             moduleDao.readAllBySemester(semesterId).forEach(module -> moduleDao.delete(module.getId()));
 
