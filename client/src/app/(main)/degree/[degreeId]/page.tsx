@@ -29,6 +29,7 @@ import {useDegrees} from "@/hooks/use-degree";
 import {useParams} from "next/navigation";
 import {awaitTimeout} from "@/app/api-old/_utils";
 import {deleteDegreeRequest} from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 const degreePanelSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters long"),
@@ -36,6 +37,7 @@ const degreePanelSchema = z.object({
 });
 
 const DegreePanel = () => {
+const router = useRouter();
 
 
 
@@ -50,10 +52,20 @@ const DegreePanel = () => {
             toast.success("Successfully deleted degree!");
       } catch (err) {
           toast.error("Failed to delete degree!");
+      } finally {
+          router.push("/dashboard");
       }
   }
 
-  const currDegree = degrees?.find((degree) => degree.id === settings?.activeDegreeId)
+    const currDegree = degrees?.find((degree) => degree.id === settings?.activeDegreeId);
+
+    const form = useForm<z.infer<typeof degreePanelSchema>>({
+        resolver: zodResolver(degreePanelSchema),
+        defaultValues: {
+            name: currDegree?.name,
+            description: currDegree?.description,
+        },
+    });
 
     if (!user) {
         return (
@@ -74,14 +86,6 @@ const DegreePanel = () => {
             </div>
         );
     }
-
-  const form = useForm<z.infer<typeof degreePanelSchema>>({
-    resolver: zodResolver(degreePanelSchema),
-    defaultValues: {
-      name: currDegree?.name,
-      description: currDegree?.description,
-    },
-  });
 
   const onSubmit = async (values: z.infer<typeof degreePanelSchema>) => {
     if(currDegree?.id === undefined) return;
