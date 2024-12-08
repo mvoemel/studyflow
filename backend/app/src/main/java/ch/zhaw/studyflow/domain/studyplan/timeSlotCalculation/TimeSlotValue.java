@@ -1,9 +1,8 @@
-
 package ch.zhaw.studyflow.domain.studyplan.timeSlotCalculation;
 
-public enum TimeSlotContent {
+public enum TimeSlotValue {
     FREE,
-    APPOINTMENT,
     BREAK,
-    STUDYALLOCATION;
+    APPOINTMENT,
+    STUDY
 }

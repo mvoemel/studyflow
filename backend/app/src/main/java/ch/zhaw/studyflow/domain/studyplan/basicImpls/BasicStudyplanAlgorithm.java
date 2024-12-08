@@ -48,13 +48,15 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
     }
 
     @Override
-    public List<StudyDay> getStudyDays() {
-        return studyDays;
+    public List<ModuleAllocation> runAlgorithm() {
+        createStudyDays();
+        allocateModules();
+        return moduleAllocations;
     }
 
     @Override
-    public List<ModuleAllocation> getModuleAllocations() {
-        return moduleAllocations;
+    public List<StudyDay> getStudyDays() {
+        return studyDays;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package ch.zhaw.studyflow.domain.studyplan.impls;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -10,7 +9,7 @@ import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.domain.calendar.AppointmentManager;
 import ch.zhaw.studyflow.domain.curriculum.Module;
 import ch.zhaw.studyflow.domain.curriculum.ModuleManager;
-import ch.zhaw.studyflow.domain.studyplan.StudyDay;
+import ch.zhaw.studyflow.domain.studyplan.ModuleAllocation;
 import ch.zhaw.studyflow.domain.studyplan.StudyplanGenerator;
 import ch.zhaw.studyflow.domain.studyplan.basicImpls.BasicStudyplanAlgorithm;
 import ch.zhaw.studyflow.services.ServiceCollection;
@@ -58,10 +57,10 @@ public class StudyplanGeneratorImpl implements StudyplanGenerator {
         BasicStudyplanAlgorithm algorithm = new BasicStudyplanAlgorithm(parameters, globalCalendarId, appointments, modules);
 
         //return calendar id of the created studyplan
-        return createCalendar(algorithm.getModuleStudyDays());
+        return createCalendar(algorithm.runAlgorithm());
     }
 
-    public Long createCalendar(Map<Module, List<StudyDay>> moduleStudyDays){
+    public Long createCalendar(List<ModuleAllocation> moduleAllocations){
         //TODO: implement
         return null;
     }

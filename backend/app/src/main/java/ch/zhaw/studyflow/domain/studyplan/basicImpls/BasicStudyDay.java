@@ -8,7 +8,7 @@ import java.util.List;
 import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.domain.studyplan.StudyAllocation;
 import ch.zhaw.studyflow.domain.studyplan.StudyDay;
-import ch.zhaw.studyflow.domain.studyplan.timeSlotCalculation.TimeSlotContent;
+import ch.zhaw.studyflow.domain.studyplan.timeSlotCalculation.TimeSlotValue;
 import ch.zhaw.studyflow.domain.studyplan.timeSlotCalculation.TimeSlots;
 
 public class BasicStudyDay implements StudyDay {
@@ -20,7 +20,7 @@ public class BasicStudyDay implements StudyDay {
     
     private TimeSlots timeSlots;
     private final int slotSize = 5;
-    private List<StudyAllocation> studyAllocations; //oder direkt appointments?
+    private List<StudyAllocation> studyAllocations; 
 
     public BasicStudyDay(LocalDate date, LocalTime startTime, LocalTime endTime) {
         this.date = date;
@@ -84,15 +84,7 @@ public class BasicStudyDay implements StudyDay {
     }
 
     @Override
-    public void calculateStudyAllocations() { 
-        //TODO create time blocks of ?? hours/minutes based on available time in between start and end time
-        //also take breaks and appointments into account
-        //only work with minute values that are divisible by 5
-        //breaks: 10 minutes between two allocations, 45-60 minutes in the middle of the day for lunch
-        //appointments: take into account the time of the appointment, also add a buffer of 15 minutes before and after the appointment
-        //for remaining time slots > 60 minutes, create studyAllocations of ideally 90-120 minutes, minimum 60 minutes, breaks evenly distributed (every block should have a similar size)
-        //for remaining time slots < 60 minutes, create a single studyAllocation for the remaining time (no breaks)
-
+    public void calculateStudyAllocations() {         
         /*Process:
         1. Using startTime and endTime create an array of time slots (e.g. 5 minutes each)
         2. Check if there are appointments between start and end time, if yes add a break of 15 minutes before and after the appointment and mark the time slots as taken 
@@ -105,14 +97,14 @@ public class BasicStudyDay implements StudyDay {
         
         //mark appointments in TimeSlots
         for (Appointment appointment : appointments) {
-            timeSlots.setTimeSlot(TimeSlotContent.APPOINTMENT, appointment.getStartTime().toLocalTime(), appointment.getEndTime().toLocalTime());
-            timeSlots.setTimeSlot(TimeSlotContent.BREAK, appointment.getStartTime().toLocalTime().minusMinutes(15), appointment.getStartTime().toLocalTime());
+            timeSlots.setTimeSlot(TimeSlotValue.APPOINTMENT, appointment.getStartTime().toLocalTime(), appointment.getEndTime().toLocalTime());
+            timeSlots.setTimeSlot(TimeSlotValue.BREAK, appointment.getStartTime().toLocalTime().minusMinutes(15), appointment.getStartTime().toLocalTime());
         }
         
 
         //calculate lunch break
         int lunchBreak = 60;
-        LocalTime midDay = timeSlots.getStartTime(timeSlots.getTimeSlots().length / 2);
+        LocalTime midDay = timeSlots.getStartTime(timeSlots.getSlotCount() / 2);
 
         //determine duration and placement of lunch break
         if (timeSlots.getRemainingMinutes() < 240 || startTime.isAfter(LocalTime.of(12, 0)) || endTime.isBefore(LocalTime.of(14, 0))) {
@@ -146,7 +138,7 @@ public class BasicStudyDay implements StudyDay {
         }
 
         //mark lunch break in TimeSlots
-        timeSlots.setTimeSlot(TimeSlotContent.BREAK, midDay.minusMinutes(lunchBreak / 2), midDay.plusMinutes(lunchBreak / 2));
+        timeSlots.setTimeSlot(TimeSlotValue.BREAK, midDay.minusMinutes(lunchBreak / 2), midDay.plusMinutes(lunchBreak / 2));
 
         //create studyAllocations for remaining time slots
         while (timeSlots.getRemainingMinutes() >= 30) {
@@ -154,16 +146,16 @@ public class BasicStudyDay implements StudyDay {
             int availableMinutes = timeSlots.getFreeMinutesAfter(startTime);
             
             if (availableMinutes < 30) {
-                timeSlots.setTimeSlot(BREAK, start, start.plusMinutes(availableMinutes));
+                timeSlots.setTimeSlot(TimeSlotValue.BREAK, start, start.plusMinutes(availableMinutes));
             } else if (availableMinutes < 120) {
-                timeSlots.setTimeSlot(TimeSlotContent.STUDY, start, start.plusMinutes(availableMinutes));
+                timeSlots.setTimeSlot(TimeSlotValue.STUDY, start, start.plusMinutes(availableMinutes));
                 studyAllocations.add(new BasicStudyAllocation(start, start.plusMinutes(availableMinutes), date));
             } else {
                 int nrOfBlocks = availableMinutes / 120 + 1;
                 int blockLength = (((availableMinutes - nrOfBlocks * 10) / nrOfBlocks)/slotSize)*slotSize;
                 for(int i = 0; i < nrOfBlocks; i++) {
-                    timeSlots.setTimeSlot(TimeSlotContent.STUDY, start.plusMinutes(i * (blockLength + 10)), start.plusMinutes((i + 1) * blockLength + i * 10));
-                    timeSlots.setTimeSlot(TimeSlotContent.BREAK, start.plusMinutes((i + 1) * blockLength + i * 10), start.plusMinutes((i + 1) * blockLength + (i + 1) * 10));
+                    timeSlots.setTimeSlot(TimeSlotValue.STUDY, start.plusMinutes(i * (blockLength + 10)), start.plusMinutes((i + 1) * blockLength + i * 10));
+                    timeSlots.setTimeSlot(TimeSlotValue.BREAK, start.plusMinutes((i + 1) * blockLength + i * 10), start.plusMinutes((i + 1) * blockLength + (i + 1) * 10));
                     studyAllocations.add(new BasicStudyAllocation(start.plusMinutes(i * (blockLength + 10)), start.plusMinutes((i + 1) * blockLength + i * 10), date));
                 }
             }
