@@ -12,7 +12,7 @@ public class InMemoryModuleDao implements ModuleDao {
     private final Map<Long, Long> moduleToSemester;
     private final Map<Long, Long> semesterToDegree;
     private final Map<Long, Long> degreeToUser;
-    private AtomicInteger idCounter;
+    private final AtomicInteger idCounter;
 
     public InMemoryModuleDao() {
         modules = new HashMap<>();

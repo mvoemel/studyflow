@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemorySettingsDao implements SettingsDao {
-    private AtomicLong idCounter;
-    private HashMap<Long, Settings> settingsById;
+    private final AtomicLong idCounter;
+    private final HashMap<Long, Settings> settingsById;
 
 
     public InMemorySettingsDao() {

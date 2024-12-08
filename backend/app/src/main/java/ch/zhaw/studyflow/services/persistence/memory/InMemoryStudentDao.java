@@ -8,8 +8,8 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryStudentDao implements StudentDao {
-    private AtomicLong idCounter = new AtomicLong(0);
-    private HashMap<Long, Student> studentsById;
+    private final AtomicLong idCounter = new AtomicLong(0);
+    private final HashMap<Long, Student> studentsById;
 
 
     public InMemoryStudentDao() {
