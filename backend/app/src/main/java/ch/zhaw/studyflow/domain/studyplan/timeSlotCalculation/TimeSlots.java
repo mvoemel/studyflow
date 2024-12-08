@@ -81,15 +81,13 @@ public class TimeSlots {
      * @param endTime   the end time of the range to set
      */
     public void setTimeSlot(TimeSlotValue content, LocalTime startTime, LocalTime endTime) {
-        int adjust = 1;
-        if (startTime.equals(endTime)) adjust = 0;
-
+        
         int dayStartMinutes = dayStartTime.getHour() * 60 + dayStartTime.getMinute();
         int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
         int endMinutes = endTime.getHour() * 60 + endTime.getMinute();
 
         int startSlot = Math.max((startMinutes - dayStartMinutes) / slotSize, 0);
-        int endSlot = Math.min(((endMinutes - dayStartMinutes) / slotSize) - adjust, timeSlots.length);
+        int endSlot = Math.min(((endMinutes - dayStartMinutes) / slotSize), timeSlots.length);
 
         if (startSlot >= endSlot) {
             timeSlots[startSlot] = content;

@@ -25,6 +25,8 @@ class TimeSlotsTest {
         timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(9, 0), LocalTime.of(11, 0));
         assertEquals(TimeSlotValue.STUDY, timeSlots.getTimeSlots()[1], "The slot at 09:00 should be occupied.");
         assertEquals(TimeSlotValue.STUDY, timeSlots.getTimeSlots()[2], "The slot at 10:00 should be occupied.");
+        assertEquals(TimeSlotValue.FREE, timeSlots.getTimeSlots()[0], "The slot at 08:00 should be free.");
+        assertEquals(TimeSlotValue.FREE, timeSlots.getTimeSlots()[3], "The slot at 11:00 should be free.");
         assertEquals(480, timeSlots.getRemainingMinutes(), "There should be 480 remaining minutes.");
     }
 
