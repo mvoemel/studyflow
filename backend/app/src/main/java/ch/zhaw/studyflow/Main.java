@@ -108,7 +108,7 @@ public class Main {
                     GradeController.class,
                     serviceCollection -> new GradeController(
                             serviceCollection.getRequiredService(SemesterManager.class),
-                            serviceCollection.getRequiredService(ModuleManagerImpl.class),
+                            serviceCollection.getRequiredService(ModuleManager.class),
                             serviceCollection.getRequiredService(GradeManager.class),
                             serviceCollection.getRequiredService(AuthenticationHandler.class)
                     )
