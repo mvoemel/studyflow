@@ -11,7 +11,7 @@ import java.util.List;
 public interface GradeDao {
 
     /**
-     * Creates a new grade.
+     * Writes a new grade to the persistent storage and assigns an ID to it.
      *
      * @param grade the grade to create.
      */

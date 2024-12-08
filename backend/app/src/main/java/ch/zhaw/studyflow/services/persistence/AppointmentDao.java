@@ -2,16 +2,15 @@ package ch.zhaw.studyflow.services.persistence;
 
 import ch.zhaw.studyflow.domain.calendar.Appointment;
 
-import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Interface for managing appointment data.
+ * Data access object for reading, writing and updating appointment from and to a persistent storage.
  */
 public interface AppointmentDao {
 
     /**
-     * Creates a new appointment.
+     * Writes a new appointment to the persistent storage and assigns an ID to it.
      *
      * @param appointment the appointment to create
      */

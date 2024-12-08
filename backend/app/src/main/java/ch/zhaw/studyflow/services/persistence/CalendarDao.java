@@ -5,12 +5,12 @@ import ch.zhaw.studyflow.domain.calendar.Calendar;
 import java.util.List;
 
 /**
- * Interface for managing calendar data.
+ * Data access object for reading, writing and updating calendar from and to a persistent storage.
  */
 public interface CalendarDao {
 
     /**
-     * Creates a new calendar.
+     * Writes a new calendar to the persistent storage and assigns an ID to it.
      *
      * @param calendar the calendar to create
      */

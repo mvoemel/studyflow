@@ -7,7 +7,7 @@ import ch.zhaw.studyflow.domain.student.Settings;
  */
 public interface SettingsDao {
     /**
-     * Creates a new settings for a student.
+     * Writes a new settings object to the persistent storage and assigns an ID to it.
      * @param studentSettings The settings to create
      */
     void create(Settings studentSettings);
