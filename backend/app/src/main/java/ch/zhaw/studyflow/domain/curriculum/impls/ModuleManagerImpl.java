@@ -29,7 +29,7 @@ public class ModuleManagerImpl implements ModuleManager {
      * @param module the module to create
      */
     public void create(Module module,long semesterId, long degreeId, long userId) {
-        moduleDao.create(module,semesterId,degreeId,userId);
+        moduleDao.create(userId, semesterId, degreeId, module);
     }
 
     /**

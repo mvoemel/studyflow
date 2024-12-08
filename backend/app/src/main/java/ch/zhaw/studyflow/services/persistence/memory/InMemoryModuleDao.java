@@ -23,7 +23,7 @@ public class InMemoryModuleDao implements ModuleDao {
     }
 
     @Override
-    public void create(Module module, long semesterId, long degreeId, long studentId) {
+    public void create(long studentId, long semesterId, long degreeId, Module module) {
         Objects.requireNonNull(module, "Module cannot be null");
         module.setId(idCounter.getAndIncrement());
         modules.put(module.getId(), module);

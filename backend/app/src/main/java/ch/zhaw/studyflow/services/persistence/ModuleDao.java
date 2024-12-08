@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface ModuleDao {
 
-    void create(Module module, long semesterId, long degreeId, long studentId);
+    void create(long studentId, long semesterId, long degreeId, Module module);
 
     Module read(long moduleId);
 
