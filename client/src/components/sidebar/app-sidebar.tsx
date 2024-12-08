@@ -53,6 +53,15 @@ import { toast } from "sonner";
 import { Badge } from "../ui/badge";
 import { useSWRConfig } from "swr";
 import { AddGradeDialog } from "@/components/dialogs/add-grade";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
 
 // TODO: refactor entire sidebar, split into smaller components also check documentation on how to use SidebarItems and SidebarMenus
 
@@ -69,6 +78,8 @@ const AppSidebar = () => {
   const { user, settings, updateActiveDegree } = useUserSettings();
   const { degrees, updateDegree } = useDegrees();
   const { semesters, deleteSemester, updateSemester } = useSemesters();
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [semesterToDelete, setSemesterToDelete] = useState<Semester | null>(null);
 
   const activeSemesterId = useMemo(() => {
     if (!degrees || !semesters) return undefined;
@@ -138,6 +149,18 @@ const AppSidebar = () => {
     } catch (err) {
       toast.error("Failed to delete semester.");
     }
+  };
+
+  const openDeleteDialog = (semester: Semester) => {
+    setSemesterToDelete(semester);
+    setIsAlertOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!semesterToDelete) return;
+    await handleDeleteSemester(semesterToDelete);
+    setIsAlertOpen(false);
+    setSemesterToDelete(null);
   };
 
   const handleSetActiveSemester = async (semester: Semester) => {
@@ -314,7 +337,7 @@ const AppSidebar = () => {
                                   Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                  onClick={() => handleDeleteSemester(semester)}
+                                    onClick={() => openDeleteDialog(semester)}
                                 >
                                   <Trash2 className="mr-2 h-4 w-4" />
                                   Delete
@@ -329,6 +352,26 @@ const AppSidebar = () => {
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
+                            <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Are you sure you want to delete this semester?
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>
+                                    Cancel
+                                  </AlertDialogCancel>
+                                  <AlertDialogAction onClick={handleConfirmDelete}>
+                                    Continue
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </SidebarMenuItem>
                       ))

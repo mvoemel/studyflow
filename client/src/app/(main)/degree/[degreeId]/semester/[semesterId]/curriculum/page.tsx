@@ -25,6 +25,13 @@ import { Module } from "@/types";
 import { useModules } from "@/hooks/use-modules";
 import {PenIcon, Trash2} from "lucide-react";
 import {toast} from "sonner";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
 
 const ModulesSettingsPage = () => {
   const { degreeId, semesterId } = useParams();
@@ -110,14 +117,33 @@ const ModulesSettingsPage = () => {
                     >
                       <PenIcon className="h-4" />
                     </Button>
-                    <Button
-                      className="p-0"
-                      variant="destructive"
-                      size="icon"
-                      onClick={() => handleDeleteModule(module.id)}
-                    >
-                        <Trash2 className="h-4" />
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger>
+                        <Button
+                            className="p-0"
+                            variant="destructive"
+                            size="icon"
+                        >
+                          <Trash2 className="h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Are you sure you want to delete this module?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDeleteModule(module.id)}>
+                            Continue
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </TableCell>
                 </TableRow>
               ))}
