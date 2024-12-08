@@ -117,7 +117,8 @@ public class Main {
                     StudyplanController.class,
                     serviceCollection -> new StudyplanController(
                         serviceCollection.getRequiredService(StudyplanManager.class),
-                        serviceCollection.getRequiredService(AuthenticationHandler.class)
+                        serviceCollection.getRequiredService(AuthenticationHandler.class),
+                        serviceCollection.getRequiredService(SemesterManager.class)
                     )
             );
         });

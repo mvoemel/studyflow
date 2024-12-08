@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import ch.zhaw.studyflow.controllers.deo.StudyplanParameters;
+import ch.zhaw.studyflow.domain.curriculum.Semester;
+import ch.zhaw.studyflow.domain.curriculum.SemesterManager;
 import ch.zhaw.studyflow.domain.studyplan.StudyplanManager;
 import ch.zhaw.studyflow.webserver.annotations.Endpoint;
 import ch.zhaw.studyflow.webserver.annotations.Route;
@@ -22,16 +24,19 @@ public class StudyplanController {
 
     private final StudyplanManager studyplanManager;
     private final AuthenticationHandler authenticationHandler;
+    private final SemesterManager semesterManager;
 
     /**
      * Constructs a StudyplanController with the specified dependencies.
      *
      * @param studyplanManager the studyplan manager
-     * @param authenticator the authentication handler
+     * @param authenticationHandler the authentication handler
+     * @param semesterManager the semester manager
      */
-    public StudyplanController(StudyplanManager studyplanManager, AuthenticationHandler authenticationHandler) {
+    public StudyplanController(StudyplanManager studyplanManager, AuthenticationHandler authenticationHandler, SemesterManager semesterManager) {
         this.studyplanManager       = studyplanManager;
         this.authenticationHandler  = authenticationHandler;
+        this.semesterManager        = semesterManager;
     }
 
     /**
@@ -54,6 +59,8 @@ public class StudyplanController {
 
                 if (parameters.isPresent() && userId.isPresent()) {
                     Long calendarId = studyplanManager.createStudyplan(parameters.get(),  userId.get());
+                    Optional<Semester> semester =  semesterManager.getSemesterById(parameters.get().getSemesterId());
+                    semester.ifPresent(value -> value.setCalendarId(calendarId));
                     if (calendarId != null) {
                         response.setResponseBody(JsonContent.writableOf(calendarId))
                                 .setStatusCode(HttpStatusCode.CREATED);
