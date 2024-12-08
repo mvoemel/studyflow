@@ -80,7 +80,7 @@ public class TimeSlots {
         int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
         int endMinutes = endTime.getHour() * 60 + endTime.getMinute();
 
-        int startSlot = (startMinutes - (8 * 60)) / slotSize;
+        int startSlot = Math.max((startMinutes - (8 * 60)) / slotSize, 0);
         int endSlot = Math.min((endMinutes - (8 * 60)) / slotSize, timeSlots.length);
 
         for (int i = startSlot; i < endSlot; i++) {
