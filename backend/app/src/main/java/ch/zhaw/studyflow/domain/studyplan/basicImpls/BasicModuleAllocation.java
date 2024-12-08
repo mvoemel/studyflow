@@ -106,7 +106,7 @@ public class BasicModuleAllocation implements ModuleAllocation {
      */
     @Override
     public int compareTo(ModuleAllocation other) {
-        return Long.compare(this.getRemainingMinutes(), other.getRemainingMinutes());
+        return Long.compare(other.getRemainingMinutes(), this.getRemainingMinutes());
     }
 
     /**
