@@ -19,6 +19,7 @@ import {
   DayId,
   DAYS_OF_WEEK,
 } from "@/lib/api";
+import { mutate } from "swr";
 
 const formsSchema = z.object({
   startDate: z.string().min(1, "Start date is required"),
@@ -68,6 +69,7 @@ export function CreateScheduleForm({
     };
 
     await createStudyplanRequest(body);
+    await mutate("semesters");
   }
 
   return (
