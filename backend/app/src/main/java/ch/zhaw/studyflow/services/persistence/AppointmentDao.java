@@ -1,9 +1,9 @@
 package ch.zhaw.studyflow.services.persistence;
 
-import ch.zhaw.studyflow.domain.calendar.Appointment;
-
 import java.time.LocalDate;
 import java.util.List;
+
+import ch.zhaw.studyflow.domain.calendar.Appointment;
 
 /**
  * Interface for managing appointment data.
@@ -47,4 +47,14 @@ public interface AppointmentDao {
      * @param appointment the appointment to update
      */
     void update(Appointment appointment);
+
+    /**
+     * Reads all appointments for a calendar within a date range.
+     *
+     * @param calendarId the ID of the calendar
+     * @param start the start date
+     * @param end the end date
+     * @return a list of appointments
+     */
+    List<Appointment> readAllBy(long calendarId, LocalDate start, LocalDate end);
 }
