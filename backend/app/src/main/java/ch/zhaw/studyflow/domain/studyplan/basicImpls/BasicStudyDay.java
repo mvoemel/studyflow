@@ -232,11 +232,21 @@ public class BasicStudyDay implements StudyDay {
                 studyAllocations.add(new BasicStudyAllocation(start, start.plusMinutes(availableMinutes), date));
             } else {
                 int nrOfBlocks = availableMinutes / 120 + 1;
-                int blockLength = (((availableMinutes - nrOfBlocks * 10) / nrOfBlocks)/SLOT_SIZE)*SLOT_SIZE;
-                for(int i = 0; i < nrOfBlocks; i++) {
-                    timeSlots.setTimeSlot(TimeSlotValue.STUDY, start.plusMinutes(i * (blockLength + 10)), start.plusMinutes((i + 1) * blockLength + i * 10));
-                    timeSlots.setTimeSlot(TimeSlotValue.BREAK, start.plusMinutes((i + 1) * blockLength + i * 10), start.plusMinutes((i + 1) * blockLength + (i + 1) * 10));
-                    studyAllocations.add(new BasicStudyAllocation(start.plusMinutes(i * (blockLength + 10)), start.plusMinutes((i + 1) * blockLength + i * 10), date));
+                int blockLength = (((availableMinutes - (nrOfBlocks - 1) * BLOCK_BREAK) / nrOfBlocks)/SLOT_SIZE)*SLOT_SIZE;
+
+                //check if block length is too short and slots are left free
+                int difference = availableMinutes - nrOfBlocks * blockLength - (nrOfBlocks - 1) * BLOCK_BREAK;
+
+                //first block creates no break and adds the difference to its length
+                timeSlots.setTimeSlot(TimeSlotValue.STUDY, start, start.plusMinutes(blockLength + difference));
+                studyAllocations.add(new BasicStudyAllocation(start, start.plusMinutes(blockLength + difference), date));
+
+                int nextStartMinutes = blockLength + difference;
+                for(int i = 1; i < nrOfBlocks; i++) {
+                    timeSlots.setTimeSlot(TimeSlotValue.BREAK, start.plusMinutes(nextStartMinutes), start.plusMinutes(nextStartMinutes + BLOCK_BREAK));
+                    timeSlots.setTimeSlot(TimeSlotValue.STUDY, start.plusMinutes(nextStartMinutes + BLOCK_BREAK), start.plusMinutes(nextStartMinutes + blockLength + BLOCK_BREAK));
+                    studyAllocations.add(new BasicStudyAllocation(start.plusMinutes(nextStartMinutes + BLOCK_BREAK), start.plusMinutes(nextStartMinutes + blockLength + BLOCK_BREAK), date));
+                    nextStartMinutes += blockLength + BLOCK_BREAK;
                 }
             }
             System.out.println("Remaining minutes: " + timeSlots.getRemainingMinutes());
