@@ -22,27 +22,31 @@ const useAppointments = (calendarId: string | undefined) => {
   ) => {
     if (!calendarId) return;
 
-    const optimisticAppointment = {
-      ...body,
-      id: `tmp-appointment-id-${Date.now()}`,
-      calendarId,
-    };
+    await newAppointmentForCalendarRequest(calendarId, body);
+    await mutate();
 
-    await mutate(
-      async () => {
-        const addedAppointment = await newAppointmentForCalendarRequest(
-          calendarId,
-          body
-        );
-        return [...(data || []), addedAppointment];
-      },
-      {
-        optimisticData: [...(data || []), optimisticAppointment],
-        rollbackOnError: true,
-        populateCache: true,
-        revalidate: false,
-      }
-    );
+    // TODO: implement optimistic UI updates
+    // const optimisticAppointment = {
+    //   ...body,
+    //   id: `tmp-appointment-id-${Date.now()}`,
+    //   calendarId,
+    // };
+
+    // await mutate(
+    //   async () => {
+    //     const addedAppointment = await newAppointmentForCalendarRequest(
+    //       calendarId,
+    //       body
+    //     );
+    //     return [...(data || []), addedAppointment];
+    //   },
+    //   {
+    //     optimisticData: [...(data || []), optimisticAppointment],
+    //     rollbackOnError: true,
+    //     populateCache: true,
+    //     revalidate: false,
+    //   }
+    // );
   };
 
   const updateAppointment = async (
@@ -51,43 +55,51 @@ const useAppointments = (calendarId: string | undefined) => {
   ) => {
     if (!calendarId) return;
 
-    await mutate(
-      async () => {
-        await updateAppointmentForCalendarRequest(
-          calendarId,
-          appointmentId,
-          body
-        );
-        return (data || []).map((d) =>
-          d.id === appointmentId ? { ...d, ...body } : d
-        );
-      },
-      {
-        optimisticData: (data || []).map((d) =>
-          d.id === appointmentId ? { ...d, ...body } : d
-        ),
-        rollbackOnError: true,
-        populateCache: true,
-        revalidate: false,
-      }
-    );
+    await updateAppointmentForCalendarRequest(calendarId, appointmentId, body);
+    await mutate();
+
+    // TODO: implement optimistic UI updates
+    // await mutate(
+    //   async () => {
+    //     await updateAppointmentForCalendarRequest(
+    //       calendarId,
+    //       appointmentId,
+    //       body
+    //     );
+    //     return (data || []).map((d) =>
+    //       d.id === appointmentId ? { ...d, ...body } : d
+    //     );
+    //   },
+    //   {
+    //     optimisticData: (data || []).map((d) =>
+    //       d.id === appointmentId ? { ...d, ...body } : d
+    //     ),
+    //     rollbackOnError: true,
+    //     populateCache: true,
+    //     revalidate: false,
+    //   }
+    // );
   };
 
   const deleteAppointment = async (appointmentId: Appointment["id"]) => {
     if (!calendarId) return;
 
-    await mutate(
-      async () => {
-        await deleteAppointmentForCalendarRequest(calendarId, appointmentId);
-        return (data || []).filter((d) => d.id !== appointmentId);
-      },
-      {
-        optimisticData: (data || []).filter((d) => d.id !== appointmentId),
-        rollbackOnError: true,
-        populateCache: true,
-        revalidate: false,
-      }
-    );
+    await deleteAppointmentForCalendarRequest(calendarId, appointmentId);
+    await mutate();
+
+    // TODO: implement optimistic UI updates
+    // await mutate(
+    //   async () => {
+    //     await deleteAppointmentForCalendarRequest(calendarId, appointmentId);
+    //     return (data || []).filter((d) => d.id !== appointmentId);
+    //   },
+    //   {
+    //     optimisticData: (data || []).filter((d) => d.id !== appointmentId),
+    //     rollbackOnError: true,
+    //     populateCache: true,
+    //     revalidate: false,
+    //   }
+    // );
   };
 
   return {

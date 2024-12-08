@@ -8,7 +8,7 @@ import interactionPlugin, {
 } from "@fullcalendar/interaction";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AddAppointmentDialog } from "@/components/dialogs/add-appointment";
+import { AppointmentDialog } from "@/components/dialogs/appointment-dialog";
 import { CreateScheduleDialog } from "@/components/dialogs/create-schedule";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDegrees } from "@/hooks/use-degree";
@@ -21,6 +21,9 @@ import {
   EventSourceInput,
 } from "@fullcalendar/core/index.js";
 import { toast } from "sonner";
+import { AppointmentFormValues } from "@/components/dialogforms/appointment-form";
+import { Appointment } from "@/types";
+import { adjustToLocalTime } from "@/lib/utils";
 
 const SchedulePage = () => {
   const { settings } = useUserSettings();
@@ -43,6 +46,7 @@ const SchedulePage = () => {
 
   const {
     appointments: globalAppointments,
+    addNewAppointment: addNewAppointment,
     updateAppointment: updateGlobalAppointment,
   } = useAppointments(settings?.globalCalendarId);
   const {
@@ -67,26 +71,107 @@ const SchedulePage = () => {
     return globalEvents.concat(currSemesterEvents);
   }, [globalAppointments, currSemesterAppointments]);
 
-  const [isAddAppointmentDialogOpen, setIsAddAppointmentDialogOpen] =
+  const [appointmentDialogOpen, setAppointmentDialogOpen] = useState(false);
+  const [createScheduleDialogOpen, setCreateScheduleDialogOpen] =
     useState(false);
-  const [isCreateScheduleDialogOpen, setIsCreateScheduleDialogOpen] =
-    useState(false);
+
+  const [selectedAppointment, setSelectedAppointment] = useState<
+    Appointment | undefined
+  >();
 
   const openAddAppointmentDialog = useCallback(() => {
-    setIsAddAppointmentDialogOpen(true);
+    setAppointmentDialogOpen(true);
   }, []);
   const closeAddAppointmentDialog = useCallback(() => {
-    setIsAddAppointmentDialogOpen(false);
+    setAppointmentDialogOpen(false);
   }, []);
   const openCreateScheduleDialog = useCallback(() => {
-    setIsCreateScheduleDialogOpen(true);
+    setCreateScheduleDialogOpen(true);
   }, []);
   const closeCreateScheduleDialog = useCallback(() => {
-    setIsCreateScheduleDialogOpen(false);
+    setCreateScheduleDialogOpen(false);
   }, []);
 
-  const handleOnDClickEvent = (arg: EventClickArg) => {
+  const handleAppointmentDelete = async (appointmentId: string) => {};
+
+  const handleAppointmentSubmit = async (data: AppointmentFormValues) => {
+    console.log(data);
+
+    const body = {
+      title: data.title,
+      description: data.description,
+      startDateTime: new Date(data.startDateTime),
+      endDateTime: new Date(data.endDateTime),
+    };
+
+    try {
+      if (!selectedAppointment) {
+        await addNewAppointment(body);
+      } else {
+        const appointmentFromGlobal = globalAppointments?.find(
+          (a) => a.id === selectedAppointment.id
+        );
+
+        const appointmentFromCurrSemester = currSemesterAppointments?.find(
+          (a) => a.id === selectedAppointment.id
+        );
+
+        if (appointmentFromGlobal) {
+          await updateGlobalAppointment(body, appointmentFromGlobal.id);
+        } else if (appointmentFromCurrSemester) {
+          await updateActiveSemesterAppointment(
+            body,
+            appointmentFromCurrSemester.id
+          );
+        } else {
+          toast.error("Appointment not found!");
+          return;
+        }
+      }
+
+      toast.success(
+        `Successfully ${
+          !selectedAppointment ? "added new" : "updated"
+        } appointment!`
+      );
+    } catch (err) {
+      toast.error(
+        `Failed to ${
+          !selectedAppointment ? "added new" : "updated"
+        } appointment.`
+      );
+    }
+  };
+
+  const handleOnClickEvent = (arg: EventClickArg) => {
     console.log("Clicked event:", arg);
+
+    const appointmentFromGlobal = globalAppointments?.find(
+      (a) => a.id === arg.event.id
+    );
+
+    const appointmentFromCurrSemester = currSemesterAppointments?.find(
+      (a) => a.id === arg.event.id
+    );
+
+    if (!appointmentFromGlobal && !appointmentFromCurrSemester) {
+      toast.error("Appointment not found!"); // TODO: remove
+      return;
+    } else if (appointmentFromGlobal && appointmentFromCurrSemester) {
+      toast.error("Duplicate appointment id!"); // TODO: remove
+      return;
+    } else if (!appointmentFromGlobal && appointmentFromCurrSemester) {
+      setSelectedAppointment(appointmentFromCurrSemester);
+      setAppointmentDialogOpen(true);
+      return;
+    } else if (appointmentFromGlobal && !appointmentFromCurrSemester) {
+      setSelectedAppointment(appointmentFromGlobal);
+      setAppointmentDialogOpen(true);
+      return;
+    } else {
+      toast.error("Something went wrong!"); // TODO: remove
+      return;
+    }
   };
 
   const handleOnDropEvent = async (arg: EventDropArg) => {
@@ -100,6 +185,8 @@ const SchedulePage = () => {
     const endDateTime = arg.event.end;
 
     if (!startDateTime || !endDateTime) return; // TODO: refactor this
+
+    console.log(startDateTime, endDateTime);
 
     console.log(
       "calendarId:",
@@ -119,8 +206,8 @@ const SchedulePage = () => {
             {
               title,
               description,
-              startDateTime,
-              endDateTime,
+              startDateTime: adjustToLocalTime(startDateTime),
+              endDateTime: adjustToLocalTime(endDateTime),
             },
             appointmentId
           );
@@ -130,8 +217,8 @@ const SchedulePage = () => {
             {
               title,
               description,
-              startDateTime,
-              endDateTime,
+              startDateTime: adjustToLocalTime(startDateTime),
+              endDateTime: adjustToLocalTime(endDateTime),
             },
             appointmentId
           );
@@ -155,7 +242,14 @@ const SchedulePage = () => {
   return (
     <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
       <div className="flex gap-4">
-        <Button onClick={openAddAppointmentDialog}>Add an Appointment</Button>
+        <Button
+          onClick={() => {
+            setSelectedAppointment(undefined);
+            openAddAppointmentDialog();
+          }}
+        >
+          Add an Appointment
+        </Button>
         <Button
           onClick={openCreateScheduleDialog}
           disabled={!!currSemester?.calendarId}
@@ -171,7 +265,7 @@ const SchedulePage = () => {
           nowIndicator={true}
           allDaySlot={false}
           events={events}
-          eventClick={handleOnDClickEvent}
+          eventClick={handleOnClickEvent}
           eventDragMinDistance={5}
           eventDrop={handleOnDropEvent}
           eventResizeStop={handleOnResizeStopEvent}
@@ -191,13 +285,16 @@ const SchedulePage = () => {
         />
       </Card>
 
-      <AddAppointmentDialog
-        isOpen={isAddAppointmentDialogOpen}
-        onClose={closeAddAppointmentDialog}
+      <AppointmentDialog
+        open={appointmentDialogOpen}
+        onOpenChange={setAppointmentDialogOpen}
+        onSubmit={handleAppointmentSubmit}
+        // @ts-ignore
+        initialData={selectedAppointment}
       />
 
       <CreateScheduleDialog
-        isOpen={isCreateScheduleDialogOpen}
+        isOpen={createScheduleDialogOpen}
         onClose={closeCreateScheduleDialog}
       />
     </div>
