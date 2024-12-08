@@ -82,6 +82,6 @@ public class BasicModuleAllocationTest {
     @Test
     public void testCompareTo() {
         BasicModuleAllocation otherModuleAllocation = new BasicModuleAllocation(2L, 30L, 100L);
-        assertTrue(moduleAllocation.compareTo(otherModuleAllocation) > 0);
+        assertTrue(moduleAllocation.compareTo(otherModuleAllocation) < 0);
     }
 }
