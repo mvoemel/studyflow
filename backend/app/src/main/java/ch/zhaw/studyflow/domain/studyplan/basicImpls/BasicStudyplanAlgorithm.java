@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.logging.Logger;
 import ch.zhaw.studyflow.controllers.deo.StudyplanParameters;
 import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.domain.curriculum.Module;
+import ch.zhaw.studyflow.domain.studyplan.ModuleAllocation;
 import ch.zhaw.studyflow.domain.studyplan.StudyDay;
 import ch.zhaw.studyflow.domain.studyplan.StudyplanAlgorithm;
 
@@ -27,9 +29,8 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
     private List<Appointment> appointments;
     private List<Module> modules;
     
-    private Map<Module, Long> modulePercentages;
+    private List<ModuleAllocation> moduleAllocations;
     private List<StudyDay> studyDays;
-    private Map<Module, List<StudyDay>> moduleStudyDays;
 
     public BasicStudyplanAlgorithm(StudyplanParameters parameters, long calendarId, List<Appointment> appointments, List<Module> modules){ 
         this.calendarId = calendarId;
@@ -42,10 +43,8 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
         this.appointments = appointments;
         this.modules = modules;
 
-        this.modulePercentages = new HashMap<>();
-        this.studyDays = new ArrayList<>();
-        this.moduleStudyDays = new HashMap<>();
-        
+        this.moduleAllocations = new ArrayList<>();
+        this.studyDays = new ArrayList<>();        
     }
 
     @Override
@@ -54,12 +53,12 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
     }
 
     @Override
-    public Map<Module, List<StudyDay>> getModuleStudyDays() {
-        return moduleStudyDays;
+    public List<ModuleAllocation> getModuleAllocations() {
+        return moduleAllocations;
     }
 
-    //TODO: part of interface?
-    private void createStudyDays(){
+    @Override
+    public void createStudyDays(){
         LocalDate currentDate = startDate;
         
         while(currentDate.isBefore(endDate)){
@@ -78,6 +77,22 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
         }
     }
 
+    @Override
+    public void allocateModules(){
+        calculateModulePercentages();
+
+        //sort StudyDays by available minutes
+        Collections.sort(studyDays);
+
+        //allocate studyDays to modules 
+        for(StudyDay studyDay : studyDays){
+            //sort modules by remaining minutes
+            Collections.sort(moduleAllocations);
+            //allocate module to studyDay
+            ModuleAllocation moduleAllocation = moduleAllocations.get(0);
+            moduleAllocation.allocate(studyDay);
+        }
+    }
 
     private int calculateTotalMinutes(){
         int totalMinutes = 0;
@@ -98,59 +113,13 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
             moduleSum += initValue;
         }
 
-        //normalize percentages
+        //normalize percentages and calculate minutes
+        int totalMinutes = calculateTotalMinutes();
         for(Module module : modules){
             long percentage = moduleInitValues.get(module);
-            modulePercentages.put(module, percentage/moduleSum);
+            moduleAllocations.add(new BasicModuleAllocation(module.getId(), percentage*100/moduleSum, percentage*totalMinutes/moduleSum));
         }
         
     }
-
-    private void allocateModules(){
-        //TODO: implement
-        //allocate modules to studyDays
-        //use michaels concept:
-
-        /*
-         public static Map<String, List<String>> createStudyPlan(List<Day> days, List<Module> modules) {
-        // Step 1: Calculate total hours available
-        int totalHours = days.stream().mapToInt(day -> day.hours).sum();
-
-        // Step 2: Calculate target hours for each module
-        List<ModuleAllocation> moduleAllocations = new ArrayList<>();
-        for (Module module : modules) {
-            double targetHours = (module.percentage / 100) * totalHours;
-            moduleAllocations.add(new ModuleAllocation(module.module, targetHours));
-        }
-
-        // Step 3: Sort days by hours in descending order
-        days.sort((a, b) -> Integer.compare(b.hours, a.hours));
-
-        // Step 4: Allocate days to modules
-        for (Day day : days) {
-            // Sort modules by unmet need (target - allocated)
-            moduleAllocations.sort((a, b) -> Double.compare(
-                (b.targetHours - b.allocatedHours), 
-                (a.targetHours - a.allocatedHours)
-            ));
-
-            // Assign the day to the module with the highest unmet need
-            ModuleAllocation selectedModule = moduleAllocations.get(0);
-            selectedModule.allocatedHours += day.hours;
-            selectedModule.days.add(day.date);
-        }
-
-        // Step 5: Build the final study plan
-        Map<String, List<String>> studyPlan = new HashMap<>();
-        for (ModuleAllocation allocation : moduleAllocations) {
-            studyPlan.put(allocation.module, allocation.days);
-        }
-
-        return studyPlan;
-    }
-         */
-    }
-
-
     
 }

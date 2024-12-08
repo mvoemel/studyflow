@@ -5,17 +5,19 @@ import java.util.List;
 
 import ch.zhaw.studyflow.domain.calendar.Appointment;
 
-public interface StudyDay {
+public interface StudyDay extends Comparable<StudyDay> {
+    LocalDate getDate();
+    void setDate(LocalDate date);
+    long getMinutes();
+    void calculateMinutes();
+    List<Appointment> getAppointments();
+    void addAppointment(Appointment appointment);
+    void removeAppointment(Appointment appointment);
+    List<StudyAllocation> getStudyAllocations();
+    void addStudyAllocation(StudyAllocation studyAllocation);
+    void removeStudyAllocation(StudyAllocation studyAllocation);
+    void calculateStudyAllocations();
 
-    public LocalDate getDate();
-    public void setDate(LocalDate date);
-    public int getMinutes();
-    public void calculateMinutes();
-    public List<Appointment> getAppointments();
-    public void addAppointment(Appointment appointment);
-    public void removeAppointment(Appointment appointment);
-    public List<StudyAllocation> getStudyAllocations();
-    public void addStudyAllocation(StudyAllocation studyAllocation);
-    public void removeStudyAllocation(StudyAllocation studyAllocation);
-    public void calculateStudyAllocations();
+    @Override
+    int compareTo(StudyDay other);
 }

@@ -2,24 +2,32 @@ package ch.zhaw.studyflow.domain.studyplan.basicImpls;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.zhaw.studyflow.domain.calendar.Appointment;
 import ch.zhaw.studyflow.domain.studyplan.StudyAllocation;
 import ch.zhaw.studyflow.domain.studyplan.StudyDay;
+import ch.zhaw.studyflow.domain.studyplan.timeSlotCalculation.TimeSlotContent;
+import ch.zhaw.studyflow.domain.studyplan.timeSlotCalculation.TimeSlots;
 
 public class BasicStudyDay implements StudyDay {
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
-    private int minutes;
+    private long minutes;
     private List<Appointment> appointments;
+    
+    private TimeSlots timeSlots;
+    private final int slotSize = 5;
     private List<StudyAllocation> studyAllocations; //oder direkt appointments?
 
     public BasicStudyDay(LocalDate date, LocalTime startTime, LocalTime endTime) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.timeSlots = new TimeSlots(startTime, endTime, slotSize);
+        this.studyAllocations = new ArrayList<>();
     }
 
     @Override
@@ -33,7 +41,7 @@ public class BasicStudyDay implements StudyDay {
     }
 
     @Override
-    public int getMinutes() {
+    public long getMinutes() {
         return minutes;
     }
 
@@ -79,8 +87,94 @@ public class BasicStudyDay implements StudyDay {
     public void calculateStudyAllocations() { 
         //TODO create time blocks of ?? hours/minutes based on available time in between start and end time
         //also take breaks and appointments into account
-        //question: do we give the user the option to set the length of the study blocks? and length of breaks?
-        //idea: otherwise figure out some way of adding optimal breaks (I have an idea)
+        //only work with minute values that are divisible by 5
+        //breaks: 10 minutes between two allocations, 45-60 minutes in the middle of the day for lunch
+        //appointments: take into account the time of the appointment, also add a buffer of 15 minutes before and after the appointment
+        //for remaining time slots > 60 minutes, create studyAllocations of ideally 90-120 minutes, minimum 60 minutes, breaks evenly distributed (every block should have a similar size)
+        //for remaining time slots < 60 minutes, create a single studyAllocation for the remaining time (no breaks)
+
+        /*Process:
+        1. Using startTime and endTime create an array of time slots (e.g. 5 minutes each)
+        2. Check if there are appointments between start and end time, if yes add a break of 15 minutes before and after the appointment and mark the time slots as taken 
+        3. Standard lunch break: 60 minutes between 11:30 and 14:30, ideally in the middle of the day
+        - figure out middle of the day (e.g. 12:30) and distribute lunch around this time
+        - if any appointments are clash with the lunch break, move the lunch break to a different time (right before or after the appointment, such that it is as close to intended time as possible, only 45 minutes)
+        - if day starts after 12:00 or ends before 14:00, or total time of studyDay <4h reduce lunch break to 30 minutes and place in middle of day (unless clashes with appointment, then place before or after and reduce to 15 minutes)
+        4. Create studyAllocations for remaining time slots
+        */
+        
+        //mark appointments in TimeSlots
+        for (Appointment appointment : appointments) {
+            timeSlots.setTimeSlot(TimeSlotContent.APPOINTMENT, appointment.getStartTime().toLocalTime(), appointment.getEndTime().toLocalTime());
+            timeSlots.setTimeSlot(TimeSlotContent.BREAK, appointment.getStartTime().toLocalTime().minusMinutes(15), appointment.getStartTime().toLocalTime());
+        }
+        
+
+        //calculate lunch break
+        int lunchBreak = 60;
+        LocalTime midDay = timeSlots.getStartTime(timeSlots.getTimeSlots().length / 2);
+
+        //determine duration and placement of lunch break
+        if (timeSlots.getRemainingMinutes() < 240 || startTime.isAfter(LocalTime.of(12, 0)) || endTime.isBefore(LocalTime.of(14, 0))) {
+            lunchBreak = 30;
+        } else {
+            if (midDay.isBefore(LocalTime.of(12, 00))) {
+                midDay = LocalTime.of(12, 00);
+            } else if (midDay.isAfter(LocalTime.of(14, 00))) {
+                midDay = LocalTime.of(14, 00);
+            }
+        }
+
+        //check if lunch break clashes with appointments
+        if(!timeSlots.isFree(midDay.minusMinutes(lunchBreak / 2), midDay.plusMinutes(lunchBreak / 2))) {
+            lunchBreak = 45;
+            //move lunch break to before or after appointment
+            boolean moved = false;
+            int moveBy = slotSize;
+            while (!moved && midDay.minusMinutes(lunchBreak / 2 - moveBy - 60).isAfter(startTime) && midDay.plusMinutes(lunchBreak / 2 + moveBy + 60).isBefore(endTime)) {
+                if (timeSlots.isFree(midDay.minusMinutes(lunchBreak / 2 - moveBy), midDay.plusMinutes(lunchBreak / 2 - moveBy))) {
+                    midDay = midDay.minusMinutes(moveBy);
+                    moved = true;
+                } else if (timeSlots.isFree(midDay.minusMinutes(lunchBreak / 2 + moveBy), midDay.plusMinutes(lunchBreak / 2 + moveBy))) {
+                    midDay = midDay.plusMinutes(moveBy);
+                    moved = true;
+                } else {
+                    moveBy += slotSize;
+                    if (moveBy > 90) lunchBreak = 30;
+                }
+            }
+        }
+
+        //mark lunch break in TimeSlots
+        timeSlots.setTimeSlot(TimeSlotContent.BREAK, midDay.minusMinutes(lunchBreak / 2), midDay.plusMinutes(lunchBreak / 2));
+
+        //create studyAllocations for remaining time slots
+        while (timeSlots.getRemainingMinutes() >= 30) {
+            LocalTime start = timeSlots.getEarliestFree();
+            int availableMinutes = timeSlots.getFreeMinutesAfter(startTime);
+            
+            if (availableMinutes < 30) {
+                timeSlots.setTimeSlot(BREAK, start, start.plusMinutes(availableMinutes));
+            } else if (availableMinutes < 120) {
+                timeSlots.setTimeSlot(TimeSlotContent.STUDY, start, start.plusMinutes(availableMinutes));
+                studyAllocations.add(new BasicStudyAllocation(start, start.plusMinutes(availableMinutes), date));
+            } else {
+                int nrOfBlocks = availableMinutes / 120 + 1;
+                int blockLength = (((availableMinutes - nrOfBlocks * 10) / nrOfBlocks)/slotSize)*slotSize;
+                for(int i = 0; i < nrOfBlocks; i++) {
+                    timeSlots.setTimeSlot(TimeSlotContent.STUDY, start.plusMinutes(i * (blockLength + 10)), start.plusMinutes((i + 1) * blockLength + i * 10));
+                    timeSlots.setTimeSlot(TimeSlotContent.BREAK, start.plusMinutes((i + 1) * blockLength + i * 10), start.plusMinutes((i + 1) * blockLength + (i + 1) * 10));
+                    studyAllocations.add(new BasicStudyAllocation(start.plusMinutes(i * (blockLength + 10)), start.plusMinutes((i + 1) * blockLength + i * 10), date));
+                }
+            }
+        }
+
+    }
+
+    //sort in descending order
+    @Override
+    public int compareTo(StudyDay other) {
+        return Long.compare(other.getMinutes(), this.getMinutes());
     }
 
 
