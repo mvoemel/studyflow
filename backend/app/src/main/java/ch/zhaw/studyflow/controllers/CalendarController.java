@@ -212,6 +212,35 @@ public class CalendarController {
         });
     }
 
+    @Route(path = "{calendarId}/appointments/{appointmentId}")
+    @Endpoint(method = HttpMethod.POST)
+    public HttpResponse updateAppointment(RequestContext context) {
+        final HttpRequest request = context.getRequest();
+
+        return authenticator.handleIfAuthenticated(request, principal -> {
+            final HttpResponse response = request.createResponse()
+                    .setStatusCode(HttpStatusCode.BAD_REQUEST);
+
+            final Optional<Long> calendarId = context.getUrlCaptures().get("calendarId").flatMap(LongUtils::tryParseLong);
+            final Optional<Long> appointmentId = context.getUrlCaptures().get("appointmentId").flatMap(LongUtils::tryParseLong);
+            if (calendarId.isPresent() && appointmentId.isPresent()) {
+                request.getRequestBody()
+                        .flatMap(body -> body.tryRead(Appointment.class))
+                        .flatMap(appointment -> {
+                            appointment.setId(appointmentId.get());
+                            appointment.setCalendarId(calendarId.get());
+                            appointmentManager.update(appointment);
+                            return Optional.of(appointment);
+                        })
+                        .ifPresent(appointment -> {
+                            response.setResponseBody(JsonContent.writableOf(appointment))
+                                    .setStatusCode(HttpStatusCode.OK);
+                        });
+            }
+            return response;
+        });
+    }
+
     /**
      * Endpoint for deleting a specific appointment.
      *
