@@ -175,7 +175,7 @@ const AppSidebar = () => {
 
       toast.success("Successfully logged out!");
 
-      router.push("/dashboard");
+      router.push("/login");
     } catch (err) {
       toast.error("Failed to log out.");
     }
