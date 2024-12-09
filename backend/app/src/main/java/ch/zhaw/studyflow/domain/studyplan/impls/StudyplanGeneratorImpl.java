@@ -52,51 +52,73 @@ public class StudyplanGeneratorImpl implements StudyplanGenerator {
      */
     //future possibility: add parameter "algorithm" to create different studyplans :)
     @Override
-    public Long generateStudyplan(){
-                //fetch information needed to create studyplan
-        List<Module> modules;
-        List<Appointment> appointments;
-        long globalCalendarId;
-
-        Optional<StudentManager> studentManager = serviceCollection.getService(StudentManager.class);
-        if(studentManager.isPresent()){
-            Optional<Settings> settings = studentManager.get().getSettings(userId);
-            if(settings.isPresent()){
-                globalCalendarId = settings.get().getGlobalCalendarId();
-            } else {
-                LOGGER.warning("Settings not available");
-                return null; //TODO: return error code? or what do we do?
-            }
-        } else {
-            LOGGER.warning("StudentManager not available");
-            return null; //TODO: return error code? or what do we do?
-        }
-
-        Optional<ModuleManager> moduleManager = serviceCollection.getService(ModuleManager.class);
-        if(moduleManager.isPresent()){
-            modules = moduleManager.get().getModules(userId);
-        } else {
-            LOGGER.warning("ModuleManager not available");
-            return null; //TODO: return error code? or what do we do?
-        }
-
-        Optional<AppointmentManager> appointmentManager = serviceCollection.getService(AppointmentManager.class);
-        if(appointmentManager.isPresent()){
-            appointments = appointmentManager.get().readAllBy(globalCalendarId, parameters.getStartDate(), parameters.getEndDate());
-        } else {
-            LOGGER.warning("AppointmentManager not available");
-            return null; //TODO: return error code? or what do we do?
-        }
+    public long generateStudyplan(){
+        long globalCalendarId = getGlobalCalendarId(userId);
+        List<Module> modules = getModules(userId);
+        List<Appointment> appointments = getAppointments(globalCalendarId);
 
         //call algorithm to create studyplan
         BasicStudyplanAlgorithm algorithm = new BasicStudyplanAlgorithm(parameters, globalCalendarId, appointments, modules);
         List<ModuleAllocation> moduleAllocations = algorithm.runAlgorithm();
-        long studyplanCalendarId = createCalendar(moduleAllocations);
+        long studyplanCalendarId = createCalendar();
         createAppointments(studyplanCalendarId, moduleAllocations);
-
 
         //return calendar id of the created studyplan
         return studyplanCalendarId;
+    }
+
+    /**
+     * Retrieves the global calendar ID for the specified user.
+     *
+     * @param userId the ID of the user
+     * @return the global calendar ID
+     */
+    private long getGlobalCalendarId(long userId){
+        Optional<StudentManager> studentManager = serviceCollection.getService(StudentManager.class);
+        if(studentManager.isPresent()){
+            Optional<Settings> settings = studentManager.get().getSettings(userId);
+            if(settings.isPresent()){
+                return settings.get().getGlobalCalendarId();
+            } else {
+                LOGGER.warning("Settings not available");
+                return -1; 
+            }
+        } else {
+            LOGGER.warning("StudentManager not available");
+            return -1; 
+        }
+    }
+
+    /**
+     * Retrieves the modules for the specified user.
+     *
+     * @param userId the ID of the user
+     * @return the list of modules
+     */
+    private List<Module> getModules(long userId){
+        Optional<ModuleManager> moduleManager = serviceCollection.getService(ModuleManager.class);
+        if(moduleManager.isPresent()){
+            return moduleManager.get().getModules(userId);
+        } else {
+            LOGGER.warning("ModuleManager not available");
+            return null; 
+        }
+    }
+
+    /**
+     * Retrieves the appointments for the specified global calendar.
+     *
+     * @param globalCalendarId the ID of the global calendar
+     * @return the list of appointments
+     */
+    private List<Appointment> getAppointments(long globalCalendarId){
+        Optional<AppointmentManager> appointmentManager = serviceCollection.getService(AppointmentManager.class);
+        if(appointmentManager.isPresent()){
+            return appointmentManager.get().readAllBy(globalCalendarId, parameters.getStartDate(), parameters.getEndDate());
+        } else {
+            LOGGER.warning("AppointmentManager not available");
+            return null; 
+        }
     }
 
     /**
@@ -105,7 +127,8 @@ public class StudyplanGeneratorImpl implements StudyplanGenerator {
      * @param moduleAllocations the list of module allocations
      * @return the ID of the created calendar, or -1 if an error occurs
      */
-    private long createCalendar(List<ModuleAllocation> moduleAllocations){
+    @Override
+    public long createCalendar(){
         Optional<CalendarManager> calendarManager = serviceCollection.getService(CalendarManager.class);
         if(calendarManager.isPresent()){
             Calendar calendar = new Calendar();
@@ -113,7 +136,7 @@ public class StudyplanGeneratorImpl implements StudyplanGenerator {
             return calendar.getId();
         } else {
             LOGGER.warning("CalendarManager not available");
-            return -1; //TODO: return error code? or what do we do?
+            return -1; 
         }
     }
 
@@ -123,12 +146,12 @@ public class StudyplanGeneratorImpl implements StudyplanGenerator {
      * @param calendarId        the ID of the calendar
      * @param moduleAllocations the list of module allocations
      */
-    private void createAppointments(long calendarId, List<ModuleAllocation> moduleAllocations){
+    @Override
+    public void createAppointments(long calendarId, List<ModuleAllocation> moduleAllocations){
         Optional<AppointmentManager> appointmentManager = serviceCollection.getService(AppointmentManager.class);
         Optional<ModuleManager> moduleManager = serviceCollection.getService(ModuleManager.class);
         
         if(appointmentManager.isPresent() && moduleManager.isPresent()){
-
             for(ModuleAllocation moduleAllocation : moduleAllocations){
                 Optional<Module> module = moduleManager.get().getModule(moduleAllocation.getModuleId());
                 if(module.isPresent()){
@@ -138,12 +161,10 @@ public class StudyplanGeneratorImpl implements StudyplanGenerator {
                                 appointmentManager.get().create(appointment);
                         }
                     }
-                        
                 } else {
                         LOGGER.warning("Module not available");
                 }
-            }
-                
+            }     
         } else {
             LOGGER.warning("AppointmentManager or ModuleManager not available");
         }
