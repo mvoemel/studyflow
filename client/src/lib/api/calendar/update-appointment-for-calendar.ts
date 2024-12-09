@@ -1,4 +1,5 @@
 import { tuam } from "@/lib/tuam";
+import { adjustToLocalTime } from "@/lib/utils";
 import { Appointment } from "@/types";
 
 type UpdateAppointmentForCalendarRequestBody = Omit<
@@ -11,9 +12,15 @@ const updateAppointmentForCalendarRequest = async (
   appointmentId: string,
   body: UpdateAppointmentForCalendarRequestBody
 ) => {
+  const newBody: UpdateAppointmentForCalendarRequestBody = {
+    ...body,
+    startDateTime: adjustToLocalTime(body.startDateTime),
+    endDateTime: adjustToLocalTime(body.endDateTime),
+  };
+
   return await tuam.post<void, UpdateAppointmentForCalendarRequestBody>(
     `/api/calendars/${calendarId}/appointments/${appointmentId}`,
-    body
+    newBody
   );
 };
 

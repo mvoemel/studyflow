@@ -23,7 +23,6 @@ import {
 import { toast } from "sonner";
 import { AppointmentFormValues } from "@/components/dialogforms/appointment-form";
 import { Appointment } from "@/types";
-import { adjustToLocalTime } from "@/lib/utils";
 import { useModules } from "@/hooks/use-modules";
 
 const SchedulePage = () => {
@@ -217,8 +216,8 @@ const SchedulePage = () => {
     const body = {
       title,
       description,
-      startDateTime: adjustToLocalTime(startDateTime),
-      endDateTime: adjustToLocalTime(endDateTime),
+      startDateTime,
+      endDateTime,
     };
 
     try {
