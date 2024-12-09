@@ -3,7 +3,6 @@ import { Module } from "@/types";
 
 type AllModulesResponseData = Module[];
 
-// TODO: add optional degreeId and semesterId query parameters
 const getAllModulesRequest = async () => {
   const response = await tuam.get<
     {

@@ -10,6 +10,11 @@ import {
 import { Module } from "@/types";
 import useSWR from "swr";
 
+/**
+ * This hook holds all modules for a specific user.
+ *
+ * @returns a list of all modules for current signed in user
+ */
 const useModules = () => {
   const { data, error, mutate, isLoading } = useSWR<AllModulesResponseData>(
     "modules",

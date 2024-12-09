@@ -136,7 +136,9 @@ const ModuleSection = ({ module }: { module: GradesViewModule }) => {
         <span className="mr-4 text-muted-foreground text-xs">
           {module.moduleEcts}
         </span>
-        <span>{grade === 0 || Number.isNaN(grade) ? "-" : grade.toFixed(2)}</span>
+        <span>
+          {grade === 0 || Number.isNaN(grade) ? "-" : grade.toFixed(2)}
+        </span>
         <Button
           className="p-0"
           variant="ghost"

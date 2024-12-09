@@ -55,29 +55,28 @@ export function AddSemesterForm({
     onClose();
 
     try {
-        if (!settings?.activeDegreeId) throw new Error("No active degree");
+      if (!settings?.activeDegreeId) throw new Error("No active degree");
 
-            if (isEdit) {
-                await updateSemester(
-                    {
-                        name: values.semesterName,
-                        description: values.semesterDescription,
-                    },
-                    semesterId as string
-                );
+      if (isEdit) {
+        await updateSemester(
+          {
+            name: values.semesterName,
+            description: values.semesterDescription,
+          },
+          semesterId as string
+        );
+      } else {
+        await addNewSemester({
+          name: values.semesterName,
+          description: values.semesterDescription,
+          degreeId: settings.activeDegreeId,
+        });
+      }
 
-            } else {
-                await addNewSemester({
-                    name: values.semesterName,
-                    description: values.semesterDescription,
-                    degreeId: settings.activeDegreeId,
-                });
-            }
-
-            toast.success(`Successfully ${isEdit ? "updated" : "added"} semester.`);
-        } catch (err) {
-            toast.error(`Failed to ${isEdit ? "update" : "add"} semester.`);
-        }
+      toast.success(`Successfully ${isEdit ? "updated" : "added"} semester.`);
+    } catch (err) {
+      toast.error(`Failed to ${isEdit ? "update" : "add"} semester.`);
+    }
   };
 
   return (
@@ -115,11 +114,11 @@ export function AddSemesterForm({
         />
         <Button type="submit">Add</Button>
         <Button
-            variant="ghost"
-            onClick={(event) => {
-                event.preventDefault();
-                onClose();
-            }}
+          variant="ghost"
+          onClick={(event) => {
+            event.preventDefault();
+            onClose();
+          }}
         >
           Cancel
         </Button>

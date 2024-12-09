@@ -10,6 +10,13 @@ import {
 import { Appointment } from "@/types";
 import useSWR from "swr";
 
+/**
+ * This hook returns a list of all appointments for a calendar using the calendarId.
+ * If calendarId is not specified no request is made, until calendarId is specified.
+ *
+ * @param calendarId the calendar id for which appointments are to be returned
+ * @returns list of appointments
+ */
 const useAppointments = (calendarId: string | undefined) => {
   const { data, error, mutate, isLoading } =
     useSWR<AppointmentsForCalendarResponseData>(

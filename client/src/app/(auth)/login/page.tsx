@@ -17,8 +17,6 @@ import { LoadingSpinner } from "@/components/global/loading-spinner";
 import { loginRequest } from "@/lib/api";
 import { toast } from "sonner";
 
-// TODO: implement zod for form validation
-
 const LoginPage = () => {
   const router = useRouter();
 

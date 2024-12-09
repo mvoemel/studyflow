@@ -34,7 +34,7 @@ const GradeBox = ({ grade, description, className }: GradeBoxProps) => {
             "text-red-500": grade < 4,
           })}
         >
-          {Number.isNaN(grade) ? 0 : grade /*?.toFixed(1)*/}
+          {typeof grade === "number" ? grade?.toFixed(1) : "N/A"}
         </CardTitle>
       </CardContent>
     </Card>

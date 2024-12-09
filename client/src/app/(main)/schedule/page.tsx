@@ -26,7 +26,6 @@ import { Appointment } from "@/types";
 import { adjustToLocalTime } from "@/lib/utils";
 import { useModules } from "@/hooks/use-modules";
 
-// TODO: refactor this shit
 const SchedulePage = () => {
   const { settings } = useUserSettings();
   const { degrees } = useDegrees();
@@ -93,9 +92,6 @@ const SchedulePage = () => {
 
   const openAddAppointmentDialog = useCallback(() => {
     setAppointmentDialogOpen(true);
-  }, []);
-  const closeAddAppointmentDialog = useCallback(() => {
-    setAppointmentDialogOpen(false);
   }, []);
   const openCreateScheduleDialog = useCallback(() => {
     setCreateScheduleDialogOpen(true);
@@ -189,10 +185,10 @@ const SchedulePage = () => {
     );
 
     if (!appointmentFromGlobal && !appointmentFromCurrSemester) {
-      toast.error("Appointment not found!"); // TODO: remove
+      toast.error("Appointment not found!");
       return;
     } else if (appointmentFromGlobal && appointmentFromCurrSemester) {
-      toast.error("Duplicate appointment id!"); // TODO: remove
+      toast.error("Duplicate appointment id!");
       return;
     } else if (!appointmentFromGlobal && appointmentFromCurrSemester) {
       setSelectedAppointment(appointmentFromCurrSemester);
@@ -203,7 +199,7 @@ const SchedulePage = () => {
       setAppointmentDialogOpen(true);
       return;
     } else {
-      toast.error("Something went wrong!"); // TODO: remove
+      toast.error("Something went wrong!");
       return;
     }
   };
@@ -216,7 +212,7 @@ const SchedulePage = () => {
     const startDateTime = arg.event.start;
     const endDateTime = arg.event.end;
 
-    if (!startDateTime || !endDateTime) return; // TODO: refactor this
+    if (!startDateTime || !endDateTime) return;
 
     const body = {
       title,

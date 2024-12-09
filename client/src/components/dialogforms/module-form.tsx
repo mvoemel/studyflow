@@ -55,15 +55,12 @@ type ModuleFormsProps = {
   moduleId?: string;
 };
 
-// TODO: refactor so that whole module is passed
-// Attention: right now of no moduleId is passed when isEdit is true, it could break the app
 const ModuleForm = ({
   onClose,
   isEdit,
   defaultValues,
   moduleId,
 }: ModuleFormsProps) => {
-  // TODO: refactor the use of params here
   const { degreeId, semesterId } = useParams();
 
   const { addNewModule, updateModule } = useModules();
@@ -118,7 +115,7 @@ const ModuleForm = ({
 
       toast.success(`Successfully ${isEdit ? "updated" : "added"}  module!`);
     } catch (err) {
-        console.log(err);
+      console.log(err);
       toast.error(`Failed to ${isEdit ? "update" : "add"} module.`);
     }
   };
@@ -235,13 +232,13 @@ const ModuleForm = ({
         </div>
         <FormDescription>Rate these values from 0-10.</FormDescription>
         <Button type="submit">{isEdit ? "Save" : "Add"}</Button>
-          <Button
-              variant="ghost"
-              onClick={(event) => {
-                  event.preventDefault();
-                  onClose();
-              }}
-          >
+        <Button
+          variant="ghost"
+          onClick={(event) => {
+            event.preventDefault();
+            onClose();
+          }}
+        >
           Cancel
         </Button>
       </form>

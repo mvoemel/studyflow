@@ -17,11 +17,9 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
-import { updateGradesForModuleRequest } from "@/lib/api";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { useGrades } from "@/hooks/use-grades";
 
-//TODO: fix error message not showing
 const formsSchema = z.object({
   grades: z
     .array(
@@ -62,7 +60,7 @@ export function AddGradesForms({
   moduleId,
   onClose,
 }: AddGradeFormsProps) {
-  const { settings } = useUserSettings(); // TODO: refactor so that activeDegreeId is given to the component through props
+  const { settings } = useUserSettings();
   const { updateGrades } = useGrades(settings?.activeDegreeId);
 
   const form = useForm<z.infer<typeof formsSchema>>({
@@ -105,7 +103,6 @@ export function AddGradesForms({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {/* Display General Array Error */}
         {form.formState.errors.grades?.message && (
           <p className="text-red-500 text-sm">
             {form.formState.errors.grades.message}
@@ -117,7 +114,6 @@ export function AddGradesForms({
               key={`${field.id}-${index}`}
               className="item-center space-y-1 mb-8"
             >
-              {/* Title Field */}
               <FormField
                 control={form.control}
                 name={`grades.${index}.name`}
@@ -137,7 +133,6 @@ export function AddGradesForms({
                 )}
               />
 
-              {/* Grade and Percentage Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -179,7 +174,7 @@ export function AddGradesForms({
                     </FormItem>
                   )}
                 />
-                {/* Delete Button */}
+
                 <Button
                   type="button"
                   variant="outline"
@@ -193,7 +188,6 @@ export function AddGradesForms({
             </div>
           ))}
 
-          {/* Add Grade Button */}
           <Button
             type="button"
             variant="outline"
@@ -205,7 +199,6 @@ export function AddGradesForms({
           </Button>
         </div>
 
-        {/* Submit and Cancel Buttons */}
         <Button type="submit">Add</Button>
         <Button variant="ghost" onClick={onClose}>
           Cancel

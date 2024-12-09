@@ -47,7 +47,7 @@ export function CreateScheduleForm({
     defaultValues: defaultValues || {
       startDate: "",
       endDate: "",
-      daysOfWeek: [], // Ensure this is a non-empty array
+      daysOfWeek: [],
       startTime: "",
       endTime: "",
     },

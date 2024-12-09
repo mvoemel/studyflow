@@ -3,7 +3,6 @@ import { Appointment } from "@/types";
 
 type AppointmentsForCalendarResponseData = Appointment[];
 
-// TODO: add optional from and to query parameters
 const getAppointmentsForCalendarRequest = async (calendarId: string) => {
   const response = await tuam.get<
     {
