@@ -17,43 +17,101 @@ class TimeSlotsTest {
 
     @BeforeEach
     void setUp() {
-        timeSlots = new TimeSlots(LocalTime.of(8, 0), LocalTime.of(18, 0), 60);
+        timeSlots = new TimeSlots(LocalTime.of(8, 0), LocalTime.of(18, 0), 5);
+    }
+
+    //clear the time slots
+    void clearTimeSlots() {
+        for (int i = 0; i < timeSlots.getTimeSlots().length; i++) {
+            timeSlots.getTimeSlots()[i] = TimeSlotValue.FREE;
+        }
+    }
+
+    @Test
+    void testGetTimeSlots() {
+        TimeSlotValue[] slots = timeSlots.getTimeSlots();
+        for (TimeSlotValue slot : slots) {
+            assertEquals(TimeSlotValue.FREE, slot);
+        }
+    }
+
+    @Test
+    void testGetRemainingMinutes() {
+        assertEquals(600, timeSlots.getRemainingMinutes());
+        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(8, 0), LocalTime.of(8, 30));
+        assertEquals(570, timeSlots.getRemainingMinutes());
+    }
+
+    @Test
+    void testGetSlotSize() {
+        assertEquals(5, timeSlots.getSlotSize());
+    }
+
+    @Test
+    void testGetSlotCount() {
+        assertEquals(120, timeSlots.getSlotCount());
     }
 
     @Test
     void testSetTimeSlot() {
-        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(9, 0), LocalTime.of(11, 0));
-        assertEquals(TimeSlotValue.STUDY, timeSlots.getTimeSlots()[1], "The slot at 09:00 should be occupied.");
-        assertEquals(TimeSlotValue.STUDY, timeSlots.getTimeSlots()[2], "The slot at 10:00 should be occupied.");
-        assertEquals(TimeSlotValue.FREE, timeSlots.getTimeSlots()[0], "The slot at 08:00 should be free.");
-        assertEquals(TimeSlotValue.FREE, timeSlots.getTimeSlots()[3], "The slot at 11:00 should be free.");
-        assertEquals(480, timeSlots.getRemainingMinutes(), "There should be 480 remaining minutes.");
+        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(9, 0), LocalTime.of(10, 0));
+        assertFalse(timeSlots.isFree(LocalTime.of(9, 0), LocalTime.of(10, 0)));
+
+        //test if start time is not in the time slots
+        clearTimeSlots();
+        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(7, 0), LocalTime.of(9, 0));
+        assertTrue(timeSlots.isSlotValue(TimeSlotValue.STUDY, LocalTime.of(8, 0), LocalTime.of(9, 0)));
+        assertTrue(timeSlots.isFree(LocalTime.of(9, 0), LocalTime.of(10, 0)));
+
+        //test if end time is not in the time slots
+        clearTimeSlots();
+        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(17, 0), LocalTime.of(19, 0));
+        assertTrue(timeSlots.isSlotValue(TimeSlotValue.STUDY, LocalTime.of(17, 0), LocalTime.of(18, 0)));
+        assertTrue(timeSlots.isFree(LocalTime.of(16, 0), LocalTime.of(17, 0)));
+
+        //test if start and end time are not in the time slots
+        clearTimeSlots();
+        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(7, 0), LocalTime.of(19, 0));
+        assertTrue(timeSlots.isSlotValue(TimeSlotValue.STUDY, LocalTime.of(8, 0), LocalTime.of(18, 0)));
+
+        clearTimeSlots();
+        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(5,0), LocalTime.of(7,0));
+        assertTrue(timeSlots.isFree(LocalTime.of(8, 0), LocalTime.of(18, 0)));
+    }
+
+    @Test
+    void testGetStartTime() {
+        assertEquals(LocalTime.of(8, 0), timeSlots.getStartTime(0));
+        assertEquals(LocalTime.of(8, 5), timeSlots.getStartTime(1));
     }
 
     @Test
     void testIsFree() {
-        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(9, 0), LocalTime.of(11, 0));
-        assertFalse(timeSlots.isFree(LocalTime.of(9, 0), LocalTime.of(11, 0)), "The time from 09:00 to 11:00 should be occupied.");
-        assertTrue(timeSlots.isFree(LocalTime.of(8, 0), LocalTime.of(9, 0)), "The time from 08:00 to 09:00 should be free.");
+        assertTrue(timeSlots.isFree(LocalTime.of(8, 0), LocalTime.of(9, 0)));
+        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(8, 0), LocalTime.of(8, 30));
+        assertFalse(timeSlots.isFree(LocalTime.of(8, 0), LocalTime.of(9, 0)));
     }
 
     @Test
     void testGetEarliestFree() {
-        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(8, 0), LocalTime.of(9, 0));
-        assertEquals(LocalTime.of(9, 0), timeSlots.getEarliestFree(), "The earliest free time should be at 09:00.");
+        assertEquals(LocalTime.of(8, 0), timeSlots.getEarliestFree());
+        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(8, 0), LocalTime.of(8, 30));
+        assertEquals(LocalTime.of(8, 30), timeSlots.getEarliestFree());
     }
 
     @Test
     void testGetFreeMinutesAfter() {
-        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(9, 0), LocalTime.of(10, 0));
-        assertEquals(60, timeSlots.getFreeMinutesAfter(LocalTime.of(8, 0)), "There should be 60 free minutes after 08:00.");
+        assertEquals(600, timeSlots.getFreeMinutesAfter(LocalTime.of(8, 0)));
+        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(8, 0), LocalTime.of(8, 30));
+        assertEquals(0, timeSlots.getFreeMinutesAfter(LocalTime.of(8, 0)));
+        assertEquals(570, timeSlots.getFreeMinutesAfter(LocalTime.of(8, 30)));
     }
 
-    @Test
-    void testSlotInitialization() {
-        for (int i = 0; i < timeSlots.getTimeSlots().length; i++) {
-            System.out.println("Slot " + i + ": " + timeSlots.getTimeSlots()[i]);
-            assertEquals(TimeSlotValue.FREE, timeSlots.getTimeSlots()[i], "Slot " + i + " should be FREE.");
-        }
+    @Test   
+    void testIsSlotValue() {
+        timeSlots.setTimeSlot(TimeSlotValue.STUDY, LocalTime.of(8, 0), LocalTime.of(8, 30));
+        assertTrue(timeSlots.isSlotValue(TimeSlotValue.STUDY, LocalTime.of(8, 0), LocalTime.of(8, 30)));
+        assertFalse(timeSlots.isSlotValue(TimeSlotValue.FREE, LocalTime.of(8, 0), LocalTime.of(8, 30)));
     }
 }
+
