@@ -10,6 +10,11 @@ import {
 import { Semester } from "@/types";
 import useSWR, { mutate as globalMutate } from "swr";
 
+/**
+ * This hook holds all semester for a specific user.
+ *
+ * @returns a list of all semesters for current signed in user
+ */
 const useSemesters = () => {
   const { data, error, mutate, isLoading } = useSWR<AllSemestersResponseData>(
     "semesters",

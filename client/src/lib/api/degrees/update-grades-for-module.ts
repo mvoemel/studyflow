@@ -10,7 +10,6 @@ const updateGradesForModuleRequest = async (
   body: UpdateGradesForModuleRequestBody,
   degreeId: string
 ) => {
-
   const newBody = {
     id: body.id,
     grades: body.grades.map((grade) => ({
@@ -20,20 +19,20 @@ const updateGradesForModuleRequest = async (
       percentage: grade.percentage,
       belongsToModule: grade.moduleId,
     })),
-  }
-    return await tuam.post<
-        void,
-        {
-            id: string;
-            grades: {
-                id: string;
-                name: string;
-                value: number;
-                percentage: number;
-                belongsToModule: string;
-            }[];
-        }
-    >(`/api/degrees/${degreeId}/grades`, newBody);
+  };
+  return await tuam.post<
+    void,
+    {
+      id: string;
+      grades: {
+        id: string;
+        name: string;
+        value: number;
+        percentage: number;
+        belongsToModule: string;
+      }[];
+    }
+  >(`/api/degrees/${degreeId}/grades`, newBody);
 };
 
 export { type UpdateGradesForModuleRequestBody, updateGradesForModuleRequest };

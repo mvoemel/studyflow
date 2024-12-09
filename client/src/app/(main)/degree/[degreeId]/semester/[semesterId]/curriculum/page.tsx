@@ -23,14 +23,18 @@ import { useParams } from "next/navigation";
 import { ModuleDialog } from "@/components/dialogs/module-dialog";
 import { Module } from "@/types";
 import { useModules } from "@/hooks/use-modules";
-import {PenIcon, Trash2} from "lucide-react";
-import {toast} from "sonner";
+import { PenIcon, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel,
-  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
 const ModulesSettingsPage = () => {
@@ -70,11 +74,11 @@ const ModulesSettingsPage = () => {
   const handleDeleteModule = async (moduleId: string) => {
     try {
       await deleteModule(moduleId);
-        toast.success("Successfully deleted module!");
+      toast.success("Successfully deleted module!");
     } catch (err) {
-        toast.error("Failed to delete module!");
+      toast.error("Failed to delete module!");
     }
-  }
+  };
 
   return (
     <div className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
@@ -120,9 +124,9 @@ const ModulesSettingsPage = () => {
                     <AlertDialog>
                       <AlertDialogTrigger>
                         <Button
-                            className="p-0"
-                            variant="destructive"
-                            size="icon"
+                          className="p-0"
+                          variant="destructive"
+                          size="icon"
                         >
                           <Trash2 className="h-4" />
                         </Button>
@@ -138,7 +142,9 @@ const ModulesSettingsPage = () => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDeleteModule(module.id)}>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteModule(module.id)}
+                          >
                             Continue
                           </AlertDialogAction>
                         </AlertDialogFooter>

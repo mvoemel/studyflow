@@ -13,7 +13,8 @@ const useGrades = (degreeId: string | undefined) => {
       !degreeId ? null : `grades-${degreeId}`,
       () => getGradesForDegreeRequest(degreeId!)
     );
-  // TODO: optimize so that data is not just revalidated but optimistically set
+
+  // TODO: implement optimistic UI updates
   const updateGrades = async (
     body: UpdateGradesForModuleRequestBody,
     degreeId: Degree["id"]
