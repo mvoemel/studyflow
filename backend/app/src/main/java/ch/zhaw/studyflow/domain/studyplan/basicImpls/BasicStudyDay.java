@@ -212,11 +212,11 @@ public class BasicStudyDay implements StudyDay {
             //move lunch break to before or after appointment
             boolean moved = false;
             int moveBy = SLOT_SIZE;
-            while (!moved && midDay.minusMinutes(lunchBreak / 2 - moveBy - 60).isAfter(startTime) && midDay.plusMinutes(lunchBreak / 2 + moveBy + 60).isBefore(endTime)) {
-                if (timeSlots.isFree(midDay.minusMinutes(lunchBreak / 2 - moveBy), midDay.plusMinutes(lunchBreak / 2 - moveBy))) {
+            while (!moved && midDay.minusMinutes(moveBy + 60).isAfter(startTime) && midDay.plusMinutes(moveBy + 60).isBefore(endTime)) {
+                if (timeSlots.isFree(midDay.minusMinutes(lunchBreak / 2 + moveBy), midDay.plusMinutes(lunchBreak / 2 - moveBy))) {
                     midDay = midDay.minusMinutes(moveBy);
                     moved = true;
-                } else if (timeSlots.isFree(midDay.minusMinutes(lunchBreak / 2 + moveBy), midDay.plusMinutes(lunchBreak / 2 + moveBy))) {
+                } else if (timeSlots.isFree(midDay.minusMinutes(lunchBreak / 2 - moveBy), midDay.plusMinutes(lunchBreak / 2 + moveBy))) {
                     midDay = midDay.plusMinutes(moveBy);
                     moved = true;
                 } else {
