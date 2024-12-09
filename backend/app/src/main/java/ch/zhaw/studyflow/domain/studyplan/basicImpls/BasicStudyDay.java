@@ -24,20 +24,18 @@ public class BasicStudyDay implements StudyDay {
     private final LocalTime LATE_MIDDAY = LocalTime.of(14, 00);
     private final int MAX_MINUTES_PER_BLOCK = 120;
     private final int MIN_MINUTES_PER_BLOCK = 30;
-    private final int MIN_MINUTES_PER_BLOCK_WITH_BREAK = 60;
     private final int BLOCK_BREAK = 10;
     private final int APPOINTMENT_BUFFER = 15;
     private final int SLOT_SIZE = 5;
     
-
     private LocalDate date;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private final LocalTime startTime;
+    private final LocalTime endTime;
     private long minutes;
-    private List<Appointment> appointments;
-    private TimeSlots timeSlots;
+    private final List<Appointment> appointments;
+    private final TimeSlots timeSlots;
     
-    private List<StudyAllocation> studyAllocations; 
+    private final List<StudyAllocation> studyAllocations; 
 
     /**
      * Constructs a BasicStudyDay with the specified date, start time, and end time.
@@ -174,27 +172,27 @@ public class BasicStudyDay implements StudyDay {
         //mark appointments in TimeSlots
         for (Appointment appointment : appointments) {
             timeSlots.setTimeSlot(TimeSlotValue.APPOINTMENT, appointment.getStartTime().toLocalTime(), appointment.getEndTime().toLocalTime());
-            timeSlots.setTimeSlot(TimeSlotValue.BREAK, appointment.getStartTime().toLocalTime().minusMinutes(15), appointment.getStartTime().toLocalTime());
+            timeSlots.setTimeSlot(TimeSlotValue.BREAK, appointment.getStartTime().toLocalTime().minusMinutes(APPOINTMENT_BUFFER), appointment.getStartTime().toLocalTime());
         }
         
         //calculate lunch break
-        int lunchBreak = 60;
+        int lunchBreak = LUNCH_BREAK;
         LocalTime midDay = timeSlots.getStartTime(timeSlots.getSlotCount() / 2);
 
         //determine duration and placement of lunch break
-        if (timeSlots.getRemainingMinutes() < 240 || startTime.isAfter(LocalTime.of(12, 0)) || endTime.isBefore(LocalTime.of(14, 0))) {
-            lunchBreak = 30;
+        if (timeSlots.getRemainingMinutes() < SHORT_DAY_MINUTES || startTime.isAfter(EARLY_MIDDAY) || endTime.isBefore(LATE_MIDDAY)) {
+            lunchBreak = LUNCH_BREAK_SHORT;
         } else {
-            if (midDay.isBefore(LocalTime.of(12, 00))) {
-                midDay = LocalTime.of(12, 00);
-            } else if (midDay.isAfter(LocalTime.of(14, 00))) {
-                midDay = LocalTime.of(14, 00);
+            if (midDay.isBefore(EARLY_MIDDAY)) {
+                midDay = EARLY_MIDDAY;
+            } else if (midDay.isAfter(LATE_MIDDAY)) {
+                midDay = LATE_MIDDAY;
             }
         }
 
         //check if lunch break clashes with appointments
         if(!timeSlots.isFree(midDay.minusMinutes(lunchBreak / 2), midDay.plusMinutes(lunchBreak / 2))) {
-            lunchBreak = 45;
+            lunchBreak = LUNCH_BREAK_CLASH;
             //move lunch break to before or after appointment
             boolean moved = false;
             int moveBy = SLOT_SIZE;
@@ -207,7 +205,7 @@ public class BasicStudyDay implements StudyDay {
                     moved = true;
                 } else {
                     moveBy += SLOT_SIZE;
-                    if (moveBy > 90) lunchBreak = 30;
+                    if (moveBy > 90) lunchBreak = LUNCH_BREAK_SHORT;
                 }
             }
         }
@@ -217,7 +215,7 @@ public class BasicStudyDay implements StudyDay {
 
 
         //create studyAllocations for remaining time slots
-        while (timeSlots.getRemainingMinutes() >= 30) {
+        while (timeSlots.getRemainingMinutes() >= MIN_MINUTES_PER_BLOCK) {
             LocalTime start = timeSlots.getEarliestFree();
             if (start.isAfter(endTime)) {
                 break;
@@ -226,13 +224,13 @@ public class BasicStudyDay implements StudyDay {
             int availableMinutes = timeSlots.getFreeMinutesAfter(start);
 
             
-            if (availableMinutes < 30) {
+            if (availableMinutes < MIN_MINUTES_PER_BLOCK) {
                 timeSlots.setTimeSlot(TimeSlotValue.BREAK, start, start.plusMinutes(availableMinutes));
-            } else if (availableMinutes < 120) {
+            } else if (availableMinutes < MAX_MINUTES_PER_BLOCK) {
                 timeSlots.setTimeSlot(TimeSlotValue.STUDY, start, start.plusMinutes(availableMinutes));
                 studyAllocations.add(new BasicStudyAllocation(start, start.plusMinutes(availableMinutes), date));
             } else {
-                int nrOfBlocks = availableMinutes / 120 + 1;
+                int nrOfBlocks = availableMinutes / MAX_MINUTES_PER_BLOCK + 1;
                 int blockLength = (((availableMinutes - (nrOfBlocks - 1) * BLOCK_BREAK) / nrOfBlocks)/SLOT_SIZE)*SLOT_SIZE;
 
                 //check if block length is too short and slots are left free
