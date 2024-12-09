@@ -20,7 +20,7 @@ import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 
 @Route(path="api/studyplan")
 public class StudyplanController {
-    private static Logger LOGGER = Logger.getLogger(StudyplanController.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(StudyplanController.class.getName());
 
     private final StudyplanManager studyplanManager;
     private final AuthenticationHandler authenticationHandler;
@@ -68,9 +68,11 @@ public class StudyplanController {
                     if (calendarId != null) {
                         response.setResponseBody(JsonContent.writableOf(calendarId))
                                 .setStatusCode(HttpStatusCode.CREATED);
+                        LOGGER.info("Studyplan created successfully");
                     } else {
                         response.setResponseBody(JsonContent.writableOf(null))
                                 .setStatusCode(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                        LOGGER.warning("Studyplan creation failed");
                     }
                 }
             }
