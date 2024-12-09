@@ -1,21 +1,21 @@
 package ch.zhaw.studyflow.domain.studyplan.basicImpls;
 
-import ch.zhaw.studyflow.domain.studyplan.ModuleAllocation;
-import ch.zhaw.studyflow.domain.studyplan.StudyDay;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import ch.zhaw.studyflow.domain.studyplan.ModuleAllocation;
+import ch.zhaw.studyflow.domain.studyplan.StudyDay;
 
 /**
  * Basic implementation of the ModuleAllocation interface.
  * This class represents the allocation of study time to a specific module.
  */
 public class BasicModuleAllocation implements ModuleAllocation {
-    private long moduleId;
-    private long percentage;
-    private long targetMinutes;
+    private final long moduleId;
+    private final long percentage;
+    private final long targetMinutes;
     private long allocatedMinutes;
-    private List<StudyDay> studyDays;
+    private final List<StudyDay> studyDays;
 
     /**
      * Constructs a BasicModuleAllocation with the specified module ID, percentage, and target minutes.
