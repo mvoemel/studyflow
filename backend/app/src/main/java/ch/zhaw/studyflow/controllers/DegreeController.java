@@ -18,6 +18,9 @@ import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+/**
+ * The DegreeController is responsible for managing degrees. It provides methods to create, read, update, and delete degrees.
+ */
 @Route(path = "api/degrees")
 public class DegreeController {
     private static final Logger LOGGER = Logger.getLogger(DegreeController.class.getName());

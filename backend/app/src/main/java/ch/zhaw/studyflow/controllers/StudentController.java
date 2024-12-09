@@ -26,6 +26,9 @@ import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+/**
+ * The StudentController is responsible for handling requests related to students.
+ */
 @Route(path = "api/student")
 public class StudentController {
     private static Logger LOGGER = Logger.getLogger(StudentController.class.getName());

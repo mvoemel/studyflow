@@ -19,6 +19,9 @@ import ch.zhaw.studyflow.webserver.security.principal.PrincipalProvider;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Controller for managing semesters.
+ */
 @Route(path = "api/semesters")
 public class SemesterController {
 

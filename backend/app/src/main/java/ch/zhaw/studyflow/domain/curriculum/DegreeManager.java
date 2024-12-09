@@ -2,6 +2,9 @@ package ch.zhaw.studyflow.domain.curriculum;
 
 import java.util.List;
 
+/**
+ * Interface for managing degrees in the domain.
+ */
 public interface DegreeManager {
     /**
      * Creates a degree for the specified user.

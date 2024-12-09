@@ -18,6 +18,10 @@ import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 import ch.zhaw.studyflow.webserver.security.authentication.AuthenticationHandler;
 import ch.zhaw.studyflow.webserver.security.principal.CommonClaims;
 
+/**
+ * Controller for the study plan API.
+ * This controller provides endpoints for generating a study plan.
+ */
 @Route(path="api/studyplan")
 public class StudyplanController {
     private static final Logger LOGGER = Logger.getLogger(StudyplanController.class.getName());
