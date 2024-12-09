@@ -15,10 +15,10 @@ All Members listed worked on either frontend or backend to develop the StudyFlow
 ### - Jil Zerndt
 
 ## Table of Contents
-- [Installation](#installation)
-- [Backend Server using Gradle](#backend-server-with-docker)
-   - [Backend](#backend)
-   - [Frontend](#frontend)
+- [Installation](#backend)
+- [Backend Server using Gradle](#backend)
+    - [Backend](#backend)
+    - [Frontend](#frontend)
 - [Class Diagrams](#class-diagrams)
 - [License](#license)
 
