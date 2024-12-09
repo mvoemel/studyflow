@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { LayoutEffect } from "../global/layer-effect";
 import { GradientWrapper } from "../global/gradient-wrapper";
 import Link from "next/link";

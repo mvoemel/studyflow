@@ -8,6 +8,11 @@ import {
 } from "@/lib/api";
 import useSWR from "swr";
 
+/**
+ * This hook holds the user and settings object of the current user.
+ *
+ * @returns an user object (without password) and a settings object
+ */
 const useUserSettings = () => {
   const { data, error, mutate, isLoading } = useSWR<MeRequestResponseData>(
     "user-settings",

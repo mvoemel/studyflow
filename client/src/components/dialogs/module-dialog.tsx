@@ -15,8 +15,6 @@ type ModuleDialogProps = {
   module?: Module | undefined;
 };
 
-// TODO: refactor
-
 const ModuleDialog = ({
   isOpen,
   onClose,
@@ -35,7 +33,6 @@ const ModuleDialog = ({
           </DialogDescription>
         </DialogHeader>
         <ModuleForm
-          // TODO: refactor so that the whole module is passed not the default values
           defaultValues={
             isEdit && module
               ? {

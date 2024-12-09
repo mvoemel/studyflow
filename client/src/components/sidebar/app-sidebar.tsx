@@ -57,13 +57,12 @@ import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
-  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
-
-// TODO: refactor entire sidebar, split into smaller components also check documentation on how to use SidebarItems and SidebarMenus
 
 const AppSidebar = () => {
   const { mutate } = useSWRConfig();
@@ -79,7 +78,9 @@ const AppSidebar = () => {
   const { degrees, updateDegree } = useDegrees();
   const { semesters, deleteSemester, updateSemester } = useSemesters();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const [semesterToDelete, setSemesterToDelete] = useState<Semester | null>(null);
+  const [semesterToDelete, setSemesterToDelete] = useState<Semester | null>(
+    null
+  );
 
   const activeSemesterId = useMemo(() => {
     if (!degrees || !semesters) return undefined;
@@ -132,7 +133,6 @@ const AppSidebar = () => {
   };
 
   const handleEditSemester = (semester: Semester) => {
-    // TODO: open dialog with edit semester form
     setSelectedSemester(semester);
     setIsEditSemesterDialogOpen(true);
   };
@@ -337,7 +337,7 @@ const AppSidebar = () => {
                                   Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                    onClick={() => openDeleteDialog(semester)}
+                                  onClick={() => openDeleteDialog(semester)}
                                 >
                                   <Trash2 className="mr-2 h-4 w-4" />
                                   Delete
@@ -352,21 +352,29 @@ const AppSidebar = () => {
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
-                            <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+                            <AlertDialog
+                              open={isAlertOpen}
+                              onOpenChange={setIsAlertOpen}
+                            >
                               <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>
-                                    Are you sure you want to delete this semester?
+                                    Are you sure you want to delete this
+                                    semester?
                                   </AlertDialogTitle>
                                   <AlertDialogDescription>
                                     This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>
+                                  <AlertDialogCancel
+                                    onClick={() => setIsAlertOpen(false)}
+                                  >
                                     Cancel
                                   </AlertDialogCancel>
-                                  <AlertDialogAction onClick={handleConfirmDelete}>
+                                  <AlertDialogAction
+                                    onClick={handleConfirmDelete}
+                                  >
                                     Continue
                                   </AlertDialogAction>
                                 </AlertDialogFooter>

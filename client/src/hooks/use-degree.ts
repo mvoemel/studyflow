@@ -10,6 +10,11 @@ import {
 import { Degree } from "@/types";
 import useSWR from "swr";
 
+/**
+ * This hook holds all degrees for a specific user.
+ *
+ * @returns a list of all degrees for current signed in user
+ */
 const useDegrees = () => {
   const { data, error, mutate, isLoading } = useSWR<AllDegreesResponseData>(
     "degrees",
