@@ -7,6 +7,10 @@ import ch.zhaw.studyflow.webserver.controllers.EndpointMetadata;
 import java.util.*;
 import java.util.function.BiPredicate;
 
+/**
+ * A trie data structure for routing. The trie is used to store routes and their corresponding endpoints.
+ * The server uses this data structure to match incoming requests to the correct endpoint.
+ */
 public class RouteTrie {
     private final RouteTrieNode root;
 

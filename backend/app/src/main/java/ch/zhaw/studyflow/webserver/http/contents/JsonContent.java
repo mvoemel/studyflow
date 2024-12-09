@@ -11,6 +11,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Represents a JSON content.
+ * Use {@link #writableOf(Object)} to create a writable text content or
+ * {@link #readableOf(String, ServiceCollection, Map, InputStream)} to create a readable text content.
+ */
 public class JsonContent implements BodyContent {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     public static final String MIME_TYPE_JSON = "application/json";

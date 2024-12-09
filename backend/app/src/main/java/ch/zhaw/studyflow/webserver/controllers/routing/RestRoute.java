@@ -6,11 +6,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Represents a route in a RESTful API.
+ * A route consists of segments, which can be either static or capture segments. The content of capture segments in
+ * an incoming request are stored in a {@link ch.zhaw.studyflow.webserver.http.CaptureContainer} and passed to the handler.
+ */
 public record RestRoute(List<RouteSegment> segments) {
     public RestRoute {
         segments = Collections.unmodifiableList(segments);
     }
 
+    /**
+     * Parses a route string into a {@link RestRoute}. A route string consists of segments, which can be either static
+     * or capture segments.
+     * Statics segments are fixed parts of the route, while capture segments are placeholders for dynamic parts of the route.
+     * The syntax for a capture segment is '{<name>}', where <name> is the name of the capture used to access it in the
+     * handler (using the {@link ch.zhaw.studyflow.webserver.http.CaptureContainer}).
+     * @param route the route string.
+     * @return the parsed route.
+     */
     public static RestRoute of(String route) {
         final char[] routeChars = route.toCharArray();
 

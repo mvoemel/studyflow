@@ -9,6 +9,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Represents the content of a text body.
+ * Use {@link #writableOf(String)} to create a writable text content or
+ * {@link #readableOf(String, ServiceCollection, Map, InputStream)} to create a readable text content.
+ */
 public class TextContent implements BodyContent {
     public static final String MIME_TEXT_PLAIN = "text/plain";
 
