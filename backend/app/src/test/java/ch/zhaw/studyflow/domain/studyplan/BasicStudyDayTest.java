@@ -3,6 +3,7 @@ package ch.zhaw.studyflow.domain.studyplan;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -18,7 +19,6 @@ import ch.zhaw.studyflow.domain.studyplan.basicImpls.BasicStudyDay;
 
 
 public class BasicStudyDayTest {
-
     private BasicStudyDay studyDay;
     private LocalDate date;
     private LocalTime startTime;
@@ -51,11 +51,25 @@ public class BasicStudyDayTest {
 
     @Test
     public void testCalculateMinutes() {
-        StudyAllocation allocation = mock(StudyAllocation.class);
-        when(allocation.getMinutes()).thenReturn(120);
-        studyDay.addStudyAllocation(allocation);
+        StudyAllocation allocation1 = mock(StudyAllocation.class);
+        StudyAllocation allocation2 = mock(StudyAllocation.class);
+        when(allocation1.getMinutes()).thenReturn(120);
+        when(allocation2.getMinutes()).thenReturn(60);
+        studyDay.addStudyAllocation(allocation1);
+        studyDay.addStudyAllocation(allocation2);
         studyDay.calculateMinutes();
-        assertEquals(120, studyDay.getMinutes());
+        assertEquals(180, studyDay.getMinutes());
+    }
+
+    @Test
+    public void testGetAppointments() {
+        assertTrue(studyDay.getAppointments().isEmpty());
+        Appointment appointment1 = mock(Appointment.class);
+        Appointment appointment2 = mock(Appointment.class);
+        studyDay.addAppointment(appointment1);
+        studyDay.addAppointment(appointment2);
+        assertTrue(studyDay.getAppointments().contains(appointment1));
+        assertTrue(studyDay.getAppointments().contains(appointment2));
     }
 
     @Test
@@ -74,6 +88,17 @@ public class BasicStudyDayTest {
     }
 
     @Test
+    public void testGetStudyAllocations() {
+        assertTrue(studyDay.getStudyAllocations().isEmpty());
+        StudyAllocation allocation1 = mock(StudyAllocation.class);
+        StudyAllocation allocation2 = mock(StudyAllocation.class);
+        studyDay.addStudyAllocation(allocation1);
+        studyDay.addStudyAllocation(allocation2);
+        assertTrue(studyDay.getStudyAllocations().contains(allocation1));
+        assertTrue(studyDay.getStudyAllocations().contains(allocation2));
+    }
+
+    @Test
     public void testAddStudyAllocation() {
         StudyAllocation allocation = mock(StudyAllocation.class);
         studyDay.addStudyAllocation(allocation);
@@ -89,14 +114,30 @@ public class BasicStudyDayTest {
     }
 
     @Test
+    public void testCalculateStudyAllocations() {
+        Appointment appointment = mock(Appointment.class);
+        when(appointment.getStartTime()).thenReturn(LocalDateTime.of(date, LocalTime.of(12, 0)));
+        when(appointment.getEndTime()).thenReturn(LocalDateTime.of(date, LocalTime.of(13, 0)));
+        studyDay.addAppointment(appointment);
+        studyDay.calculateStudyAllocations();
+        List<StudyAllocation> allocations = studyDay.getStudyAllocations();
+        assertFalse(allocations.isEmpty());
+    }
+
+    @Test
     public void testCompareTo() {
-        BasicStudyDay otherStudyDay = new BasicStudyDay(date, startTime, endTime);
-        StudyAllocation allocation = mock(StudyAllocation.class);
-        when(allocation.getMinutes()).thenReturn(120);
-        otherStudyDay.addStudyAllocation(allocation);
-        otherStudyDay.calculateMinutes();
-        assertTrue(studyDay.compareTo(otherStudyDay) > 0);
+        BasicStudyDay otherDay = new BasicStudyDay(date, startTime, endTime);
+        StudyAllocation allocation1 = mock(StudyAllocation.class);
+        StudyAllocation allocation2 = mock(StudyAllocation.class);
+        when(allocation1.getMinutes()).thenReturn(120);
+        when(allocation2.getMinutes()).thenReturn(60);
+        studyDay.addStudyAllocation(allocation1);
+        studyDay.calculateMinutes();
+        otherDay.addStudyAllocation(allocation2);
+        otherDay.calculateMinutes();
+        assertTrue(studyDay.compareTo(otherDay) < 0);
     }
 }
+
 
 

@@ -1,13 +1,6 @@
 package ch.zhaw.studyflow.domain.studyplan.impls;
 
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ch.zhaw.studyflow.controllers.deo.StudyplanParameters;
@@ -21,9 +14,7 @@ import ch.zhaw.studyflow.services.ServiceCollection;
  */
 public class StudyplanManagerImpl implements StudyplanManager {
     private static final Logger LOGGER = Logger.getLogger(StudyplanManagerImpl.class.getName());
-
     private final ServiceCollection serviceCollection;
-    private final ThreadPoolExecutor executor;
 
     /**
      * Constructs a StudyplanManagerImpl with the specified service collection.
@@ -34,8 +25,6 @@ public class StudyplanManagerImpl implements StudyplanManager {
     //threading: executor service for async tasks, limit nr of threads
     public StudyplanManagerImpl(ServiceCollection serviceCollection) {
         this.serviceCollection  = serviceCollection;
-        BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
-        this.executor = new ThreadPoolExecutor(100, 100, 0L, TimeUnit.MILLISECONDS, workQueue);
     }
 
     /**
@@ -49,12 +38,11 @@ public class StudyplanManagerImpl implements StudyplanManager {
     //future possibility: add parameter "algorithm" to create different studyplans :)
     @Override
     public Long createStudyplan(StudyplanParameters parameters, long userId){
-        //TODO: Removed Future Threading - Shpetim
         try {
             StudyplanGenerator studyplanGenerator = new StudyplanGeneratorImpl(parameters, serviceCollection, userId);
             return studyplanGenerator.generateStudyplan();
         } catch (Exception e) {
-            LOGGER.warning("Studyplan creation failed: " + e.getMessage());
+            LOGGER.log(Level.WARNING, "Studyplan creation failed: {0}", e.getMessage());
             return null;
         }
     }

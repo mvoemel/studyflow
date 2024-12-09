@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ch.zhaw.studyflow.controllers.deo.StudyplanParameters;
@@ -23,18 +24,18 @@ import ch.zhaw.studyflow.domain.studyplan.StudyplanAlgorithm;
  */
 public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
     private static final Logger LOGGER = Logger.getLogger(BasicStudyplanAlgorithm.class.getName());
-    private long calendarId;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private List<DayOfWeek> daysOfWeek;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private final long calendarId;
+    private final LocalDate startDate;
+    private final LocalDate endDate;
+    private final List<DayOfWeek> daysOfWeek;
+    private final LocalTime startTime;
+    private final LocalTime endTime;
 
-    private List<Appointment> appointments;
-    private List<Module> modules;
+    private final List<Appointment> appointments;
+    private final List<Module> modules;
     
-    private List<ModuleAllocation> moduleAllocations;
-    private List<StudyDay> studyDays;
+    private final List<ModuleAllocation> moduleAllocations;
+    private final List<StudyDay> studyDays;
     private int totalAvailableMinutes;
 
     /**
@@ -83,6 +84,16 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
     }
 
     /**
+     * Returns the total number of available minutes for study.
+     *
+     * @return the total number of minutes
+     */
+    @Override
+    public int getTotalAvailableMinutes() {
+        return totalAvailableMinutes;
+    }
+
+    /**
      * Creates study days based on the specified parameters.
      */
     @Override
@@ -96,7 +107,9 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
 
                 //add appointments to studyDay
                 for(Appointment appointment : appointments){
-                    if(appointment.getStartTime().toLocalDate().equals(currentDate)){
+                    if(appointment.getStartTime().toLocalDate().equals(currentDate) || appointment.getEndTime().toLocalDate().equals(currentDate)){
+                        studyDay.addAppointment(appointment);
+                    } else if(appointment.getStartTime().toLocalDate().isBefore(currentDate) && appointment.getEndTime().toLocalDate().isAfter(currentDate)){
                         studyDay.addAppointment(appointment);
                     }
                 }
@@ -106,6 +119,7 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
             currentDate = currentDate.plusDays(1);
         }
         calculateTotalAvailableMinutes();
+        LOGGER.log(Level.INFO, "Created {0} study days.", studyDays.size());
     }
 
     /**
@@ -126,6 +140,7 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
             ModuleAllocation moduleAllocation = moduleAllocations.get(0);
             moduleAllocation.allocate(studyDay);
         }
+        LOGGER.log(Level.INFO, "Allocated modules to study days.");
     }
 
     /**
@@ -139,6 +154,7 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
             totalMinutes += studyDay.getMinutes();
         }
         this.totalAvailableMinutes = totalMinutes;
+        LOGGER.log(Level.INFO, "Total available minutes: {0}", totalMinutes);
     }
 
     /**
@@ -149,7 +165,7 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
         Map<Module, Long> moduleInitValues = new HashMap<>();
         //calculate percentage from complexity, understanding and time (and ECTS)
         for(Module module : modules){
-            long initValue = (module.getComplexity() + module.getUnderstanding() + module.getTime())*module.getECTS();
+            long initValue = (module.getComplexity() + (10 - module.getUnderstanding()) + module.getTime())*module.getECTS();
             moduleInitValues.put(module, initValue);
             moduleSum += initValue;
         }
@@ -159,7 +175,6 @@ public class BasicStudyplanAlgorithm implements StudyplanAlgorithm {
             long percentage = moduleInitValues.get(module);
             moduleAllocations.add(new BasicModuleAllocation(module.getId(), percentage*100/moduleSum, percentage*totalAvailableMinutes/moduleSum));
         }
-        
-    }
-    
+        LOGGER.log(Level.INFO, "Calculated module percentages.");
+    } 
 }

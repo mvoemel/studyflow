@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class StudyplanParameters {
     private long settingsId;
@@ -35,9 +36,19 @@ public class StudyplanParameters {
         return this.settingsId;
     }
 
+    @JsonSetter("settingsId")
+    public void setSettingsId(long settingsId) {
+        this.settingsId = settingsId;
+    }
+
     @JsonGetter("semesterId")
     public long getSemesterId() {
         return this.semesterId;
+    }
+
+    @JsonSetter("semesterId")
+    public void setSemesterId(long semesterId) {
+        this.semesterId = semesterId;
     }
 
     @JsonGetter("startDate")
@@ -45,9 +56,19 @@ public class StudyplanParameters {
         return this.startDate;
     }
 
+    @JsonSetter("startDate")
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
     @JsonGetter("endDate")
     public LocalDate getEndDate() {
         return this.endDate;
+    }
+
+    @JsonSetter("endDate")
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     @JsonGetter("daysOfWeek")
@@ -55,14 +76,29 @@ public class StudyplanParameters {
         return this.daysOfWeek;
     }
 
+    @JsonSetter("daysOfWeek")
+    public void setDaysOfWeek(List<DayOfWeek> daysOfWeek) {
+        this.daysOfWeek = daysOfWeek;
+    }
+
     @JsonGetter("dayStartTime")
     public LocalTime getDayStartTime() {
         return this.dayStartTime;
     }
 
+    @JsonSetter("dayStartTime")
+    public void setDayStartTime(LocalTime dayStartTime) {
+        this.dayStartTime = dayStartTime;
+    }
+
     @JsonGetter("dayEndTime")
     public LocalTime getDayEndTime() {
         return this.dayEndTime;
+    }
+
+    @JsonSetter("dayEndTime")
+    public void setDayEndTime(LocalTime dayEndTime) {
+        this.dayEndTime = dayEndTime;
     }
 
 

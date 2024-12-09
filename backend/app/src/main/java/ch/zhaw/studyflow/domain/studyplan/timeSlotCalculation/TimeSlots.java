@@ -7,12 +7,12 @@ import java.time.LocalTime;
  * Each time slot has a fixed size and can be allocated with a specific value.
  */
 public class TimeSlots {
-    private LocalTime dayStartTime;
-    private LocalTime dayEndTime;
-    private TimeSlotValue[] timeSlots;
+    private final LocalTime dayStartTime;
+    private final LocalTime dayEndTime;
+    private final TimeSlotValue[] timeSlots;
     private int remainingMinutes;
-    private int slotSize;
-    private int slotCount;
+    private final int slotSize;
+    private final int slotCount;
 
     /**
      * Constructs a TimeSlots object with the specified start time, end time, and slot size.
@@ -81,7 +81,10 @@ public class TimeSlots {
      * @param endTime   the end time of the range to set
      */
     public void setTimeSlot(TimeSlotValue content, LocalTime startTime, LocalTime endTime) {
-        
+        if (startTime.isAfter(dayEndTime) || endTime.isBefore(dayStartTime)) {
+            return;
+        }
+
         int dayStartMinutes = dayStartTime.getHour() * 60 + dayStartTime.getMinute();
         int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
         int endMinutes = endTime.getHour() * 60 + endTime.getMinute();
@@ -102,7 +105,6 @@ public class TimeSlots {
                 remainingMinutes -= slotSize;
             }
         }
-        
     }
 
     /**
@@ -112,8 +114,18 @@ public class TimeSlots {
      * @return the start time of the slot
      */
     public LocalTime getStartTime(int slot) {
-        int minutesOffset = slot * slotSize; // Minuten relativ zu Startzeit 08:00
+        int minutesOffset = slot * slotSize; 
         return dayStartTime.plusMinutes(minutesOffset);
+    }
+
+    /**
+     * Returns the value of the time slot at the specified index.
+     *
+     * @param slot the slot index
+     * @return the value of the time slot
+     */
+    public TimeSlotValue getSlotValue(int slot) {
+        return timeSlots[slot];
     }
 
     /**
@@ -135,9 +147,32 @@ public class TimeSlots {
                 return false;
             }
         }
-
         return true;
     }
+
+    /**
+     * Checks if the time slots within the specified start and end times have the specified value.
+     *
+     * @param startTime the start time of the range to check
+     * @param endTime   the end time of the range to check
+     * @param value     the value to check for
+     * @return true if the time slots have the specified value, false otherwise
+     */
+    public boolean isSlotValue(TimeSlotValue value, LocalTime startTime, LocalTime endTime) {
+        int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
+        int endMinutes = endTime.getHour() * 60 + endTime.getMinute();
+
+        int startSlot = Math.max((startMinutes - dayStartTime.getHour() * 60) / slotSize, 0);
+        int endSlot = Math.min((endMinutes - dayStartTime.getHour() * 60) / slotSize, timeSlots.length);
+
+        for (int i = startSlot; i < endSlot; i++) {
+            if (timeSlots[i] != value) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     /**
      * Returns the earliest free time slot.
@@ -147,11 +182,11 @@ public class TimeSlots {
     public LocalTime getEarliestFree() {
         for (int i = 0; i < timeSlots.length; i++) {
             if (timeSlots[i] == TimeSlotValue.FREE) {
-                int minutesOffset = i * slotSize; // Minuten relativ zu Startzeit 08:00
+                int minutesOffset = i * slotSize; 
                 return dayStartTime.plusMinutes(minutesOffset);
             }
         }
-        return dayEndTime.plusMinutes(slotSize); // Falls kein freier Slot vorhanden ist
+        return dayEndTime.plusMinutes(slotSize);
     }
 
     /**
@@ -169,16 +204,11 @@ public class TimeSlots {
 
         for (int i = startSlot; i < timeSlots.length; i++) {
             if (timeSlots[i] == TimeSlotValue.FREE) {
-                freeMinutes += slotSize; // Freie Minuten summieren
+                freeMinutes += slotSize;
             } else {
-                return freeMinutes; // Abbrechen, sobald ein belegter Slot erreicht wird
+                return freeMinutes;
             }
         }
-
-        System.out.println("Calculated free minutes: " + freeMinutes);
         return freeMinutes;
     }
-
-
-
 }
