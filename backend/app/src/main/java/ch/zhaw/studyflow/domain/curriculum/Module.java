@@ -34,6 +34,21 @@ public class Module {
     }
 
     /**
+     * Constructs a module with the specified details.
+     *
+     * @param id the ID of the module
+     * @param name the name of the module
+     * @param semesterId the semester ID of the module
+     * @param degreeId the degree ID of the module
+     */
+    public Module(long id, String name, long semesterId) {
+        this.id = id;
+        this.name = name;
+        this.semesterId = semesterId;
+        this.degreeId = degreeId;
+    }
+
+    /**
      * Gets the ID of the module.
      *
      * @return the ID of the module
