@@ -54,7 +54,7 @@ public class StudyplanGeneratorImpl implements StudyplanGenerator {
     @Override
     public long generateStudyplan(){
         long globalCalendarId = getGlobalCalendarId(userId);
-        List<Module> modules = getModules(userId);
+        List<Module> modules = getModules();
         List<Appointment> appointments = getAppointments(globalCalendarId);
 
         //call algorithm to create studyplan
@@ -95,10 +95,10 @@ public class StudyplanGeneratorImpl implements StudyplanGenerator {
      * @param userId the ID of the user
      * @return the list of modules
      */
-    private List<Module> getModules(long userId){
+    private List<Module> getModules(){
         Optional<ModuleManager> moduleManager = serviceCollection.getService(ModuleManager.class);
         if(moduleManager.isPresent()){
-            return moduleManager.get().getModules(userId);
+            return moduleManager.get().getModulesBySemester(parameters.getSemesterId());
         } else {
             LOGGER.warning("ModuleManager not available");
             return null; 
