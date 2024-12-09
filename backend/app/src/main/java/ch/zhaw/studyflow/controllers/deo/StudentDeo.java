@@ -4,6 +4,9 @@ import ch.zhaw.studyflow.domain.student.Student;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+/**
+ * The student DEO hides certain attributes (e.g. the password) of the student entity and is used in the {@link MeResponse}.
+ */
 public class StudentDeo {
     private long id;
     private String firstname;

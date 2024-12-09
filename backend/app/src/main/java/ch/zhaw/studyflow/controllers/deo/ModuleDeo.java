@@ -3,6 +3,9 @@ package ch.zhaw.studyflow.controllers.deo;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+/**
+ * Represents a module with some additional attributes the client needs.
+ */
 public class ModuleDeo {
     private long id;
     private String name;

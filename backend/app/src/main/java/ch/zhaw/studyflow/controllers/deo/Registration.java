@@ -3,6 +3,9 @@ package ch.zhaw.studyflow.controllers.deo;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+/**
+ * The modle of the registration form.
+ */
 public class Registration {
     private String firstname;
     private String lastname;

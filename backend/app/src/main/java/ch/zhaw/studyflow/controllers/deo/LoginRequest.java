@@ -3,6 +3,9 @@ package ch.zhaw.studyflow.controllers.deo;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+/**
+ * Represents a login request to the backend.
+ */
 public class LoginRequest {
     private String email;
     private String password;

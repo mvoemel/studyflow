@@ -8,6 +8,9 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+/**
+ * Represents the parameters for a study plan.
+ */
 public class StudyplanParameters {
     private long settingsId;
     private long semesterId;

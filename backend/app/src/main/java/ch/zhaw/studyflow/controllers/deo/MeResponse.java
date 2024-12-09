@@ -4,6 +4,10 @@ import ch.zhaw.studyflow.domain.student.Settings;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+/**
+ * The MeResponse contains all the information about the student and its settings.
+ * It's an ease of life class to return the student and its settings in one response.
+ */
 public class MeResponse {
     private StudentDeo student;
     private Settings settings;
