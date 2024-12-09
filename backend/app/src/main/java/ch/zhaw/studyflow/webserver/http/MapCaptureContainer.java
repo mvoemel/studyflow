@@ -2,6 +2,9 @@ package ch.zhaw.studyflow.webserver.http;
 
 import java.util.*;
 
+/**
+ * A container for captures.
+ */
 public class MapCaptureContainer implements CaptureContainer {
     private final Map<String, String> capturesMap;
 

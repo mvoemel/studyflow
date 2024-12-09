@@ -6,6 +6,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+/**
+ * A simple service collection builder for creating a service collection based on a map of factories.
+ */
 public class MapServiceCollectionBuilder implements ServiceCollectionBuilder {
     private static final Logger LOGGER = Logger.getLogger(MapServiceCollectionBuilder.class.getName());
 

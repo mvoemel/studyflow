@@ -69,6 +69,10 @@ public enum HttpStatusCode {
         this.code = code;
     }
 
+    /**
+     * Returns the integer representation of the status code.
+     * @return The integer representation of the status code.
+     */
     public int getCode() {
         return code;
     }

@@ -19,10 +19,18 @@ public enum JwtHashAlgorithm {
     }
 
 
+    /**
+     * Returns the name of the algorithm as it is used in the JWT.
+     * @return the name of the algorithm as it is used in the JWT
+     */
     public String getJwtName() {
         return jwtName;
     }
 
+    /**
+     * Returns the name of the algorithm as it is used in Java.
+     * @return the name of the algorithm as it is used in Java.
+     */
     public String getMacName() {
         return javaName;
     }

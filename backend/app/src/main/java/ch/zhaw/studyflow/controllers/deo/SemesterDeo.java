@@ -3,6 +3,9 @@ package ch.zhaw.studyflow.controllers.deo;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+/**
+ * Represents a semester data exchange object with some additional information needed by the client.
+ */
 public class SemesterDeo {
 
     private long id;

@@ -27,7 +27,6 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:$JACKSON_DATABIND_VERSION")
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$JACKSON_DATABIND_VERSION")
-
 }
 
 application {

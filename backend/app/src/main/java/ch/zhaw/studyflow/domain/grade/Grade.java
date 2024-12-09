@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 /**
- * Represents a grade in the system.
+ * Represents a grade in the domain.
  */
 public class Grade {
     private long id;

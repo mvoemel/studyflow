@@ -19,6 +19,10 @@ public abstract class PrincipalProvider {
     }
 
 
+    /**
+     * Returns the known claims of the principal provider.
+     * @return The known claims of the principal provider.
+     */
     public List<Claim<?>> getKnownClaims() {
         return knownClaims;
     }
@@ -38,5 +42,10 @@ public abstract class PrincipalProvider {
      */
     public abstract void setPrincipal(HttpResponse response, Principal principal);
 
+    /**
+     * Clears the principal in a response.
+     * If possible, everything that is related to the principal should be removed from the response.
+     * @param response The response to clear the principal in.
+     */
     public abstract void clearPrincipal(HttpResponse response);
 }

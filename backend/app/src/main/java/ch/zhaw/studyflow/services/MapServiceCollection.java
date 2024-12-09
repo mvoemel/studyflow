@@ -1,10 +1,12 @@
 package ch.zhaw.studyflow.services;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * A service collection that is based on a map of services.
+ */
 public class MapServiceCollection implements ServiceCollection {
     private final Map<Class<?>, Function<ServiceCollection,?>> services;
 

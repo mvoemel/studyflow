@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.List;
 import ch.zhaw.studyflow.domain.grade.Grade;
 
+/**
+ * The ModuleGrade structure is used to represent a modules grade. It's used by itself and in a tree like structure
+ * in combination with the {@link SemesterGrade} structure.
+ */
 public class ModuleGrade {
     private long id;
     private String name;

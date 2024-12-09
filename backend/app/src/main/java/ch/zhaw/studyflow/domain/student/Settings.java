@@ -3,6 +3,9 @@ package ch.zhaw.studyflow.domain.student;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+/**
+ * The domain model of the students settings.
+ */
 public class Settings {
     private long id;
     private long globalCalendarId;

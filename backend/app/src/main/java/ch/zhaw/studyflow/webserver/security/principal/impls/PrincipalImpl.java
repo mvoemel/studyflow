@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * A simple implementation of a principal based on a map.
+ */
 public class PrincipalImpl implements Principal {
     private HashMap<Claim<?>, Object> claims = new HashMap<>();
 

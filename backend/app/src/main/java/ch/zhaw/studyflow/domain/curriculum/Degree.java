@@ -3,6 +3,9 @@ package ch.zhaw.studyflow.domain.curriculum;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+/**
+ * Represents a degree of the curriculum in the domain.
+ */
 public class Degree {
     private long id;
     private long ownerId;

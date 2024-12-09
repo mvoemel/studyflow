@@ -13,6 +13,9 @@ import ch.zhaw.studyflow.webserver.http.pipeline.PipelineBuilder;
 import java.net.InetSocketAddress;
 import java.util.function.Consumer;
 
+/**
+ * A builder for a web server that uses the Sun HTTP server.
+ */
 public class SunHttpServerWebServerBuilder implements WebServerBuilder {
     private final InetSocketAddress address;
     private final ServiceCollectionBuilder serviceCollectionBuilder;

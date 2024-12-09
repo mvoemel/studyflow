@@ -6,6 +6,10 @@ import ch.zhaw.studyflow.webserver.http.HttpRequest;
 import ch.zhaw.studyflow.webserver.http.HttpResponse;
 import ch.zhaw.studyflow.webserver.http.pipeline.RequestContext;
 
+/**
+ * The SunHttpRequestContext class is an implementation of the RequestContext interface provided by the Sun HTTP server.
+ * It represents the context of an HTTP request.
+ */
 public class SunHttpRequestContext implements RequestContext {
     private final EndpointMetadata target;
     private final HttpRequest request;

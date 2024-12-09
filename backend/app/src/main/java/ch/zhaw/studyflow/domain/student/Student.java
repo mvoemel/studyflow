@@ -2,6 +2,9 @@ package ch.zhaw.studyflow.domain.student;
 
 import java.util.Objects;
 
+/**
+ * The domain modle of the student.
+ */
 public class Student {
     private long id;
     private String firstname;

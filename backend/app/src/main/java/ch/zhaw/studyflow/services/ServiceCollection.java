@@ -2,6 +2,10 @@ package ch.zhaw.studyflow.services;
 
 import java.util.Optional;
 
+/**
+ * The service collection contains all services that have been registered during the startup of the application.
+ * Services can be retrieved by their class.
+ */
 public interface ServiceCollection {
     /**
      * Get a service by its class

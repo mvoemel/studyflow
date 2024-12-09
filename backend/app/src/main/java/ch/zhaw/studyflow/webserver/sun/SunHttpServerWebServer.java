@@ -14,6 +14,9 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * A web server that uses the Sun HTTP server.
+ */
 public class SunHttpServerWebServer implements WebServer {
     private static final Logger logger = Logger.getLogger(SunHttpServerWebServer.class.getName());
 

@@ -8,7 +8,6 @@ import ch.zhaw.studyflow.services.persistence.ModuleDao;
 import ch.zhaw.studyflow.services.persistence.SemesterDao;
 
 import java.util.List;
-import java.util.Optional;
 
 public class SemesterManagerImpl implements SemesterManager {
     private final DegreeManager degreeManager;

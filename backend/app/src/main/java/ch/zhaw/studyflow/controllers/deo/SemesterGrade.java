@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.List;
 
+/**
+ * The SemesterGrade structure is used to send the client the students grade in an easy to navigate structure.
+ * The structure is leaned on the ui's representation of the grades.
+ */
 public class SemesterGrade {
     private long id;
     private String name;
