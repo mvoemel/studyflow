@@ -96,6 +96,13 @@ public class StudentManagerImpl implements StudentManager {
         if (studentToUpdate != null) {
             studentToUpdate.setFirstname(student.getFirstname());
             studentToUpdate.setLastname(student.getLastname());
+
+            getStudentByEmail(student.getEmail()).ifPresent(s -> {
+                if (s.getId() != student.getId()) {
+                    throw new IllegalArgumentException("Email already in use");
+                }
+            });
+
             studentToUpdate.setEmail(student.getEmail());
             if (student.getPassword() != null) {
                 studentToUpdate.setPassword(student.getPassword());

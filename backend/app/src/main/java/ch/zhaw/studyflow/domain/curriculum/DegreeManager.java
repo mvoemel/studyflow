@@ -1,7 +1,5 @@
 package ch.zhaw.studyflow.domain.curriculum;
 
-import ch.zhaw.studyflow.webserver.security.principal.Principal;
-
 import java.util.List;
 
 public interface DegreeManager {

@@ -1,4 +1,3 @@
-import { awaitTimeout } from "@/app/api-old/_utils";
 import {
   AllSemestersResponseData,
   deleteSemesterRequest,
@@ -9,7 +8,7 @@ import {
   UpdateSemesterRequestBody,
 } from "@/lib/api";
 import { Semester } from "@/types";
-import useSWR from "swr";
+import useSWR, { mutate as globalMutate } from "swr";
 
 const useSemesters = () => {
   const { data, error, mutate, isLoading } = useSWR<AllSemestersResponseData>(
@@ -73,6 +72,8 @@ const useSemesters = () => {
         revalidate: false,
       }
     );
+
+    await globalMutate("degrees");
   };
 
   return {

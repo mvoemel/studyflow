@@ -10,8 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class StudentManagerTest {
@@ -50,7 +49,7 @@ class StudentManagerTest {
             return null;
         }).when(calendarManager).create(any(Calendar.class));
 
-        final Optional<Student> register = studentManager.register(student);
+        studentManager.register(student);
 
         verify(studentDao).create(student);
         verify(settingsDao).create(any(Settings.class));
@@ -142,6 +141,57 @@ class StudentManagerTest {
         assertEquals("UpdatedFirstname", persistedStudent.getFirstname());
         assertEquals("UpdatedLastname", persistedStudent.getLastname());
         assertEquals("UpdatedPassword", persistedStudent.getPassword());
+    }
+
+    @Test
+    void testUpdateStudentEMailConflict() {
+        Student studentA = mock(Student.class);
+        Student studentB = mock(Student.class);
+
+        when(studentA.getId()).thenReturn(1L);
+        when(studentA.getEmail()).thenReturn("this@should.fail");
+
+        when(studentB.getId()).thenReturn(2L);
+        when(studentB.getEmail()).thenReturn("b@.b.b");
+
+        when(studentDao.read(1)).thenReturn(studentA);
+        when(studentDao.read(2)).thenReturn(studentB);
+        when(studentDao.readByEMail("this@should.fail")).thenReturn(studentA);
+
+        Student changesToApplyToB = new Student();
+        changesToApplyToB.setId(2);
+        changesToApplyToB.setFirstname("UpdatedFirstname");
+        changesToApplyToB.setLastname("UpdatedLastname");
+        changesToApplyToB.setEmail("this@should.fail");
+
+        assertThrows(IllegalArgumentException.class, () -> studentManager.updateStudent(changesToApplyToB));
+
+        verify(studentB).setFirstname("UpdatedFirstname");
+        verify(studentB).setLastname("UpdatedLastname");
+        verify(studentB, never()).setEmail(any());
+    }
+
+    @Test
+    void testUpdateStudentEMailConflictSameUser() {
+        Student studentA = mock(Student.class);
+
+        when(studentA.getId()).thenReturn(2L);
+        when(studentA.getEmail()).thenReturn("b@.b.b");
+
+        when(studentDao.read(2)).thenReturn(studentA);
+        when(studentDao.readByEMail("this@should.fail")).thenReturn(studentA);
+
+        Student changesToApplyToB = new Student();
+        changesToApplyToB.setId(2);
+        changesToApplyToB.setFirstname("UpdatedFirstname");
+        changesToApplyToB.setLastname("UpdatedLastname");
+        changesToApplyToB.setEmail("this@shouldnot.fail");
+
+        studentManager.updateStudent(changesToApplyToB);
+
+        verify(studentA).setFirstname("UpdatedFirstname");
+        verify(studentA).setLastname("UpdatedLastname");
+        verify(studentA).setEmail("this@shouldnot.fail");
     }
 
     @Test
