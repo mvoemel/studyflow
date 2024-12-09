@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoadingSpinner } from "@/components/global/loading-spinner";
 import { loginRequest } from "@/lib/api";
@@ -24,6 +24,11 @@ const LoginPage = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const emailRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    emailRef?.current?.focus();
+  }, []);
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -58,6 +63,7 @@ const LoginPage = () => {
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
+                ref={emailRef}
                 id="email"
                 type="email"
                 value={email}
