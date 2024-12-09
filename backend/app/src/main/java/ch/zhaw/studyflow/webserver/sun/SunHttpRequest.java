@@ -8,13 +8,14 @@ import ch.zhaw.studyflow.webserver.http.query.QueryParameters;
 import ch.zhaw.studyflow.webserver.http.query.QueryParametersImpl;
 import com.sun.net.httpserver.HttpExchange;
 
-import java.nio.charset.Charset;
 import java.util.*;
 
+/**
+ * The SunHttpRequest class is an implementation of the HttpRequest interface provided by the Sun HTTP server.
+ */
 public class SunHttpRequest implements HttpRequest {
     private final HttpExchange exchange;
     private final CookieContainer cookieContainer;
-    private Charset requestCharset;
     private ReadableBodyContent requestBody;
 
     public SunHttpRequest(final HttpExchange exchange, final ReadableBodyContent requestBody, final CookieContainer cookieContainer) {

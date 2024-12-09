@@ -2,6 +2,9 @@ package ch.zhaw.studyflow.webserver.http.query;
 
 import java.util.*;
 
+/**
+ * Represents the query parameters of an HTTP request stored as key-value pairs.
+ */
 public interface QueryParameters {
     /**
      * Returns all available keys.

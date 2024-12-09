@@ -2,6 +2,9 @@ package ch.zhaw.studyflow.webserver.http.query;
 
 import java.util.*;
 
+/**
+ * A map based implementation of the QueryParameters interface.
+ */
 public class QueryParametersImpl implements QueryParameters {
     private final Map<String, List<String>> parameters;
 

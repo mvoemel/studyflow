@@ -6,6 +6,10 @@ import ch.zhaw.studyflow.webserver.http.contents.WritableBodyContent;
 import ch.zhaw.studyflow.webserver.http.cookies.CookieContainer;
 import ch.zhaw.studyflow.webserver.http.cookies.HashMapCookieContainer;
 
+/**
+ * The SunHttpResponse class is an implementation of the HttpResponse interface provided by the Sun HTTP server.
+ * It represents an HTTP response that can be sent back to the client.
+ */
 public class SunHttpResponse implements HttpResponse {
     private final SunHttpRequest request;
     private WritableBodyContent responseContent;

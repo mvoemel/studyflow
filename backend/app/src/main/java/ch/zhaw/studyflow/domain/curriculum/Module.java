@@ -4,7 +4,6 @@ package ch.zhaw.studyflow.domain.curriculum;
  * Represents a module in the curriculum.
  */
 public class Module {
-
     private long id;
     private String name;
     private String description;
@@ -39,7 +38,6 @@ public class Module {
      * @param id the ID of the module
      * @param name the name of the module
      * @param semesterId the semester ID of the module
-     * @param degreeId the degree ID of the module
      */
     public Module(long id, String name, long semesterId) {
         this.id = id;

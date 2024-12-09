@@ -30,7 +30,15 @@ public interface Principal {
      */
     <T> void addClaim(Claim<T> claim, T value);
 
+    /**
+     * Removes a claim from the principal.
+     * @param claim the claim to remove
+     * @param <T> the type of the claim
+     */
     <T> void removeClaim(Claim<T> claim);
 
+    /**
+     * Removes all claims from the principal.
+     */
     void clearClaims();
 }
