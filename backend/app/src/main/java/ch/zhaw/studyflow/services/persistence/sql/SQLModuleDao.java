@@ -1,6 +1,7 @@
 package ch.zhaw.studyflow.services.persistence.sql;
 
 import ch.zhaw.studyflow.domain.curriculum.Module;
+import ch.zhaw.studyflow.services.persistence.ModuleDao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,7 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SQLModuleDao {
+public class SQLModuleDao implements ModuleDao {
 
     private final Connection connection;
 
@@ -17,7 +18,7 @@ public class SQLModuleDao {
         this.connection = connection;
     }
 
-    public void create(Module module) {
+    public void create(long studentId, long semesterId, long degreeId, Module module) {
         String sql = "INSERT INTO modules (name, description, ECTS, understanding, time, complexity) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, module.getName());
@@ -88,12 +89,14 @@ public class SQLModuleDao {
         return module;
     }
 
-    public Module getModule(long moduleId) {
-        String sql = "SELECT * FROM modules WHERE id = ?";
+    @Override
+    public List<Module> readAllByStudent(long studentId) {
+        List<Module> modules = new ArrayList<>();
+        String sql = "SELECT semester.* FROM modules JOIN semesters on modules.id = semester.moduleId JOIN degree ON degree.id = semester.degreeId WHERE degree.ownerId = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, moduleId);
+            stmt.setLong(1, studentId);
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
+                while (rs.next()) {
                     Module module = new Module();
                     module.setId(rs.getLong("id"));
                     module.setName(rs.getString("name"));
@@ -102,16 +105,17 @@ public class SQLModuleDao {
                     module.setUnderstanding(rs.getLong("understanding"));
                     module.setTime(rs.getLong("time"));
                     module.setComplexity(rs.getLong("complexity"));
-                    return module;
+                    modules.add(module);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return modules;
     }
 
-    public List<Module> getModules(long semesterId) {
+    @Override
+    public List<Module> readAllBySemester(long semesterId) {
         List<Module> modules = new ArrayList<>();
         String sql = "SELECT * FROM modules WHERE semesterId = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -134,5 +138,4 @@ public class SQLModuleDao {
         }
         return modules;
     }
-
 }
