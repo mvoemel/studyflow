@@ -1,66 +1,88 @@
-# StudyFlow
+# StudyFlow - Academic Management Web Application 📚 🎓
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 StudyFlow is a web application designed to help students manage their academic schedules, track their grades, and organize their study materials. It provides tools for creating and viewing schedules, tracking grades, and organizing study materials in one place. With a user-friendly interface and cross-platform accessibility, StudyFlow aims to simplify academic management for students.
+
+![img.png](docs/assets/img.png)
+
+# Group 3 - Team Members 🧑‍🧑‍🧒‍🧒
+All Members listed worked on either frontend or backend to develop the StudyFlow application.
+
+### - Shpetim Veseli
+### - Michael Vömel
+### - Leona Kryeziu
+### - Tobias Kugel
+### - Jil Zerndt
 
 ## Table of Contents
 - [Installation](#installation)
-- [Backend Server with Docker](#backend-server-with-docker)
+- [Backend Server using Gradle](#backend-server-with-docker)
    - [Backend](#backend)
    - [Frontend](#frontend)
 - [Class Diagrams](#class-diagrams)
 - [License](#license)
 
+# ⚡️Key Features
+- **User Authentication**: Users can create an account, log in, and log out.
+- **Dashboard**: Users can view their upcoming events, grades, and study materials.
+- **Schedule**: Users can create, view, and edit their schedules.
+- **Grades**: Users can track their grades and view their grade statistics.
+- **Degrees**: Users can add and view their degrees.
+- **Semesters**: Users can add and view their semesters.
 
-## Backend Server with Docker
-This guide describes how to build and run the Docker image for the StudyFlow Java backend server locally.
 
+## 🚀 Getting Started
+
+To get started ensure you have the prerequisites installed and follow the steps below.
 ## Prerequisites
-- [Docker](https://www.docker.com/) must be installed.
-- The `Dockerfile` is already present in the `studyflow/backend` directory.
+- [Node](https://nodejs.org/en) must be installed.
 
 
 ### Backend
 
-1. Open a terminal and navigate to the backend directory:
-    ```sh
-    cd studyflow/backend
-    ```
+To build the Gradle web server located in the backend directory, follow these steps:
 
-2. Build the Docker image:
+1. Navigate to the Backend Directory:
     ```sh
-    docker build -t studyflow-backend .
+    cd ./studyflow/backend
     ```
-   - `-t studyflow-backend`: Assigns a name to the Docker image.
-   - `.`: Refers to the current directory where the Dockerfile is located.
-
-3. Start the Docker container:
+   
+2. Clean the project:
     ```sh
-    docker run -d -p 8080:8080 --name studyflow-backend studyflow-backend
+    ./gradlew clean
     ```
-   - `-d`: Runs the container in the background.
-   - `-p 8080:8080`: Maps host port 8080 to container port 8080.
-   - `--name studyflow-backend`: Assigns the name `studyflow-backend` to the container.
-   - `studyflow-backend`: Refers to the created Docker image.
+   
+3. Build the project:
+    ```sh
+    ./gradlew build
+    ```
+   
+4. Run the Gradle server:
+    ```sh
+    ./gradlew run
+    ```
+   
+The backend server will no be accessible at `http://localhost:8080`.
+It is necessary to have the backend server running before starting the frontend.
 
-4. The backend server is now accessible at `http://localhost:8080`.
 
 ### Frontend
 
 1. Navigate to the frontend directory:
     ```sh
-    cd studyflow/frontend
+    cd ../studyflow/client
     ```
 
-2. Build the Docker image:
+2. Install the necessary dependencies:
     ```sh
-    docker build -t studyflow-frontend .
+    npm install
     ```
-
-3. Start the Docker container:
+   
+3. Start the frontend:
     ```sh
-    docker run -d -p 3000:3000 --name studyflow-frontend studyflow-frontend
+    npm run dev
     ```
-
-4. The frontend is now accessible at `http://localhost:3000`.
+4. The frontend is now accessible at [http://localhost:3000](http://localhost:3000). You will be on the landing page. To sign up click on the 'Start now' button at the top right.
 
 ## Class Diagrams
 
