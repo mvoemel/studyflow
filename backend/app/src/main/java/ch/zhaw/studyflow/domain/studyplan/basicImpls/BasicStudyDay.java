@@ -171,8 +171,24 @@ public class BasicStudyDay implements StudyDay {
         
         //mark appointments in TimeSlots
         for (Appointment appointment : appointments) {
-            timeSlots.setTimeSlot(TimeSlotValue.APPOINTMENT, appointment.getStartTime().toLocalTime(), appointment.getEndTime().toLocalTime());
-            timeSlots.setTimeSlot(TimeSlotValue.BREAK, appointment.getStartTime().toLocalTime().minusMinutes(APPOINTMENT_BUFFER), appointment.getStartTime().toLocalTime());
+            LocalTime appointmentStart = appointment.getStartTime().toLocalTime();
+            LocalTime appointmentEnd = appointment.getEndTime().toLocalTime();
+            LocalTime beforeBufferStart = appointmentStart.minusMinutes(APPOINTMENT_BUFFER);
+            LocalTime afterBufferEnd = appointmentEnd.plusMinutes(APPOINTMENT_BUFFER);
+
+            if (appointment.getStartTime().toLocalDate().isBefore(date) || appointment.getStartTime().toLocalTime().isBefore(startTime)) {
+                appointmentStart = startTime;
+            } else {
+                timeSlots.setTimeSlot(TimeSlotValue.BREAK, beforeBufferStart, appointmentStart);
+            }
+
+            if (appointment.getEndTime().toLocalDate().isAfter(date) || appointment.getEndTime().toLocalTime().isAfter(endTime)) {
+                appointmentEnd = endTime;
+            } else {
+                timeSlots.setTimeSlot(TimeSlotValue.BREAK, appointmentEnd, afterBufferEnd);
+            }
+
+            timeSlots.setTimeSlot(TimeSlotValue.APPOINTMENT, appointmentStart, appointmentEnd);
         }
         
         //calculate lunch break

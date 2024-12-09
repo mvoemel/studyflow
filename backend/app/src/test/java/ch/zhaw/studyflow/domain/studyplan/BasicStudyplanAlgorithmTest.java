@@ -112,7 +112,7 @@ public class BasicStudyplanAlgorithmTest {
         assertEquals(0, studyDays.get(4).getAppointments().size());
 
         //check if correct total minutes are calculated
-        assertEquals(4930, algorithm.getTotalAvailableMinutes());
+        assertEquals(4230, algorithm.getTotalAvailableMinutes());
     }
 
     @Test
