@@ -1,8 +1,5 @@
 package ch.zhaw.studyflow.domain.studyplan;
 
-import ch.zhaw.studyflow.domain.studyplan.ModuleAllocation;
-import ch.zhaw.studyflow.domain.studyplan.StudyDay;
-
 import java.util.List;
 
 /**
@@ -24,6 +21,13 @@ public interface StudyplanAlgorithm {
      * @return the list of study days
      */
     List<StudyDay> getStudyDays();
+
+    /**
+     * Returns the total available minutes for the study plan.
+     *
+     * @return the total available minutes
+     */
+    int getTotalAvailableMinutes();
 
     /**
      * Creates the study days based on the algorithm's logic.
